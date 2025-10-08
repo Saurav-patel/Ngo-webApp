@@ -35,19 +35,24 @@ const userSchema = new Schema({
         match: /^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/
     },
     profile_pic_url:{
-        type: String
+        type: String,
+        default: null 
     },
     id_card_url:{
-        type: String
+        type: String,
+        default: null 
     },
     appointmentLetterUrl:{
-         type: String
+         type: String,
+         default: null 
     },    
     certificateUrl:{ 
-        type: String 
+        type: String,
+        default: null  
     },    
     qrCode:{ 
-    type: String 
+    type: String,
+    default: null  
     },    
 
     isActive:{ 
@@ -55,7 +60,8 @@ const userSchema = new Schema({
         default: true 
     }, 
     validity:{ 
-        type: Date 
+        type: Date,
+        default: null 
     },                   
     createdBy:{ 
         type: mongoose.Schema.Types.ObjectId, 
@@ -87,6 +93,10 @@ userSchema.methods.generateAccessToken = function() {
     
     return accessToken
 }
+userSchema.methods.isPasswordCorrect = async function(password) {
+    return await bcrypt.compare(password, this.password)
+}
+
 
 const User = mongoose.model("User",userSchema)
 
