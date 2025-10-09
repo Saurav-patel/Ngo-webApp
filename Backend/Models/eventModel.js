@@ -42,10 +42,7 @@ const eventSchema = new Schema({
 }, { timestamps: true })
 
 
-eventSchema.index({ startDate: 1 })
-eventSchema.index({ endDate: 1 })
-eventSchema.index({ createdBy: 1 })
-eventSchema.index({ participants: 1 })
+
 
 
 

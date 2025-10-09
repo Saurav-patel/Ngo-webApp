@@ -38,8 +38,7 @@ const visitorSchema = new Schema({
 }, { timestamps: true })
 
 
-visitorSchema.index({ email: 1 }, { unique: true })
-visitorSchema.index({ phone: 1 }, { unique: true })
+
 
 
 

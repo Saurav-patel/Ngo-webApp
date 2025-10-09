@@ -9,7 +9,8 @@ const messageSchema = new Schema({
     recipients: [{ 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "User",
-        required: true
+        required: function() { return !this.isGlobal }
+        
     }],
     title: { 
         type: String, 
@@ -34,9 +35,6 @@ const messageSchema = new Schema({
 }, { timestamps: true })
 
 
-messageSchema.index({ sender: 1 })
-messageSchema.index({ recipients: 1 })
-messageSchema.index({ sentAt: -1 })
 
 const Message = mongoose.model("Message", messageSchema)
 

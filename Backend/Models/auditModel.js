@@ -26,8 +26,6 @@ const auditReportSchema = new Schema({
 }, { timestamps: true })
 
 
-auditReportSchema.index({ year: 1, type: 1 })
-auditReportSchema.index({ createdBy: 1 })
 
 
 const AuditReport = mongoose.model("AuditReport", auditReportSchema)
