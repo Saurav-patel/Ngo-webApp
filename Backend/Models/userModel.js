@@ -4,6 +4,9 @@ import jwt from 'jsonwebtoken'
 
 
 const userSchema = new Schema({
+    registerNumber:{
+        type: String,
+    },
     username:{
         type: String,
         required: true
@@ -21,6 +24,16 @@ const userSchema = new Schema({
         required: true,
         minlength: 6
     },
+    dob:{
+        type: Date,
+        required: [true, "Date of Birth is required"]
+    },
+    aadhaarNumber:{
+        type: String,
+        required: [true, "Aadhaar Number is required"],
+        unique: true,
+        match: /^\d{12}$/
+    },
     role:{
         type: String,
         enum: ['admin','member'],
@@ -28,6 +41,18 @@ const userSchema = new Schema({
     },
     address:{
         type: String
+    },
+    city:{
+        type: String,
+        required: true
+    },
+    fatherName:{
+        type: String,
+        required: [true, "Father's name is required"]
+    },
+    designation:{
+        type: String,
+        
     },
     phone:{
         type: String,
