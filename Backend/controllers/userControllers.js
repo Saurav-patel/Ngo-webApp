@@ -6,6 +6,15 @@ const changePassword = async (req, res) => {
     try {
         const user = req.user
         const { userId } = req.params
+        
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "user is missing , please login again"
+            })
+        }
+        
+        
         if (userId !== user._id) {
             return res.status(403).json({
                 success: false,
@@ -15,13 +24,8 @@ const changePassword = async (req, res) => {
         const { oldPassword, newPassword } = req.body
 
 
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: "user is missing , please login again"
-            })
-        }
-        const findUser = await User.findById(user._id)
+        
+        const findUser = await User.findById(userId)
         if (!findUser) {
             return res.status(404).json({
                 success: false,
@@ -41,11 +45,14 @@ const changePassword = async (req, res) => {
                 message: "New password cannot be same as old password"
             })
         }
-        await findUser.updateOne({ password: newPassword })
+        findUser.password = newPassword
+        await findUser.save()
+        
         return res.status(200).json({
             success: true,
             message: "Password changed successfully"
         })
+
 
     } catch (error) {
         return res.status(500).json({
@@ -58,20 +65,23 @@ const changePassword = async (req, res) => {
 const getUserDetails = async (req, res) => {
     try {
         const { userId } = req.params
-        const { user } = req.user
+        const  user  = req.user
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "user is missing , please login again"
+            })
+        }
+        
+        
         if (userId !== user._id) {
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to access this user's details"
             })
         }
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: "user is missing , please login again"
-            })
-        }
-        const getUser = await User.findById(user._id)
+        
+        const getUser = await User.findById(userId)
         if (!getUser) {
             return res.status(404).json({
                 success: false,
@@ -109,20 +119,24 @@ const getUserDetails = async (req, res) => {
 const getMembershipStatus = async (req, res) => {
     try {
         const { userId } = req.params
-        const { user } = req.user
+        const  user  = req.user
+       if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "user is missing , please login again"
+            })
+        }
+       
+       
+       
         if (userId !== user._id) {
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to access this user's details"
             })
         }
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: "user is missing , please login again"
-            })
-        }
-        const latestDonation = await Donation.findOne({ donor: user._id }).sort({ date: -1 })
+        
+        const latestDonation = await Donation.findOne({ donor: userId }).sort({ date: -1 })
         let status = "Inactive"
         let validity = null
         if (latestDonation && latestDonation.isVerified) {
@@ -141,11 +155,11 @@ const getMembershipStatus = async (req, res) => {
                 const totalMembers = await User.countDocuments({ registerNumber: { $exists: true } })
                 const registerNumber = `MEM${(totalMembers + 1).toString().padStart(4, "0")}`
 
-                await User.findByIdAndUpdate(user._id, { registerNumber: registerNumber })
+                await User.findByIdAndUpdate(userId, { registerNumber: registerNumber })
             }
         }
 
-        await User.findByIdAndUpdate(user._id, { status: status, validity: validity })
+        await User.findByIdAndUpdate(userId, { status: status, validity: validity })
         return res.status(200).json({
             success: true,
             message: "Membership status fetched successfully",

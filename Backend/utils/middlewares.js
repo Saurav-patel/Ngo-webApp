@@ -14,33 +14,38 @@ const verifyAccessToken = (req, res, next) => {
     next()
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-        return res.status(403).json({ message: "Access token expired" });
+        return res.status(403).json({ message: "Access token expired" })
     } else {
-        return res.status(403).json({ message: "Invalid access token" });
+        return res.status(403).json({ message: "Invalid access token" })
     }
   }
 }
 
-export const verifyRefreshToken = (req, res, next) => {
-  const { refreshToken } = req.cookies
+ const verifyRefreshToken = (req, res, next) => {
+  const refreshToken = req.cookies?.refreshToken
 
   if (!refreshToken) {
-    return res.status(401).json({ message: "Refresh token missing" });
+    return res.status(401).json({
+      success: false,
+      message: "Refresh token missing",
+    })
   }
 
   try {
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
     req.user = decoded
     next()
   } catch (error) {
-    console.error("Refresh token error:", error.message)
-    if (error.name === "TokenExpiredError") {
-        return res.status(403).json({ message: "Access refresh expired" })
-    } else {
-        return res.status(403).json({ message: "Invalid refresh token" })
-    }
-  }
+    console.error("Refresh token verification failed:", error.message)
 
+    return res.status(403).json({
+      success: false,
+      message:
+        error.name === "TokenExpiredError"
+          ? "Refresh token expired"
+          : "Invalid refresh token",
+    })
+  }
 }
 
 const protectedRoute = (req , res , next) => {
