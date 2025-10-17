@@ -1,6 +1,7 @@
 import User from "../Models/userModel.js";
 import bcrypt from "bcrypt"
 import Donation from "../Models/donationModel.js";
+import mongoose from "mongoose";
 
 const changePassword = async (req, res) => {
     try {
@@ -13,6 +14,16 @@ const changePassword = async (req, res) => {
                 message: "user is missing , please login again"
             })
         }
+
+        if(!mongoose.Types.ObjectId.isValid(userId)){
+            return  res.status(400).json({
+                success: false,
+                message: "Invalid user ID"
+            })
+        }
+
+
+        
         
         
         if (userId !== user._id) {
@@ -66,12 +77,23 @@ const getUserDetails = async (req, res) => {
     try {
         const { userId } = req.params
         const  user  = req.user
+        
         if (!userId) {
             return res.status(401).json({
                 success: false,
                 message: "user is missing , please login again"
             })
         }
+
+
+        if(!mongoose.Types.ObjectId.isValid(userId)){
+            return  res.status(400).json({
+                success: false,
+                message: "Invalid user ID"
+            })
+        }
+        
+        
         
         
         if (userId !== user._id) {
@@ -120,12 +142,22 @@ const getMembershipStatus = async (req, res) => {
     try {
         const { userId } = req.params
         const  user  = req.user
-       if (!userId) {
+       
+        if (!userId) {
             return res.status(401).json({
                 success: false,
                 message: "user is missing , please login again"
             })
         }
+        
+       if(!mongoose.Types.ObjectId.isValid(userId)){
+            return  res.status(400).json({
+                success: false,
+                message: "Invalid user ID"
+            })
+        }
+       
+        
        
        
        

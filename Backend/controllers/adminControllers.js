@@ -33,15 +33,23 @@ const getAllUsers = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email) {
+    const userId= req.params
+
+    if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "Please provide email"
+        message: "Please provide user ID to delete a user"
       })
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() })
+    if(!mongoose.Types.ObjectId.isValid(userId)){
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID"
+      })
+    }
+
+    const user = await User.findOne({ userId })
     if (!user) {
       return res.status(404).json({
         success: false,

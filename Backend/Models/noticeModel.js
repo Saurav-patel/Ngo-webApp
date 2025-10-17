@@ -1,41 +1,42 @@
 import mongoose, { Schema } from "mongoose"
 
-const messageSchema = new Schema({
-    sender: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "User", 
-        required: true 
-    },
-    recipients: [{ 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "User",
-        required: function() { return !this.isGlobal }
-        
-    }],
+const noticeSchema = new Schema(
+  {
     title: { 
         type: String, 
-        required: true 
+        required: true, 
+        trim: true 
     },
     body: { 
         type: String, 
         required: true 
     },
-    isGlobal: { 
+    category: { 
+      type: String, 
+      enum: ["General", "Event", "Urgent"], 
+      default: "General" 
+    },
+    isPinned: { 
         type: Boolean, 
-        default: false  
+        default: false 
+    },
+    createdBy: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "User", 
+        required: true 
     },
     sentAt: { 
         type: Date, 
         default: Date.now 
     },
-    readBy: [{ 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "User" 
-    }]
-}, { timestamps: true })
+    expiresAt: { 
+        type: Date, 
+        default: null 
+    }
+  },
+  { timestamps: true }
+)
 
+const Notice =  mongoose.model("Notice", noticeSchema)
 
-
-const Message = mongoose.model("Message", messageSchema)
-
-export default Message
+export default Notice

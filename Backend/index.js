@@ -5,6 +5,8 @@ import cookieParser from 'cookie-parser'
 import authRouter from './Routes/authRoutes.js'
 import userRouter from './Routes/userRoutes.js'
 import adminRouter from './Routes/adminRoutes.js'
+import visitorRouter from './Routes/visitorRoutes.js'
+import noticeRouter from './Routes/noticeRoutes.js'
 const app = express()
 
 dotenv.config()
@@ -15,6 +17,8 @@ app.use(express.urlencoded({extended: true}))
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/user', userRouter)
 app.use('/api/v1/admin', adminRouter)
+app.use('/api/v1/visitor',visitorRouter)
+app.use('api/v1/notice',noticeRouter)
 
 app.get('/',(req,res) => {
     res.send("hello from the app")
