@@ -211,4 +211,6 @@ const getMembershipStatus = async (req, res) => {
     }
 }
 
+
+
 export { changePassword, getUserDetails, getMembershipStatus }
