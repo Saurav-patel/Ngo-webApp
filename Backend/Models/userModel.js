@@ -71,10 +71,7 @@ const userSchema = new Schema({
          type: String,
          default: null 
     },    
-    certificateUrl:{ 
-        type: String,
-        default: null  
-    },    
+   
     qrCode:{ 
     type: String,
     default: null  
@@ -88,11 +85,7 @@ const userSchema = new Schema({
         type: Date,
         default: null 
     },                   
-    createdBy:{ 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "User" 
-    }
-
+    
 
 },{timestamps : true})
 

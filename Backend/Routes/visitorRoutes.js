@@ -3,7 +3,7 @@ import { addVisitor , deleteVisitor , allVisitor , getVisitorInfo } from '../Con
 import { protectedRoute } from '../utils/middlewares.js'
 const visitorRouter = express.Router()
 
-visitorRouter.post('/addVisitor' , protectedRoute , addVisitor)
+visitorRouter.post('/addVisitor'  , addVisitor)
 visitorRouter.get('/allVisitor' , protectedRoute , allVisitor)
 visitorRouter.delete('/deleteVisitor' , protectedRoute , deleteVisitor)
 visitorRouter.get('/getVisitorInfo/:visitorId' , protectedRoute , getVisitorInfo)
