@@ -12,6 +12,7 @@ import visitorRouter from './Routes/visitorRoutes.js';
 import noticeRouter from './Routes/noticeRoutes.js';
 import eventRouter from './Routes/eventRoutes.js';
 import participationRouter from './Routes/participationRoutes.js';
+import appointLetterRouter from './Routes/appointLetterRoutes.js';
 
 const app = express()
 dotenv.config()
@@ -34,6 +35,7 @@ app.use('/api/v1/visitor', visitorRouter)
 app.use('/api/v1/notice', noticeRouter)
 app.use('/api/v1/events', eventRouter)
 app.use('/api/v1/participation',participationRouter)
+app.use('/api/v1/appointments', appointLetterRouter)
 
 app.get('/', (req, res) => {
   res.send("hello from the app")
