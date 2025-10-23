@@ -148,7 +148,7 @@ const visitorLetter = async (req , res) => {
 
 const myLetters = async(req , res) => {
     try {
-        const userId = req.params
+        const {userId} = req.params
         if(!userId){
             return res.status(400).json({
                 success: false,

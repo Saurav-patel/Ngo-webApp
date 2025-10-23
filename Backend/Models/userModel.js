@@ -36,7 +36,7 @@ const userSchema = new Schema({
     },
     role:{
         type: String,
-        enum: ['admin','member'],
+        enum: ['admin','member',"secretary","treasurer","president"],
         default: 'member'
     },
     address:{
@@ -63,20 +63,7 @@ const userSchema = new Schema({
         type: String,
         default: null 
     },
-    id_card_url:{
-        type: String,
-        default: null 
-    },
-    appointmentLetterUrl:{
-         type: String,
-         default: null 
-    },    
    
-    qrCode:{ 
-    type: String,
-    default: null  
-    },    
-
     isActive:{ 
         type: Boolean, 
         default: true 
