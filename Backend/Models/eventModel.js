@@ -21,20 +21,24 @@ const eventSchema = new Schema({
         type: String, 
         default: "" 
     },
+     photos: [{
+    url: { type: String },
+    publicId: { type: String }
+    }],
     createdBy: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "User",
         required: true 
     },
-    participants: [{ 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "User" 
-    }],
-    participantEmails: [{ 
-        type: String,
-        lowercase: true,
-        match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-    }],
+    
+   participants: [
+     {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    email: String,
+    status: { type: String, enum: ["registered", "attended", "cancelled"], default: "registered" }
+    }
+    ],
+
     certificateIssued: { 
         type: Boolean, 
         default: false 

@@ -1,13 +1,15 @@
-import express from 'express';
-import { createEvent, getAllEvents , deleteEvent , updateEvent , getSingleEvent} from '../Controllers/eventControllers.js';
-import upload from '../utils/uploadConfig.js';
-import { protectedRoute } from '../utils/middlewares.js';
+import express from 'express'
+import { createEvent, getAllEvents, deleteEvent, updateEvent, getSingleEvent } from '../Controllers/eventControllers.js'
+import { handleMulterErrors } from '../utils/uploadConfig.js'
+import { protectedRoute } from '../utils/middlewares.js'
 
 const eventRouter = express.Router()
-eventRouter.post('/create-event', upload.single('image'), protectedRoute , createEvent)
+
+// Upload event photos with max 8 files
+eventRouter.post('/create-event', protectedRoute, handleMulterErrors('event'), createEvent)
 eventRouter.get('/all-events', getAllEvents)
 eventRouter.get('/single-event/:eventId', getSingleEvent)
-eventRouter.put('/update-event/:eventId', protectedRoute , updateEvent)
-eventRouter.delete('/delete-event/:eventId', protectedRoute , deleteEvent)
+eventRouter.put('/update-event/:eventId', protectedRoute, updateEvent)
+eventRouter.delete('/delete-event/:eventId', protectedRoute, deleteEvent)
 
 export default eventRouter

@@ -1,5 +1,8 @@
 import User from "../Models/userModel.js";
 import Donation from "../Models/donationModel.js";
+import mongoose from "mongoose";
+import { uploadToCloudinary } from "../utils/cloudConfig.js";
+import Document from "../Models/documentModel.js";
 
 const getAllUsers = async (req, res) => {
   try {
@@ -141,4 +144,138 @@ const getMembers = async (req, res) => {
   }
 }
 
-export { getAllUsers, deleteUser, getMembers }
+const uploadNgoDocuments = async (req , res) => {
+  try {
+    const user = req.user
+    const files = req.files
+    const {title , description} = req.body
+    if(!user || user.role !== "admin"){
+        return res.status(403).json({
+            success: false,
+            message: "Forbidden: Admins only"
+        })
+    }
+    if(!files || files.length === 0){
+        return res.status(400).json({
+            success: false,
+            message: "Please upload at least one document"
+        })
+    }
+    if (files.map(f => f.mimetype).some(mime => !['application/pdf', 'image/jpeg', 'image/png'].includes(mime))) {
+        return res.status(400).json({
+            success: false,
+            message: "Only PDF, JPEG, and PNG files are allowed"
+        })
+    }
+    if(!title || !description){
+        return res.status(400).json({
+            success: false,
+            message: "Please provide title and description for the document"
+        })
+    }
+     const uploadedFiles = await Promise.all(
+      files.map(file => uploadToCloudinary(file.path, "ngo-documents"))
+    )
+
+    
+    const fileUrlArray = uploadedFiles.map(f => ({
+      url: f.secure_url,
+      publicId: f.public_id
+    }))
+
+    const newDocument = await Document.create({
+      title,
+      description,
+      fileUrl: fileUrlArray,
+      uploadedBy: user._id
+    })
+    return res.status(201).json({
+        success: true,
+        message: "Documents uploaded successfully",
+        data: newDocument
+    })
+
+
+    
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        error: error.message
+    })
+  }
+}
+
+const addMemberInfo = async (req , res) => {
+  try {
+    const user = req.user
+    const { name ,email , phone , address , city , designation ,dob} = req.body
+    const files = req.files
+    if(!user || user.role !== "admin"){
+        return res.status(403).json({
+            success: false,
+            message: "Forbidden: Admins only"
+        })
+    }
+    if(!name || !email || !phone || !address || !city || !designation || !dob){
+        return res.status(400).json({
+            success: false,
+            message: "Please provide all required member details"
+        })
+    }
+    if(!files || files.length === 0){
+        return res.status(400).json({
+            success: false,
+            message: "Please upload member photo"
+        })
+    }
+    const dobDate = new Date(dob);
+    if (isNaN(dobDate)){ 
+      return res.status(400).json({ 
+      success: false, 
+      message: 'Invalid DOB format' 
+    })
+  }
+
+    const uploadedPhoto = await uploadToCloudinary(files[0].path, "member-photos")
+
+    const fileUrl = {
+      url: uploadedPhoto.secure_url,
+      publicId: uploadedPhoto.public_id
+    }
+    const ngo = await Ngo.findOne()
+    if(!ngo){
+        return res.status(404).json({
+            success: false,
+            message: "NGO not found"
+        })
+    }
+    const newMember = {
+      name,
+      email,
+      phone,
+      address,
+      city,
+      designation,
+      dob,
+      photo: fileUrl,
+    }
+    ngo.members.push(newMember)
+    await ngo.save()
+    return res.status(201).json({
+        success: true,
+        message: "Member added successfully",
+        data: newMember
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        error: error.message
+    })
+  }
+}
+
+export { getAllUsers, deleteUser, getMembers , uploadNgoDocuments , addMemberInfo}
