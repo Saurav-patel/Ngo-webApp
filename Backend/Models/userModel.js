@@ -36,7 +36,7 @@ const userSchema = new Schema({
     },
     role:{
         type: String,
-        enum: ['admin','member',"secretary","treasurer","president"],
+        enum: ['admin','member',"secretary","treasurer","president" , "vice president" , "staff" , "volunteer"],
         default: 'member'
     },
     address:{
@@ -60,8 +60,8 @@ const userSchema = new Schema({
         match: /^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/
     },
     profile_pic_url:{
-        type: String,
-        default: null 
+        url : { type: String },
+        publicId : { type: String }
     },
    
     isActive:{ 

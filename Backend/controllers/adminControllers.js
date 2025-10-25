@@ -3,6 +3,7 @@ import Donation from "../Models/donationModel.js";
 import mongoose from "mongoose";
 import { uploadToCloudinary } from "../utils/cloudConfig.js";
 import Document from "../Models/documentModel.js";
+import Ngo from "../Models/ngoModel.js";
 
 const getAllUsers = async (req, res) => {
   try {
@@ -68,6 +69,7 @@ const deleteUser = async (req, res) => {
     }
 
     await User.findByIdAndUpdate(user._id, { isActive: false })
+    await uploadToCloudinary.deleteFromCloudinary(user.profile_pic_url?.publicId)
 
     return res.status(200).json({
       success: true,
@@ -278,4 +280,57 @@ const addMemberInfo = async (req , res) => {
   }
 }
 
-export { getAllUsers, deleteUser, getMembers , uploadNgoDocuments , addMemberInfo}
+const deleteMember = async (req , res) => {
+  try {
+    const user = req.user
+    const { memberId } = req.params
+    if(!user || user.role !== "admin"){
+        return res.status(403).json({
+            success: false,
+            message: "Forbidden: Admins only"
+        })
+    }
+    if(!memberId){
+        return res.status(400).json({
+            success: false,
+            message: "Please provide member ID to delete a member"
+        })
+    }
+    const ngo = await Ngo.findOne()
+    if(!ngo){
+        return res.status(404).json({
+            success: false,
+            message: "NGO not found"
+        })
+    }
+    const member = ngo.members.id(memberId)
+    if(!member){
+        return res.status(404).json({
+            success: false,
+            message: "Member not found"
+        })
+    }
+
+    if(member.photo && member.photo.publicId){
+      await uploadToCloudinary.deleteFromCloudinary(member.photo.publicId)
+    }
+
+    member.deleteOne()
+    await ngo.save()
+    return res.status(200).json({
+        success: true,
+        message: "Member deleted successfully"
+    })
+
+    
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        error: error.message
+    })
+  }
+}
+
+export { getAllUsers, deleteUser, getMembers , uploadNgoDocuments , addMemberInfo , deleteMember }

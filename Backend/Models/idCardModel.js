@@ -1,6 +1,11 @@
 import mongoose, { Schema } from "mongoose"
 
 const idCardSchema = new Schema({
+  Ngo:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Ngo",
+    
+  },
   issuedTo: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -34,7 +39,7 @@ const idCardSchema = new Schema({
   },
   position: {
     type: String,
-    enum: ['Member', 'Secretary', 'Treasurer', 'President'],
+    enum: ['Member', 'Secretary', 'Treasurer', 'President' , 'Vice President' , 'Staff' , 'Volunteer'],
     required: true
   },
   status: {

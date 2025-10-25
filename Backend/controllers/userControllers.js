@@ -2,11 +2,73 @@ import User from "../Models/userModel.js";
 import bcrypt from "bcrypt"
 import Donation from "../Models/donationModel.js";
 import mongoose from "mongoose";
+import { cloudinary, uploadToCloudinary } from "../utils/cloudConfig.js";
+
+
+
+
+
+const uploadProfilePicture = async (req , res) =>{
+    try {
+        const userId = req.user?._id
+        const photo = req.file
+        if(!userId){
+            return res.status(401).json({
+                success: false,
+                message: "user is missing , please login again"
+            })
+        }
+        if(!mongoose.Types.ObjectId.isValid(userId)){
+            return  res.status(400).json({
+                success: false,
+                message: "Invalid user ID"
+            })
+        }
+        if(!photo){
+            return res.status(400).json({
+                success: false,
+                message: "Please upload a profile picture"
+            })
+        }
+        const uploadedPhoto =  await uploadToCloudinary(photo[0].path , "profile_pictures")
+        const fileUrl = {
+            url: uploadedPhoto.secure_url,
+            publicId: uploadedPhoto.public_id
+        }
+        const user = await User.findOne({ _id: userId })
+        if(!user){
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            })
+        }
+        user.profile_pic_url = fileUrl
+        await user.save()
+        return res.status(200).json({
+            success: true,
+            message: "Profile picture uploaded successfully",
+            data: user.profile_pic_url
+        })
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+
+}
+
+
+
 
 const changePassword = async (req, res) => {
     try {
         const user = req.user
         const { userId } = req.params
+        const { oldPassword, newPassword } = req.body
         
         if (!userId) {
             return res.status(401).json({
@@ -22,19 +84,13 @@ const changePassword = async (req, res) => {
             })
         }
 
-
-        
-        
-        
         if (userId !== user._id) {
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to change this user's password"
             })
         }
-        const { oldPassword, newPassword } = req.body
-
-
+        
         
         const findUser = await User.findById(userId)
         if (!findUser) {
@@ -72,6 +128,77 @@ const changePassword = async (req, res) => {
         })
     }
 }
+
+const updateProfilePicture = async (req , res) =>{
+    try {
+        const user = req.user
+        const { userId } = req.params
+        const photo = req.file
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "user is missing , please login again"
+            })
+        }
+        if(!mongoose.Types.ObjectId.isValid(userId)){
+            return  res.status(400).json({
+                success: false,
+                message: "Invalid user ID"
+            })
+        }
+        if (userId !== user._id) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to update this user's profile picture"
+            })
+        }
+        if(!photo){
+            return res.status(400).json({
+                success: false,
+                message: "Please upload a profile picture"
+            })
+        }
+        const checkUser = await User.findOne({ _id: userId })
+        if(!user){
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            })
+        }
+        const previousPublicId = checkUser.profile_pic_url?.publicId
+        
+        if(previousPublicId){
+        await uploadToCloudinary.deleteFromCloudinary(previousPublicId)
+        }
+        
+        const uploadedPhoto =  await uploadToCloudinary(photo[0].path , "profile_pictures")
+        
+        const fileUrl = {
+            url: uploadedPhoto.secure_url,
+            publicId: uploadedPhoto.public_id
+        }
+        
+        checkUser.profile_pic_url = fileUrl
+        
+        await checkUser.save()
+        return res.status(200).json({
+            success: true,
+            message: "Profile picture updated successfully",
+            data: checkUser.profile_pic_url
+        })
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
+
+
 
 const getUserDetails = async (req, res) => {
     try {
@@ -213,4 +340,4 @@ const getMembershipStatus = async (req, res) => {
 
 
 
-export { changePassword, getUserDetails, getMembershipStatus }
+export { changePassword, getUserDetails, getMembershipStatus , uploadProfilePicture , updateProfilePicture }
