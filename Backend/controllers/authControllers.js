@@ -2,21 +2,10 @@ import User from "../Models/userModel.js";
 import jwt from "jsonwebtoken"
 
 
-
 const signUp = async (req , res) => {
     try {
-        const {
-            username,
-            email,
-            password,
-            address,
-            city,
-            fatherName,
-            phone,
-            dob,
-            aadhaarNumber
-        } = req.body
-        if(!username || !email || !password || !address || !city || !fatherName || !phone || !dob || !aadhaarNumber){
+        const {name , email , password ,} = req.body
+        if(!name || !email || !password ){
             return res.status(400).json({
                 success: false,
                 message: "Please provide all required fields"
@@ -29,36 +18,68 @@ const signUp = async (req , res) => {
                 message: "User with this email already exists"
             })
         }
-        const newUser = await User.create({
-            username: username,
+        const user = await User.create({
+            username: name,
             email: email,
             password: password,
-            address: address,
-            city: city,
-            fatherName: fatherName,
-            phone: phone,
-            dob: dob,
-            aadhaarNumber: aadhaarNumber
+            role: "member"
         })
         return res.status(201).json({
             success: true,
             message: "User registered successfully",
             data:{
-                id: newUser._id,
-                email: newUser.email,
-                username: newUser.username,
-                role: newUser.role
+                id: user._id,
+                email: user.email,
+                username: user.username,
+                role: user.role
+            }
+        })
+        
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
+const createAdmin = async (req , res) => {
+    try {
+        const {name , email , password ,} = req.body
+        if(!name || !email || !password ){
+            return res.status(400).json({
+                success: false,
+                message: "Please provide all required fields"
+            })
+        }
+        const admin = await User.create({
+            username: name,
+            email: email,
+            password: password,
+            role: "admin"
+        })
+        return res.status(201).json({
+            success: true,
+            message: "Admin created successfully",
+            data:{
+                id: admin._id,
+                email: admin.email,
+                username: admin.username,
+                role: admin.role
             }
         })
     } catch (error) {
         console.log(error)
         return res.status(500).json({
             success: false,
-            message: "Internal server error"
+            message: "Internal server error",
+            error: error.message
         })
     }
 }
-
+    
 const login = async (req , res) => {
     try {
         const {email , password} = req.body
@@ -159,4 +180,4 @@ const logout = async (req , res ) => {
 
 
 
-export { login , refreshAccessToken , logout , signUp }
+export { login , refreshAccessToken , logout , signUp , createAdmin }

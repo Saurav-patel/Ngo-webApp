@@ -3,6 +3,7 @@ import IDCARD from "../Models/idCardModel.js"
 import { uploadToCloudinary, cloudinary } from "../utils/cloudConfig.js"
 import generateIDCard from "../utils/cardGenerateConfig.js"
 import generateQR from "../utils/qrGenerateConfig.js"
+import Ngo from "../Models/ngoModel.js"
 
 const applyIdCard = async (req, res) => {
   try {

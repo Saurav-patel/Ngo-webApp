@@ -1,11 +1,7 @@
 import mongoose, { Schema } from "mongoose"
 
 const idCardSchema = new Schema({
-  Ngo:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Ngo",
-    
-  },
+  
   issuedTo: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

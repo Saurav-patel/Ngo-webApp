@@ -7,11 +7,80 @@ import { cloudinary, uploadToCloudinary } from "../utils/cloudConfig.js";
 
 
 
+const completeProfile = async (req , res) => {
+    try {
+        const userId = req.params
+        const user = req.user
+        const {
+            
+            address,
+            city,
+            fatherName,
+            phone,
+            dob,
+            aadhaarNumber
+        } = req.body
+        if(userId !== user._id){
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to complete this profile"
+            })
+        }
+        if(!userId){
+            return res.status(401).json({
+                success: false,
+                message: "user is missing , please login again"
+            })
+        }
+        if( !address || !city || !fatherName || !phone || !dob || !aadhaarNumber){
+            return res.status(400).json({
+                success: false,
+                message: "Please provide all required fields"
+            })
+        }
+        const existingUser = await User.findOne({email: email})
+        if(!existingUser){
+            return res.status(400).json({
+                success: false,
+                message: "User with this email not found"
+            })
+        }
+        existingUser.address = address
+        existingUser.city = city
+        existingUser.fatherName = fatherName
+        existingUser.phone = phone
+        existingUser.dob = dob
+        existingUser.aadhaarNumber = aadhaarNumber
+
+        await existingUser.save()
+        return res.status(200).json({
+            success: true,
+            message: "Profile completed successfully",
+            data: existingUser
+        })
+    
+        
+             
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
 
 const uploadProfilePicture = async (req , res) =>{
     try {
+        const user = req.user
         const userId = req.user?._id
         const photo = req.file
+        if(userId !== user._id){
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to upload this user's profile picture"
+            })
+        }
         if(!userId){
             return res.status(401).json({
                 success: false,
@@ -35,19 +104,19 @@ const uploadProfilePicture = async (req , res) =>{
             url: uploadedPhoto.secure_url,
             publicId: uploadedPhoto.public_id
         }
-        const user = await User.findOne({ _id: userId })
-        if(!user){
+        const checkUser = await User.findOne({ _id: userId })
+        if(!checkUser){
             return res.status(404).json({
                 success: false,
                 message: "User not found"
             })
         }
-        user.profile_pic_url = fileUrl
-        await user.save()
+        checkUser.profile_pic_url = fileUrl
+        await checkUser.save()
         return res.status(200).json({
             success: true,
             message: "Profile picture uploaded successfully",
-            data: user.profile_pic_url
+            data: checkUser.profile_pic_url
         })
 
     } catch (error) {
@@ -340,4 +409,4 @@ const getMembershipStatus = async (req, res) => {
 
 
 
-export { changePassword, getUserDetails, getMembershipStatus , uploadProfilePicture , updateProfilePicture }
+export { changePassword, getUserDetails, getMembershipStatus , uploadProfilePicture , updateProfilePicture , completeProfile}

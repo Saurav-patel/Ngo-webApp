@@ -39,41 +39,15 @@ const memberSchema = new mongoose.Schema({
 })
 
 const ngoSchema = new mongoose.Schema({
-    name: { 
-        type: String, 
-        required: true 
-    },
-    registrationNumber: { 
-        type: String, 
-        required: true 
-    },
-    address: { 
-        type: String, 
-        required: true 
-    },
-    contactEmail: {
-        type: String,
-        required: true,
-        lowercase: true,
-        match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-    },
-    contactPhone: {
-        type: String,
-        required: true,
-        match: /^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/
-    },
-    establishedDate: { 
-        type: Date, 
-        required: true 
-    },
-    missionStatement: { 
-        type: String, 
-        default: "" 
-    },
-    visionStatement: { 
-        type: String, 
-        default: "" 
-    },
+    name: "BRIGHT FUTURE FOUNDATION",
+   
+    registrationNumber: "2024/4/IV/1678",
+    address: "Patna City, Bihar, India",
+    contactEmail: "brightfuture@gmail.com",
+    contactPhone: "+919876543210",
+    establishedDate: new Date("2024-10-05"),
+    missionStatement: "To empower underprivileged communities through education, healthcare, and sustainable development.",
+    visionStatement: "Creating a world where every individual has the opportunity to thrive and contribute positively to society.",
     logoUrl: { 
         type: String, 
         default: "" 
