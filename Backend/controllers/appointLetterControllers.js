@@ -5,44 +5,132 @@ import Visitor from "../Models/visitorModel.js";
 const applyAppointmentLetter = async (req, res) => {
   try {
     const userId = req.user?._id
+    const userName = req.user?.name || "User"
+
+    // --- Authorization check ---
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized: User not logged in"
+        message: "Unauthorized: Please log in to apply for appointment letter"
       })
     }
 
+    // --- Validate ID format ---
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid user ID"
+        message: "Invalid user ID format"
       })
     }
 
-    
-    const existing = await AppointmentLetter.findOne({ issuedTo: userId, generated: false })
-    if (existing) {
+    // --- Check for existing ungenerated letter ---
+    const existingLetter = await AppointmentLetter.findOne({
+      issuedTo: userId,
+      generated: false
+    })
+
+    if (existingLetter) {
       return res.status(400).json({
         success: false,
-        message: "You already have a pending appointment letter request."
+        message: "You already have a pending appointment letter request"
       })
     }
 
-    const newApplication = await AppointmentLetter.create({
+    // --- Create new letter request ---
+    const letterContent = `This is a placeholder for ${userName}'s appointment letter. 
+The final letter content will be updated once approved by the admin.`
+
+    const newLetter = await AppointmentLetter.create({
       issuedTo: userId,
-      createdBy: userId,
+      createdBy: userId, // later can change to admin ID when issued
       generated: false,
-      content: "This is your appointment letter. The final content will be updated soon."
+      content: letterContent
     })
 
     return res.status(201).json({
       success: true,
       message: "Appointment letter application submitted successfully",
-      data: newApplication
+      data: newLetter
+    })
+  } catch (error) {
+    console.error("Error in applyAppointmentLetter:", error)
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    })
+  }
+}
+
+const generateAppointmentLetter = async (req, res) => {
+  try {
+    const userId = req.user?._id
+    const userName = req.user?.name || "User"
+
+    // --- Check auth ---
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: Please log in"
+      })
+    }
+
+    // --- Validate user ID ---
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID format"
+      })
+    }
+
+    // --- Fetch ungenerated appointment letter ---
+    const letter = await AppointmentLetter.findOne({
+      issuedTo: userId,
+      generated: false
+    })
+    if (!letter) {
+      return res.status(404).json({
+        success: false,
+        message: "No pending appointment letter request found"
+      })
+    }
+
+    // --- Get logo and sign URLs from Document collection ---
+    const logoDoc = await Document.findOne({ title: /logo/i })
+    const signDoc = await Document.findOne({ title: /sign/i })
+
+    const logoUrl = logoDoc?.fileUrl?.[0]?.url || "https://via.placeholder.com/100"
+    const signUrl = signDoc?.fileUrl?.[0]?.url || "https://via.placeholder.com/100"
+
+    // --- Generate appointment letter image ---
+    const imageBuffer = await generateAppointmentLetter({
+      logoUrl,
+      signUrl,
+      recipientName: userName,
+      ngoName: "Your NGO Name" // later replace with dynamic NGO name
+    })
+
+    // --- Upload to Cloudinary ---
+    const uploadResponse = await uploadToCloudinary(imageBuffer, `appointment_letter_${userId}`, "appointment_letters")
+
+    // --- Update letter record ---
+    letter.generated = true
+    letter.fileUrl = uploadResponse.secure_url
+    letter.filePublicId = uploadResponse.public_id
+    await letter.save()
+
+    return res.status(200).json({
+      success: true,
+      message: "Appointment letter generated successfully",
+      data: {
+        id: letter._id,
+        issuedTo: userName,
+        fileUrl: uploadResponse.secure_url
+      }
     })
 
   } catch (error) {
-    console.error(error);
+    console.error("Error generating appointment letter:", error)
     return res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -50,8 +138,6 @@ const applyAppointmentLetter = async (req, res) => {
     })
   }
 }
-
-
 
 const getPendingAndGeneratedAppointmentLetter = async (req, res) => {
   try {
@@ -184,4 +270,4 @@ const myLetters = async(req , res) => {
         })
     }
 }
-export { getPendingAndGeneratedAppointmentLetter , applyAppointmentLetter , visitorLetter , myLetters }
+export { getPendingAndGeneratedAppointmentLetter , applyAppointmentLetter ,generateAppointmentLetter, visitorLetter , myLetters }

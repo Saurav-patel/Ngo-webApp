@@ -1,44 +1,98 @@
 import mongoose, { Schema } from "mongoose"
 
-const certificateSchema = new Schema({
-    issuedTo: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "User", 
-        required: false 
+const certificateSchema = new Schema(
+  {
+    issuedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null
     },
-    name: { 
-        type: String,
-        required: function() { return !this.issuedTo } 
+
+    // For external participants (non-registered)
+    name: {
+      type: String,
+      required: function () {
+        return !this.issuedTo
+      }
     },
-    email: { 
-        type: String,
-        lowercase: true,
-        match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-        required: function() { return !this.issuedTo } 
+
+    email: {
+      type: String,
+      lowercase: true,
+      match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      required: function () {
+        return !this.issuedTo
+      }
     },
-    type: { 
-        type: String, 
-        enum: ['Membership', 'Appointment', 'Donation', 'EventParticipation'], 
-        required: true 
+
+    // Certificate Type
+    type: {
+      type: String,
+      enum: ["Membership", "Appointment", "Donation", "EventParticipation"],
+      required: true
     },
-    issueDate: { 
-        type: Date, 
-        default: Date.now 
+
+    // If linked to an event
+    eventId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Event",
+      required: function () {
+        return this.type === "EventParticipation"
+      },
+      default: null
     },
-    qrCode: { 
-        type: String, 
-        default: "" 
+
+    // Date of issue
+    issueDate: {
+      type: Date,
+      default: Date.now
     },
-    fileUrl: { 
-        type: String, 
-        default: "" 
+
+    // Cloudinary URLs
+    fileUrl: {
+      type: String,
+      default: null
     },
-    createdBy: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "User" 
+    filePublicId: {
+      type: String,
+      default: null
+    },
+
+    // Design/template tracking
+    templateUsed: {
+      type: String,
+      default: "default"
+    },
+
+    // Certificate lifecycle status
+    status: {
+      type: String,
+      enum: ["generated", "issued", "revoked"],
+      default: "generated"
+    },
+
+    // Admin or system user who generated it
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null
+    },
+
+    // Unique short code for public verification
+    certificateCode: {
+      type: String,
+      unique: true,
+      default: () =>
+        `CERT-${Date.now()}-${Math.floor(Math.random() * 1000)}`
     }
-}, { timestamps: true })
+  },
+  { timestamps: true }
+)
+
+// 🔍 Useful indexes for faster queries
+certificateSchema.index({ issuedTo: 1, type: 1 })
+certificateSchema.index({ eventId: 1 })
+certificateSchema.index({ certificateCode: 1 })
 
 const Certificate = mongoose.model("Certificate", certificateSchema)
-
 export default Certificate
