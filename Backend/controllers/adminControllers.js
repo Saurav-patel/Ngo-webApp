@@ -2,6 +2,7 @@ import User from "../Models/userModel.js";
 import Donation from "../Models/donationModel.js";
 import mongoose from "mongoose";
 import { uploadToCloudinary } from "../utils/cloudConfig.js";
+import { cloudinary } from "../utils/cloudConfig.js";
 import Document from "../Models/documentModel.js";
 import Ngo from "../Models/ngoModel.js";
 
@@ -157,7 +158,7 @@ const getMembers = async (req, res) => {
 const uploadNgoDocuments = async (req , res) => {
   try {
     const user = req.user
-    const files = req.files
+    const files = req.file
     const {title , description} = req.body
     if(!user || user.role !== "admin"){
         return res.status(403).json({
@@ -184,13 +185,13 @@ const uploadNgoDocuments = async (req , res) => {
         })
     }
      const uploadedFiles = await Promise.all(
-      files.map(file => uploadToCloudinary(file.path, "ngo-documents"))
+      files.map(file => uploadToCloudinary(file.buffer, "ngo-documents"))
     )
 
     
     const fileUrlArray = uploadedFiles.map(f => ({
-      url: f.secure_url,
-      publicId: f.public_id
+      url: f.url,
+      publicId: f.publicId
     }))
 
     const newDocument = await Document.create({
@@ -221,7 +222,7 @@ const addMemberInfo = async (req , res) => {
   try {
     const user = req.user
     const { name ,email , phone , address , city , designation ,dob} = req.body
-    const files = req.files
+    const file = req.file
     if(!user || user.role !== "admin"){
         return res.status(403).json({
             success: false,
@@ -231,13 +232,15 @@ const addMemberInfo = async (req , res) => {
     if(!name || !email || !phone || !address || !city || !designation || !dob){
         return res.status(400).json({
             success: false,
-            message: "Please provide all required member details"
+            message: "Please provide all required member details",
+            error:error.message
         })
     }
-    if(!files || files.length === 0){
+    if(!file){
         return res.status(400).json({
             success: false,
-            message: "Please upload member photo"
+            message: "Please upload member photo",
+            error:error.message
         })
     }
     const dobDate = new Date(dob);
@@ -247,20 +250,27 @@ const addMemberInfo = async (req , res) => {
       message: 'Invalid DOB format' 
     })
   }
-
-    const uploadedPhoto = await uploadToCloudinary(files[0].path, "member-photos")
-
-    const fileUrl = {
-      url: uploadedPhoto.secure_url,
-      publicId: uploadedPhoto.public_id
-    }
-    const ngo = await Ngo.findOne()
+  let ngo = await Ngo.findOne()
+    console.log(ngo)
     if(!ngo){
-        return res.status(404).json({
+        ngo = await Ngo.create({})
+    }
+
+    const existingMeber = await ngo.members.find(m => m.email.toLowerCase() === email.toLowerCase())
+    if(existingMeber){
+        return res.status(400).json({
             success: false,
-            message: "NGO not found"
+            message: "Member with this email already exists"
         })
     }
+    
+    const uploadedPhoto = await uploadToCloudinary(file.buffer, "member-photos")
+
+    const fileUrl = {
+      url: uploadedPhoto.url,
+      publicId: uploadedPhoto.publicId
+    }
+    
     const newMember = {
       name,
       email,
@@ -287,7 +297,101 @@ const addMemberInfo = async (req , res) => {
     })
   }
 }
+const updateMemberInfo = async (req , res) => {
+  try {
+    const user = req.user
+    const { memberId } = req.params
+    const { name ,email , phone , address , city , designation ,dob} = req.body
+    const file = req.file
+    if(!user || user.role !== "admin"){
+        return res.status(403).json({
+            success: false,
+            message: "Forbidden: Admins only"
+        })
+    }
+    if(!memberId){
+        return res.status(400).json({
+            success: false,
+            message: "Please provide member ID to update member info"
+        })
+    }
 
+    const ngo = await Ngo.findOne()
+    if(!ngo){
+        return res.status(404).json({
+            success: false,
+            message: "NGO not found"
+        })
+    }
+    const member = await ngo.members.find(m => m._id.toString() === memberId)
+    if(!member){
+        return res.status(404).json({
+            success: false,
+            message: "Member not found"
+        })
+    }
+    if(name) member.name = name
+    if(email) member.email = email
+    if(phone) member.phone = phone
+    if(address) member.address = address
+    if(city) member.city = city
+    if(designation) member.designation = designation
+    if(dob) member.dob = new Date(dob)
+    if(file){
+        if(member.photo && member.photo.publicId){
+            await uploadToCloudinary.deleteFromCloudinary(member.photo.publicId)
+        }
+        const uploadedPhoto = await uploadToCloudinary(file.buffer, "member-photos")
+        member.photo = {
+            url: uploadedPhoto.url,
+            publicId: uploadedPhoto.publicId
+        }
+    }
+    await ngo.save()
+    return res.status(200).json({
+        success: true,
+        message: "Member info updated successfully",
+        data: member
+    })
+  } catch (error) {
+    return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        error: error.message
+  })
+  }
+}
+
+const getNgoMembers = async (req , res) => {
+  try {
+    const user = req.user
+    if(!user || user.role !== "admin"){
+        return res.status(403).json({
+            success: false,
+            message: "Forbidden: Admins only"
+        })
+    }
+    const ngo = await Ngo.findOne()
+    if(!ngo){
+        return res.status(404).json({
+            success: false,
+            message: "NGO not found"
+        })
+    }
+    const members = await ngo.members
+    return res.status(200).json({
+        success: true,
+        message: "Members fetched successfully",
+        data: members
+    })
+  } catch (error) {
+    return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        error: error.message
+    })
+  }
+}
 const deleteMember = async (req , res) => {
   try {
     const user = req.user
@@ -320,10 +424,10 @@ const deleteMember = async (req , res) => {
     }
 
     if(member.photo && member.photo.publicId){
-      await uploadToCloudinary.deleteFromCloudinary(member.photo.publicId)
+      await cloudinary.uploader.destroy(member.photo.publicId)
     }
 
-    member.deleteOne()
+    ngo.members.pull(memberId)
     await ngo.save()
     return res.status(200).json({
         success: true,
@@ -341,4 +445,4 @@ const deleteMember = async (req , res) => {
   }
 }
 
-export { getAllUsers, deleteUser, getMembers , uploadNgoDocuments , addMemberInfo , deleteMember }
+export { getAllUsers, deleteUser, getMembers , uploadNgoDocuments , addMemberInfo , deleteMember , updateMemberInfo , getNgoMembers }

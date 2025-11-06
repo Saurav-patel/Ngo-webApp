@@ -305,7 +305,7 @@ const getUserDetails = async (req, res) => {
         
         
         
-        if (userId !== user._id) {
+        if (userId !== user._id.toString()) {
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to access this user's details"
@@ -370,7 +370,7 @@ const getMembershipStatus = async (req, res) => {
        
        
        
-        if (userId !== user._id) {
+        if (userId !== user._id.toString()) {
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to access this user's details"

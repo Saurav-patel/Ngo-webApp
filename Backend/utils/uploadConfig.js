@@ -69,7 +69,7 @@ export const handleMulterErrors = (uploadType) => (req, res, next) => {
           uploadType === 'profile' ? 5 : uploadType === 'event' ? 10 : 20
         }MB`
       }
-      return res.status(400).json({ success: false, message })
+      return res.status(400).json({ success: false, message:err.message })
     } else if (err) {
       return res.status(400).json({ success: false, message: err.message })
     }
