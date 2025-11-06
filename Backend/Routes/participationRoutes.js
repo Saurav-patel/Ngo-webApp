@@ -1,12 +1,12 @@
 import express from 'express';
 import { registerParticipant , myParticipation , allParticipants , updateStatus ,userParticipation } from '../Controllers/participationControllers.js';
-import { protectedRoute } from '../utils/middlewares.js';
+import { protectedRoute, verifyAccessToken } from '../utils/middlewares.js';
 
 const participationRouter = express.Router()
-participationRouter.post('/register/:eventId', protectedRoute , registerParticipant)
-participationRouter.get('/my-participation/:userId',  myParticipation)
-participationRouter.get('/all-participants/:eventId', protectedRoute , allParticipants)
-participationRouter.get('/user-participation/:userId', protectedRoute , userParticipation)
-participationRouter.put('/update-status/:participationId', protectedRoute , updateStatus)
+participationRouter.post('/register/:eventId', verifyAccessToken   , registerParticipant)
+participationRouter.get('/my-participation/:userId', verifyAccessToken , myParticipation)
+participationRouter.get('/all-participants/:eventId',verifyAccessToken, protectedRoute , allParticipants)
+participationRouter.get('/user-participation/:userId', verifyAccessToken , protectedRoute , userParticipation)
+participationRouter.put('/update-status/:participationId',verifyAccessToken ,  protectedRoute , updateStatus)
 
 export default participationRouter

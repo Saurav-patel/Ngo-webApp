@@ -92,7 +92,7 @@ const certificateSchema = new Schema(
 // 🔍 Useful indexes for faster queries
 certificateSchema.index({ issuedTo: 1, type: 1 })
 certificateSchema.index({ eventId: 1 })
-certificateSchema.index({ certificateCode: 1 })
+
 
 const Certificate = mongoose.model("Certificate", certificateSchema)
 export default Certificate

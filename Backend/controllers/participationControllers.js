@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Participation } from "../Models/participationModel.js";
-import { Event } from "../Models/eventModel.js";
+import  Event  from "../Models/eventModel.js";
 
 const registerParticipant = async (req, res) => {
   try {
@@ -98,6 +98,13 @@ const allParticipants = async (req, res) => {
 const userParticipation = async (req, res) => {
     try {
         const { userId } = req.params
+        const user = req.user
+        if(user.role !== 'admin'){
+            return res.status(403).json({
+                success: false,
+                message: "Forbidden: Admins only"
+            })
+        }
         if(!userId){
             return res.status(400).json({
                 success: false,
@@ -180,6 +187,13 @@ const updateStatus = async (req , res) => {
     try {
         const { participationId } = req.params
         const { status } = req.body
+        const user = req.user
+        if(user.role !== 'admin'){
+            return res.status(403).json({
+                success: false,
+                message: "Forbidden: Admins only"
+            })
+        }
         const allowedStatuses = ['registered', 'attended', 'cancelled']
          
         if(!participationId || !status){

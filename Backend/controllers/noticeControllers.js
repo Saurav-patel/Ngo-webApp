@@ -64,8 +64,6 @@ const addNotice = async (req, res) => {
 }
 
 
-import mongoose from "mongoose"
-import Notice from "../Models/noticeModel.js"
 
 const editNotice = async (req, res) => {
   try {

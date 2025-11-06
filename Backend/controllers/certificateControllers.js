@@ -42,7 +42,8 @@ const issueCertificate = async (req, res) => {
       type,
       eventId: eventId || null,
       issueDate: new Date(),
-      fileUrl: cloudinaryResult?.secure_url || null,
+      fileUrl: cloudinaryResult?.url || null,
+      filePublicId: cloudinaryResult?.publicId || null,
       createdBy: userId,
       status: "issued"
     })

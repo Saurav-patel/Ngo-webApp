@@ -7,7 +7,7 @@ const certificateRouter = express.Router();
 
 certificateRouter.post('/issue-certificate/', verifyAccessToken , issueCertificate)
 certificateRouter.get('/my-certificates/:userId', verifyAccessToken ,myCertificates)
-certificateRouter.get('/all-certificates', protectedRoute , allCertificates)
-certificateRouter.get('/get-certificate/:certificateId', protectedRoute , getSingleCertificate)
-certificateRouter.delete('/delete-certificate/:certificateId', protectedRoute , deleteCertificate)
+certificateRouter.get('/all-certificates', verifyAccessToken ,protectedRoute , allCertificates)
+certificateRouter.get('/get-certificate/:certificateId', verifyAccessToken, protectedRoute , getSingleCertificate)
+certificateRouter.delete('/delete-certificate/:certificateId', verifyAccessToken ,protectedRoute , deleteCertificate)
 export default certificateRouter

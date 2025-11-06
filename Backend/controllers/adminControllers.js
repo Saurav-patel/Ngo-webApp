@@ -7,6 +7,14 @@ import Ngo from "../Models/ngoModel.js";
 
 const getAllUsers = async (req, res) => {
   try {
+    const admin = req.user
+    if (!admin || admin.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: Admins only"
+      })
+    }
+
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 50
 

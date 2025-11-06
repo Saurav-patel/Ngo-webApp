@@ -51,6 +51,7 @@ const verifyAccessToken = (req, res, next) => {
 const protectedRoute = (req , res , next) => {
     try {
         const user = req.user
+        console.log("Protected route accessed by user:", user)
         if(!user){
             return res.status(400).json({message: "Please login"})
         }

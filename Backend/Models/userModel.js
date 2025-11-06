@@ -26,29 +26,29 @@ const userSchema = new Schema({
     },
     dob:{
         type: Date,
-        required: [true, "Date of Birth is required"]
+        //required: [true, "Date of Birth is required"]
     },
     aadhaarNumber:{
         type: String,
-        required: [true, "Aadhaar Number is required"],
-        unique: true,
+       // required: [true, "Aadhaar Number is required"],
+        
         match: /^\d{12}$/
     },
     role:{
         type: String,
         enum: ['admin','member',"secretary","treasurer","president" , "vice president" , "staff" , "volunteer"],
-        default: 'member'
+        default: 'visitor'
     },
     address:{
         type: String
     },
     city:{
         type: String,
-        required: true
+        //required: true
     },
     fatherName:{
         type: String,
-        required: [true, "Father's name is required"]
+        //required: [true, "Father's name is required"]
     },
     designation:{
         type: String,
@@ -56,7 +56,7 @@ const userSchema = new Schema({
     },
     phone:{
         type: String,
-        required: [true, "Phone number is required"],
+       // required: [true, "Phone number is required"],
         match: /^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/
     },
     profile_pic_url:{
@@ -75,6 +75,11 @@ const userSchema = new Schema({
     
 
 },{timestamps : true})
+
+userSchema.index(
+  { aadhaarNumber: 1 },
+  { unique: true, partialFilterExpression: { aadhaarNumber: { $type: "string" } } }
+)
 
 
 

@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+dotenv.config()
 import http from 'http';
 import { Server } from 'socket.io';
 import cookieParser from 'cookie-parser';
@@ -17,7 +18,7 @@ import idCardRouter from './Routes/idCardRoutes.js';
 import certificateRouter from './Routes/certificateRoutes.js';
 
 const app = express()
-dotenv.config()
+
 
 app.use(cookieParser())
 app.use(express.json())

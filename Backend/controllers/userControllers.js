@@ -9,7 +9,7 @@ import { cloudinary, uploadToCloudinary } from "../utils/cloudConfig.js";
 
 const completeProfile = async (req , res) => {
     try {
-        const userId = req.params
+        const {userId} = req.params
         const user = req.user
         const {
             
@@ -20,7 +20,8 @@ const completeProfile = async (req , res) => {
             dob,
             aadhaarNumber
         } = req.body
-        if(userId !== user._id){
+      
+        if(userId !== user._id.toString()){
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to complete this profile"
@@ -38,11 +39,11 @@ const completeProfile = async (req , res) => {
                 message: "Please provide all required fields"
             })
         }
-        const existingUser = await User.findOne({email: email})
+        const existingUser = await User.findOne({_id :userId})
         if(!existingUser){
             return res.status(400).json({
                 success: false,
-                message: "User with this email not found"
+                message: "User  not found"
             })
         }
         existingUser.address = address
@@ -73,9 +74,10 @@ const completeProfile = async (req , res) => {
 const uploadProfilePicture = async (req , res) =>{
     try {
         const user = req.user
-        const userId = req.user?._id
+        const {userId} = req.params
         const photo = req.file
-        if(userId !== user._id){
+        
+        if(userId !== user._id.toString()){
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to upload this user's profile picture"
@@ -99,11 +101,7 @@ const uploadProfilePicture = async (req , res) =>{
                 message: "Please upload a profile picture"
             })
         }
-        const uploadedPhoto =  await uploadToCloudinary(photo[0].path , "profile_pictures")
-        const fileUrl = {
-            url: uploadedPhoto.secure_url,
-            publicId: uploadedPhoto.public_id
-        }
+
         const checkUser = await User.findOne({ _id: userId })
         if(!checkUser){
             return res.status(404).json({
@@ -111,12 +109,27 @@ const uploadProfilePicture = async (req , res) =>{
                 message: "User not found"
             })
         }
+        if(checkUser.profile_pic_url?.publicId){
+            return res.status(400).json({
+                success: false,
+                message: "Profile picture already exists. Please use update endpoint to change the profile picture."
+            })
+        }
+        const uploadedPhoto =  await uploadToCloudinary(photo.buffer , "profile_pictures")
+        
+        const fileUrl = {
+            url: uploadedPhoto.url,
+            publicId: uploadedPhoto.publicId
+        }
+        
+        
         checkUser.profile_pic_url = fileUrl
+        
         await checkUser.save()
         return res.status(200).json({
             success: true,
             message: "Profile picture uploaded successfully",
-            data: checkUser.profile_pic_url
+            data: checkUser.profile_pic_url.url
         })
 
     } catch (error) {
@@ -215,7 +228,7 @@ const updateProfilePicture = async (req , res) =>{
                 message: "Invalid user ID"
             })
         }
-        if (userId !== user._id) {
+        if (userId !== user._id.toString()) {
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to update this user's profile picture"
@@ -240,11 +253,11 @@ const updateProfilePicture = async (req , res) =>{
         await uploadToCloudinary.deleteFromCloudinary(previousPublicId)
         }
         
-        const uploadedPhoto =  await uploadToCloudinary(photo[0].path , "profile_pictures")
+        const uploadedPhoto =  await uploadToCloudinary(photo.buffer , "profile_pictures")
         
         const fileUrl = {
-            url: uploadedPhoto.secure_url,
-            publicId: uploadedPhoto.public_id
+            url: uploadedPhoto.url,
+            publicId: uploadedPhoto.publicId
         }
         
         checkUser.profile_pic_url = fileUrl
@@ -253,7 +266,7 @@ const updateProfilePicture = async (req , res) =>{
         return res.status(200).json({
             success: true,
             message: "Profile picture updated successfully",
-            data: checkUser.profile_pic_url
+            data: checkUser.profile_pic_url.url
         })
 
     } catch (error) {
