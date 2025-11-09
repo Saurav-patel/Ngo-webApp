@@ -9,7 +9,7 @@ const eventRouter = express.Router()
 eventRouter.post('/create-event',verifyAccessToken, protectedRoute, handleMulterErrors('event'), createEvent)
 eventRouter.get('/all-events', getAllEvents)
 eventRouter.get('/single-event/:eventId', verifyAccessToken , getSingleEvent)
-eventRouter.put('/update-event/:eventId', verifyAccessToken , protectedRoute, updateEvent)
-eventRouter.delete('/delete-event/:eventId', verifyAccessToken , protectedRoute, deleteEvent)
+eventRouter.put('/update-event/:eventId', verifyAccessToken , protectedRoute,  handleMulterErrors('event') , updateEvent)
+eventRouter.delete('/delete-event/:eventId', verifyAccessToken , protectedRoute ,deleteEvent)
 
 export default eventRouter

@@ -158,7 +158,7 @@ const getMembers = async (req, res) => {
 const uploadNgoDocuments = async (req , res) => {
   try {
     const user = req.user
-    const files = req.file
+    const files = req.files
     const {title , description} = req.body
     if(!user || user.role !== "admin"){
         return res.status(403).json({
@@ -166,6 +166,7 @@ const uploadNgoDocuments = async (req , res) => {
             message: "Forbidden: Admins only"
         })
     }
+    console.log(files)
     if(!files || files.length === 0){
         return res.status(400).json({
             success: false,

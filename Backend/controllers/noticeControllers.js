@@ -6,6 +6,13 @@ const addNotice = async (req, res) => {
   try {
     const { title, body, category, isPinned, expiresAt } = req.body
     const createdBy = req.user?._id  
+    const user = req.user
+      if(!user || user.role !== 'admin'){
+      return res.status(403).json({
+        success:false,
+        message:"forbidden! only admin can access"
+      })
+    }
 
     
     if (!title || !body) {
@@ -69,6 +76,14 @@ const editNotice = async (req, res) => {
   try {
     const { noticeId } = req.params
     const { title, body, category, isPinned, expiresAt } = req.body
+    const user = req.user
+
+    if(!user || user.role !== 'admin'){
+      return res.status(403).json({
+        success:false,
+        message:"forbidden! only admin can access"
+      })
+    }
 
     
     if (!mongoose.Types.ObjectId.isValid(noticeId)) {
@@ -136,6 +151,13 @@ const editNotice = async (req, res) => {
 const deleteNotice = async (req , res) => {
     try {
         const {noticeId} = req.params
+        const user  = req.user
+          if(!user || user.role !== 'admin'){
+      return res.status(403).json({
+        success:false,
+        message:"forbidden! only admin can access"
+      })
+    }
         if(!mongoose.Types.ObjectId.isValid(noticeId)){
             return res.status(400).json({
                 success: false,

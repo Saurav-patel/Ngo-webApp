@@ -4,10 +4,10 @@ import { uploadToCloudinary, cloudinary } from "../utils/cloudConfig.js"
 import generateIDCard from "../utils/cardGenerateConfig.js"
 import generateQR from "../utils/qrGenerateConfig.js"
 import Ngo from "../Models/ngoModel.js"
+import path from "path"
 
 const applyIdCard = async (req, res) => {
   try {
-    // -------- Validate user --------
     const userId = req.user?._id
     if (!userId) {
       return res.status(401).json({
@@ -23,7 +23,7 @@ const applyIdCard = async (req, res) => {
       })
     }
 
-    // -------- Prevent duplicate ID cards --------
+    // Prevent duplicate cards
     const existingCard = await IDCARD.findOne({ issuedTo: userId })
     if (existingCard) {
       return res.status(400).json({
@@ -32,7 +32,6 @@ const applyIdCard = async (req, res) => {
       })
     }
 
-    // -------- Get NGO info --------
     const ngo = await Ngo.findOne()
     if (!ngo) {
       return res.status(500).json({
@@ -41,44 +40,50 @@ const applyIdCard = async (req, res) => {
       })
     }
 
-    // -------- Prepare card data --------
     const cardNumber = `ID-${Date.now()}`
     const expiryDateObj = new Date()
     expiryDateObj.setFullYear(expiryDateObj.getFullYear() + 1)
 
-    // -------- Generate QR --------
+    // Generate QR Code data and image
     const qrData = `ID:${cardNumber};IssuedTo:${req.user.name};UserID:${userId}`
     const qrBuffer = await generateQR(qrData)
 
-    // -------- Generate ID card image --------
+    const role = req.user.role || "Member"
+    const normalizedRole =
+    role === "Vice President"
+    ? "Vice President"
+    : role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
+
+    // Generate the ID card graphic
     const idCardBuffer = await generateIDCard({
       ngo,
       name: req.user.name,
-      position: req.user.role || "Member",
-      profilePicUrl: req.user.profilePic || "https://via.placeholder.com/100",
+      position: normalizedRole || "Member",
+      profilePicUrl: req.user.profilePic || path.resolve("public/default-avatar.jpg"),
       cardNumber,
       expiryDate: expiryDateObj.toLocaleDateString("en-IN"),
       qrBuffer
     })
 
-    // -------- Upload to Cloudinary --------
+    // Upload ID card image to Cloudinary
     const uploadResult = await uploadToCloudinary(
       idCardBuffer,
       `idcard-${userId}`,
       "idcards"
     )
 
-    // -------- Save to Database --------
+    // Save new ID card document
     const newIdCard = await IDCARD.create({
       issuedTo: userId,
       cardNumber,
+      position: normalizedRole|| "Member",
+      qrCodeData: qrData,
       expiryDate: expiryDateObj,
       status: "active",
       fileUrl: uploadResult.url,
       filePublicId: uploadResult.publicId
     })
 
-    // -------- Success Response --------
     return res.status(201).json({
       success: true,
       message: "ID Card issued successfully.",

@@ -1,8 +1,6 @@
-// utils/cardGenerateConfig.js
-import { createCanvas, loadImage, registerFont } from "canvas"
-
-// Optional: Register a fallback font for environments without Arial
-// registerFont("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", { family: "DejaVuSans" })
+import { createCanvas, loadImage } from "canvas"
+import fs from "fs"
+import path from "path"
 
 const generateIDCard = async ({
   ngo = {},
@@ -42,14 +40,21 @@ const generateIDCard = async ({
   ctx.fillRect(0, 0, width, 70)
 
   // --------- NGO Logo ---------
-  const logoUrl = ngo.logoUrl || "https://via.placeholder.com/50"
+  let logo
   try {
-    const logo = await loadImage(logoUrl)
-    ctx.drawImage(logo, 20, 10, 50, 50)
+    if (ngo.logoUrl && ngo.logoUrl.startsWith("http")) {
+      logo = await loadImage(ngo.logoUrl)
+    } else if (ngo.logoUrl && fs.existsSync(ngo.logoUrl)) {
+      logo = await loadImage(ngo.logoUrl)
+    } else {
+      const fallbackLogo = path.resolve("public/fallback-logo.png")
+      logo = await loadImage(fallbackLogo)
+    }
   } catch {
-    const fallback = await loadImage("https://via.placeholder.com/50")
-    ctx.drawImage(fallback, 20, 10, 50, 50)
+    const fallbackLogo = path.resolve("public/fallback-logo.png")
+    logo = await loadImage(fallbackLogo)
   }
+  ctx.drawImage(logo, 20, 10, 50, 50)
 
   // --------- NGO Name + Reg ---------
   ctx.fillStyle = "#fff"
@@ -61,10 +66,19 @@ const generateIDCard = async ({
   // --------- Profile Picture ---------
   let profile
   try {
-    profile = await loadImage(profilePicUrl)
+    if (profilePicUrl && profilePicUrl.startsWith("http")) {
+      profile = await loadImage(profilePicUrl)
+    } else if (profilePicUrl && fs.existsSync(profilePicUrl)) {
+      profile = await loadImage(profilePicUrl)
+    } else {
+      const fallbackProfile = path.resolve("public/default-avatar.jpg")
+      profile = await loadImage(fallbackProfile)
+    }
   } catch {
-    profile = await loadImage("https://via.placeholder.com/120")
+    const fallbackProfile = path.resolve("public/default-avatar.jpg")
+    profile = await loadImage(fallbackProfile)
   }
+
   ctx.save()
   ctx.beginPath()
   ctx.arc(100, 200, 70, 0, Math.PI * 2)
@@ -90,8 +104,9 @@ const generateIDCard = async ({
     const qrImg = await loadImage(qrDataUrl)
     ctx.drawImage(qrImg, width - 150, height - 170, 120, 120)
   } catch {
-    const placeholderQR = await loadImage("https://via.placeholder.com/120")
-    ctx.drawImage(placeholderQR, width - 150, height - 170, 120, 120)
+    const fallbackQR = path.resolve("public/fallback-qr.jpg")
+    const qrImg = await loadImage(fallbackQR)
+    ctx.drawImage(qrImg, width - 150, height - 170, 120, 120)
   }
 
   // --------- Footer ---------
@@ -102,7 +117,6 @@ const generateIDCard = async ({
 
   const address = ngo.address || "Address not available"
 
-  // Text wrapping helper
   const wrapText = (text, x, y, maxWidth, lineHeight) => {
     const words = text.split(" ")
     let line = ""

@@ -1,12 +1,11 @@
 import Visitor from "../Models/visitorModel.js"
-import Donation from "../Models/donationModel.js"
 import Event from "../Models/eventModel.js"
-import Certificate from "../Models/certificateModel.js"
+
 
 const addVisitor = async (req, res) => {
   try {
     const { name, email, phone, address, eventId } = req.body
-    const createdBy = req.user._id 
+    
 
     
     if (!name || !email || !eventId) {
@@ -41,7 +40,7 @@ const addVisitor = async (req, res) => {
       phone,
       address,
       events: [eventId],
-      createdBy
+      
     })
 
     return res.status(201).json({

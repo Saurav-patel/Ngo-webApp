@@ -8,6 +8,14 @@ const createEvent = async (req, res) => {
     const images = req.files
     const { title, description, date, location } = req.body
     const createdBy = req.user._id
+    const user = req.user
+
+    if(!user || user.role !== 'admin'){
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden! only admins can access"
+      })
+    }
 
     if (!title || !description || !location || !date) {
       return res.status(400).json({
@@ -40,9 +48,9 @@ const createEvent = async (req, res) => {
     const event = await Event.create({
       title,
       description,
-      date,
+      startDate: date,
       location,
-      images: imageUrls,
+      photos: imageUrls,
       createdBy
     })
 
@@ -66,6 +74,14 @@ const createEvent = async (req, res) => {
 const deleteEvent = async (req, res) => {
   try {
     const { eventId } = req.params
+    const admin = req.user
+
+    if(!admin || admin.role !== 'admin'){
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden! only admins can access"
+      })
+    }
 
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
       return res.status(400).json({
@@ -178,6 +194,14 @@ const updateEvent = async (req, res) => {
   try {
     const { eventId } = req.params
     const { title, description, date, location } = req.body
+    const files = req.files
+    const admin = req.user
+    if(!admin || admin.role !== 'admin'){
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden! only admins can access"
+      })
+    }
 
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
       return res.status(400).json({
@@ -193,17 +217,16 @@ const updateEvent = async (req, res) => {
         message: "Event not found"
       })
     }
-
-    
+   
     event.title = title || event.title
     event.description = description || event.description
-    event.date = date || event.date
+    event.startDate = date || event.date
     event.location = location || event.location
 
     
-    if (req.files && req.files.length > 0) {
+    if (files && files.length > 0) {
       const uploadResults = await Promise.all(
-        req.files.map(img =>
+        files.map(img =>
           uploadToCloudinary(img.buffer, "event", "events").catch(() => ({ url: null, publicId: null }))
         )
       )
