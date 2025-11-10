@@ -1,5 +1,7 @@
 import Visitor from "../Models/visitorModel.js"
 import Event from "../Models/eventModel.js"
+import { ApiError } from "../utils/apiError.js"
+import { ApiResponse } from "../utils/apiResponse.js"
 
 
 const addVisitor = async (req, res) => {

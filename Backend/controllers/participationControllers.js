@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import { Participation } from "../Models/participationModel.js";
 import  Event  from "../Models/eventModel.js";
+import { ApiError } from "../utils/apiError.js";
+import { ApiResponse } from "../utils/apiResponse.js";
 
 const registerParticipant = async (req, res) => {
   try {

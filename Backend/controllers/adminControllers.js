@@ -5,6 +5,9 @@ import { uploadToCloudinary } from "../utils/cloudConfig.js";
 import { cloudinary } from "../utils/cloudConfig.js";
 import Document from "../Models/documentModel.js";
 import Ngo from "../Models/ngoModel.js";
+import { ApiError } from "../utils/apiError.js";
+import { ApiResponse } from "../utils/apiResponse.js";
+
 
 const getAllUsers = async (req, res) => {
   try {

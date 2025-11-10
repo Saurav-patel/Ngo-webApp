@@ -5,7 +5,7 @@ import { verifyAccessToken } from "../utils/middlewares.js";
 
 const certificateRouter = express.Router();
 
-certificateRouter.post('/issue-certificate/', verifyAccessToken , issueCertificate)
+certificateRouter.post('/issue-certificate', verifyAccessToken , issueCertificate)
 certificateRouter.get('/my-certificates/:userId', verifyAccessToken ,myCertificates)
 certificateRouter.get('/all-certificates', verifyAccessToken ,protectedRoute , allCertificates)
 certificateRouter.get('/get-certificate/:certificateId', verifyAccessToken, protectedRoute , getSingleCertificate)

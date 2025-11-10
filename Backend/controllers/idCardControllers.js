@@ -23,7 +23,7 @@ const applyIdCard = async (req, res) => {
       })
     }
 
-    // Prevent duplicate cards
+    
     const existingCard = await IDCARD.findOne({ issuedTo: userId })
     if (existingCard) {
       return res.status(400).json({
@@ -44,8 +44,8 @@ const applyIdCard = async (req, res) => {
     const expiryDateObj = new Date()
     expiryDateObj.setFullYear(expiryDateObj.getFullYear() + 1)
 
-    // Generate QR Code data and image
-    const qrData = `ID:${cardNumber};IssuedTo:${req.user.name};UserID:${userId}`
+    
+    const qrData = `ID:${cardNumber};IssuedTo:${req.user.username};UserID:${userId}`
     const qrBuffer = await generateQR(qrData)
 
     const role = req.user.role || "Member"
@@ -54,7 +54,7 @@ const applyIdCard = async (req, res) => {
     ? "Vice President"
     : role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
 
-    // Generate the ID card graphic
+    
     const idCardBuffer = await generateIDCard({
       ngo,
       name: req.user.name,
@@ -65,14 +65,14 @@ const applyIdCard = async (req, res) => {
       qrBuffer
     })
 
-    // Upload ID card image to Cloudinary
+    
     const uploadResult = await uploadToCloudinary(
       idCardBuffer,
       `idcard-${userId}`,
       "idcards"
     )
 
-    // Save new ID card document
+    
     const newIdCard = await IDCARD.create({
       issuedTo: userId,
       cardNumber,
@@ -107,7 +107,7 @@ const renewIdCard = async (req, res) => {
   try {
     const { cardId } = req.params
 
-    // 🔹 Validate card ID
+    
     if (!cardId || !mongoose.Types.ObjectId.isValid(cardId)) {
       return res.status(400).json({
         success: false,
@@ -115,7 +115,7 @@ const renewIdCard = async (req, res) => {
       })
     }
 
-    // 🔹 Find the existing ID card and linked user
+    
     const idCard = await IDCARD.findById(cardId).populate("issuedTo")
     if (!idCard) {
       return res.status(404).json({
@@ -132,19 +132,19 @@ const renewIdCard = async (req, res) => {
       })
     }
 
-    // 🔹 Delete the old Cloudinary file if exists
+    
     if (idCard.filePublicId) {
       await cloudinary.uploader.destroy(idCard.filePublicId)
     }
 
     const cardNumber = idCard.cardNumber
 
-    // 🔹 Generate new QR code
+    
     const qrBuffer = await generateQR(
       `ID:${cardNumber};IssuedTo:${idCard.issuedTo.name}`
     )
 
-    // 🔹 Generate new ID card image
+    
     const expiryDate = new Date()
     expiryDate.setFullYear(expiryDate.getFullYear() + 1)
 
@@ -159,21 +159,21 @@ const renewIdCard = async (req, res) => {
       qrBuffer
     })
 
-    // 🔹 Upload new image to Cloudinary
+    
     const uploadResult = await uploadToCloudinary(
       idCardBuffer,
       `idcard-${idCard.issuedTo._id}`,
       "idcards"
     )
 
-    // 🔹 Update database record
+    
     idCard.expiryDate = expiryDate
     idCard.status = "active"
     idCard.fileUrl = uploadResult.url
     idCard.filePublicId = uploadResult.publicId
     await idCard.save()
 
-    // ✅ Success
+    
     return res.status(200).json({
       success: true,
       message: "ID Card renewed successfully",
@@ -191,9 +191,12 @@ const renewIdCard = async (req, res) => {
 
 const getMyIdCard = async (req, res) => {
   try {
-    const userId = req.params
+    const {userId} = req.params
     const user = req.user
-    if(userId!==String(user._id)){
+
+    console.log(userId)
+    console.log(user._id)
+    if(userId!==user._id.toString()){
       return  res.status(403).json({ 
         success: false,
         message: "Forbidden: You can only access your own ID Card" 

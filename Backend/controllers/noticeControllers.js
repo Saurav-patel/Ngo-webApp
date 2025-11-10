@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
 import Notice from "../Models/noticeModel.js"
-
+import { ApiError } from "../utils/apiError.js"
+import { ApiResponse } from "../utils/apiResponse.js"
 
 const addNotice = async (req, res) => {
   try {

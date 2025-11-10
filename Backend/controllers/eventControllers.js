@@ -2,6 +2,8 @@ import Event from "../Models/eventModel.js";
 import { uploadToCloudinary } from "../utils/cloudConfig.js";
 import { io } from "../index.js";
 import mongoose from "mongoose";
+import { ApiError } from "../utils/apiError.js";
+import { ApiResponse } from "../utils/apiResponse.js";
 
 const createEvent = async (req, res) => {
   try {

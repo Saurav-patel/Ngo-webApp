@@ -1,5 +1,8 @@
 import Ngo from "../Models/ngoModel.js";
 import Document from "../Models/documentModel.js";
+import { ApiError } from "../utils/apiError.js";
+import { ApiResponse } from "../utils/apiResponse.js";
+
 
 const aboutNgo = async (req , res) => {
     try {

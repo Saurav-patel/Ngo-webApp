@@ -1,13 +1,16 @@
 import Certificate from "../Models/certificateModel.js";
 import generateCertificate from "../utils/certificateGenerater.js";
 import { uploadToCloudinary } from "../utils/cloudConfig.js";
+import { ApiError } from "../utils/apiError.js";
+import { ApiResponse } from "../utils/apiResponse.js";
+
 
 const issueCertificate = async (req, res) => {
   try {
     const userId = req.user?._id
     const { name, email, type, eventId } = req.body
 
-    // --- Authorization check ---
+    
     if (!userId) {
       return res.status(401).json({
         success: false,
@@ -15,7 +18,7 @@ const issueCertificate = async (req, res) => {
       })
     }
 
-    // --- Validate required fields ---
+    
     if (!name || !type) {
       return res.status(400).json({
         success: false,
@@ -23,18 +26,36 @@ const issueCertificate = async (req, res) => {
       })
     }
 
-    // --- Generate certificate image ---
+      const event = await Event.findById(eventId);
+      if (!event) {
+        return res.status(404).json({
+          success: false,
+          message: "Event not found",
+        });
+      }
+
+      // --- Check if event date has passed ---
+      const today = new Date();
+      const eventDate = new Date(event.date);
+      if (user.role !== "admin" && eventDate > today) {
+      return res.status(400).json({
+      success: false,
+      message: `Certificates can only be issued after the event has occurred. "${event.title}" is scheduled on ${eventDate.toDateString()}.`,
+      })
+    }
+
+    
     const certificateBuffer = await generateCertificate({
       name,
       type,
-      eventName: type === "EventParticipation" && eventId ? "Event" : null,
+      eventName: event.title,
       issueDate: new Date()
     })
 
-    // --- Upload to Cloudinary ---
+    
     const cloudinaryResult = await uploadToCloudinary(certificateBuffer, `certificate_${name}_${Date.now()}`, "certificates")
 
-    // --- Save record in DB ---
+    
     const newCertificate = await Certificate.create({
       issuedTo: userId,
       name,

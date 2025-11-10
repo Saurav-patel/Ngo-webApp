@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import AppointmentLetter from "../Models/appointmentLetterModel.js";
 import Visitor from "../Models/visitorModel.js";
+import { ApiError } from "../utils/apiError.js";
+import { ApiResponse } from "../utils/apiResponse.js";
 
 const applyAppointmentLetter = async (req, res) => {
   try {
