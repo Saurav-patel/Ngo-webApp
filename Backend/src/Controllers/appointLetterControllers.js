@@ -3,7 +3,7 @@ import AppointmentLetter from "../Models/appointmentLetterModel.js"
 import Visitor from "../Models/visitorModel.js"
 import Document from "../Models/documentModel.js"
 import { uploadToCloudinary } from "../utils/cloudConfig.js"
-import generateAppointmentLetter from "../utils/appointmentLetterGenerateConfig.js"
+import generateAppointmentLetter from "../utils/letterConfig.js"
 import { ApiError } from "../utils/apiError.js"
 import { ApiResponse } from "../utils/apiResponse.js"
 
@@ -47,7 +47,7 @@ The final letter content will be updated once approved by the admin.`
   }
 }
 
-const generateAppointmentLetter = async (req, res, next) => {
+const generateLetter = async (req, res, next) => {
   try {
     const userId = req.user?._id
     const userName = req.user?.name || "User"
@@ -195,7 +195,7 @@ const myLetters = async (req, res, next) => {
 export {
   getPendingAndGeneratedAppointmentLetter,
   applyAppointmentLetter,
-  generateAppointmentLetter,
+  generateLetter,
   visitorLetter,
   myLetters
 }
