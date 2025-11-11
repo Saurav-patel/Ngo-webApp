@@ -10,7 +10,9 @@ const donationSchema = new Schema({
         type: String 
     }, 
     email: { 
-        type: String 
+        type: String,
+        lowercase: true,
+        match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
     }, 
     amount: { 
         type: Number, 
@@ -22,15 +24,17 @@ const donationSchema = new Schema({
         required: true 
     },
     transactionId: { 
-        type: String 
+        type: String ,
+        unique: true
     }, 
     receiptUrl: { 
         type: String,
-        default: "", 
+        default: null , 
     },   
     qrCode: { 
         type: String,
-        default: "", 
+        default: null , 
+        unique: true
     },
     date: { 
         type: Date, 
@@ -40,7 +44,9 @@ const donationSchema = new Schema({
         type: Boolean, 
         default: false 
     }
-})
+},{ timestamps: true })
+
+
 
 const Donation = mongoose.model("Donation" , donationSchema)
 

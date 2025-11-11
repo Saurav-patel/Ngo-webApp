@@ -20,7 +20,7 @@ const participationSchema = new Schema({
    certificateId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Certificate",
-        default: null,
+        
         
    }
 }, { timestamps: true })

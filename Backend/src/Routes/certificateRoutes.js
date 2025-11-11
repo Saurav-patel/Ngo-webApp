@@ -1,7 +1,7 @@
 import express from "express";
 import {issueCertificate , myCertificates , allCertificates , getSingleCertificate , deleteCertificate} from "../Controllers/certificateControllers.js";
-import { protectedRoute } from "../utils/middlewares.js";
-import { verifyAccessToken } from "../utils/middlewares.js";
+import { protectedRoute } from "../middlewares/authMiddlewares.js";
+import { verifyAccessToken } from "../middlewares/authMiddlewares.js";
 
 const certificateRouter = express.Router();
 

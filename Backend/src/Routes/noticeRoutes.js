@@ -1,6 +1,6 @@
 import express from "express";
 import { addNotice, deleteNotice, editNotice, getAllNotice, getSingleNotice } from "../Controllers/noticeControllers.js";
-import { protectedRoute, verifyAccessToken } from "../utils/middlewares.js";
+import { protectedRoute, verifyAccessToken } from "../middlewares/authMiddlewares.js";
 
 const noticeRouter = express.Router()
 

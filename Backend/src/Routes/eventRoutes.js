@@ -1,7 +1,7 @@
 import express from 'express'
 import { createEvent, getAllEvents, deleteEvent, updateEvent, getSingleEvent } from '../Controllers/eventControllers.js'
-import { handleMulterErrors } from '../utils/uploadConfig.js'
-import { protectedRoute, verifyAccessToken } from '../utils/middlewares.js'
+import { handleMulterErrors } from '../middlewares/upload.js'
+import { protectedRoute, verifyAccessToken } from "../middlewares/authMiddlewares.js"
 
 const eventRouter = express.Router()
 

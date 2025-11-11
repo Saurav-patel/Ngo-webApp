@@ -1,7 +1,7 @@
 import express from 'express'
 import { getUserDetails , changePassword , getMembershipStatus , updateProfilePicture , uploadProfilePicture , completeProfile} from '../controllers/userControllers.js'
-import { verifyAccessToken } from '../utils/middlewares.js'
-import { handleMulterErrors } from '../utils/uploadConfig.js'
+import { verifyAccessToken } from "../middlewares/authMiddlewares.js"
+import { handleMulterErrors } from '../middlewares/upload.js'
 
 const userRouter = express.Router()
 userRouter.get('/get-user-details/:userId',verifyAccessToken, getUserDetails)

@@ -1,7 +1,7 @@
 import express from "express"
 import {  applyIdCard, renewIdCard, getMyIdCard, getAllIdCards, getSingleIdCard } from "../Controllers/idCardControllers.js"
-import { protectedRoute } from "../utils/middlewares.js"
-import { verifyAccessToken } from "../utils/middlewares.js"
+import { protectedRoute } from "../middlewares/authMiddlewares.js"
+import { verifyAccessToken } from "../middlewares/authMiddlewares.js"
 
 const idCardRouter = express.Router()
 

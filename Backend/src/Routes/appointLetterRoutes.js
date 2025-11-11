@@ -1,6 +1,6 @@
 import express from 'express';
 import { getPendingAndGeneratedAppointmentLetter , applyAppointmentLetter, myLetters , visitorLetter, generateAppointmentLetter} from '../Controllers/appointLetterControllers.js';
-import { protectedRoute, verifyAccessToken } from '../utils/middlewares.js';
+import { protectedRoute, verifyAccessToken } from '../middlewares/authMiddlewares.js';
 
 const appointLetterRouter = express.Router()
 appointLetterRouter.post('/apply-appointment-letter',verifyAccessToken,  applyAppointmentLetter)

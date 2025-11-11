@@ -1,8 +1,8 @@
 import express from 'express'
 import {getAllUsers, deleteUser, getMembers , uploadNgoDocuments , addMemberInfo , deleteMember , updateMemberInfo , getNgoMembers } from '../controllers/adminControllers.js'
-import { protectedRoute } from '../utils/middlewares.js'
-import { handleMulterErrors } from '../utils/uploadConfig.js'
-import { verifyAccessToken } from '../utils/middlewares.js'
+import { protectedRoute } from '../middlewares/authMiddlewares.js'
+import { handleMulterErrors } from '../middlewares/upload.js'
+import { verifyAccessToken } from '../middlewares/authMiddlewares.js'
 
 const adminRouter = express.Router()
 

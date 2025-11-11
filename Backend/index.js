@@ -5,17 +5,18 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import dbConnect from './Database/dbconnect.js';
-import authRouter from './Routes/authRoutes.js';
-import userRouter from './Routes/userRoutes.js';
-import adminRouter from './Routes/adminRoutes.js';
-import visitorRouter from './Routes/visitorRoutes.js';
-import noticeRouter from './Routes/noticeRoutes.js';
-import eventRouter from './Routes/eventRoutes.js';
-import participationRouter from './Routes/participationRoutes.js';
-import appointLetterRouter from './Routes/appointLetterRoutes.js';
-import idCardRouter from './Routes/idCardRoutes.js';
-import certificateRouter from './Routes/certificateRoutes.js';
+import dbConnect from './src/Database/dbconnect.js';
+import authRouter from './src/Routes/authRoutes.js';
+import userRouter from './src/Routes/userRoutes.js';
+import adminRouter from './src/Routes/adminRoutes.js';
+import visitorRouter from './src/Routes/visitorRoutes.js';
+import noticeRouter from './src/Routes/noticeRoutes.js';
+import eventRouter from './src/Routes/eventRoutes.js';
+import participationRouter from './src/Routes/participationRoutes.js';
+import appointLetterRouter from './src/Routes/appointLetterRoutes.js';
+import idCardRouter from './src/Routes/idCardRoutes.js';
+import certificateRouter from './src/Routes/certificateRoutes.js';
+import { errorHandler } from './src/middlewares/errorHandler.js';
 
 const app = express()
 
@@ -45,7 +46,7 @@ app.get('/', (req, res) => {
   res.send("hello from the app")
 })
 
-
+app.use(errorHandler)
 const server = http.createServer(app)
 
 

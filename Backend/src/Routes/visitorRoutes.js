@@ -1,6 +1,6 @@
 import express from 'express'
 import { addVisitor , deleteVisitor , allVisitor , getVisitorInfo } from '../Controllers/visitorControllers.js'
-import { protectedRoute, verifyAccessToken } from '../utils/middlewares.js'
+import { protectedRoute, verifyAccessToken } from "../middlewares/authMiddlewares.js"
 const visitorRouter = express.Router()
 
 visitorRouter.post('/addVisitor'  , addVisitor)
