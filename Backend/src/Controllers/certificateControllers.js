@@ -4,6 +4,8 @@ import generateCertificate from "../utils/certificateGenerater.js"
 import { uploadToCloudinary } from "../utils/cloudConfig.js"
 import { ApiError } from "../utils/apiError.js"
 import { ApiResponse } from "../utils/apiResponse.js"
+import Ngo from "../Models/ngoModel.js"
+import path from "path"
 
 const issueCertificate = async (req, res, next) => {
   try {
@@ -15,7 +17,7 @@ const issueCertificate = async (req, res, next) => {
       throw new ApiError(401, "Unauthorized: Please log in to issue certificate")
     }
 
-    if (!name || !type) {
+    if (!name?.trim() || !type?.trim()) {
       throw new ApiError(400, "Name and certificate type are required")
     }
 
@@ -33,12 +35,18 @@ const issueCertificate = async (req, res, next) => {
         `Certificates can only be issued after the event has occurred. "${event.title}" is scheduled on ${eventDate.toDateString()}.`
       )
     }
-
+    const ngo = await Ngo.findOne()
+    if(!ngo){
+      throw new ApiError(400,"Can't find ngo")
+    }
     const certificateBuffer = await generateCertificate({
       name,
-      type,
-      eventName: event.title,
-      issueDate: new Date()
+      ngoName: ngo.name,
+      regNo: ngo.registrationNumber,
+      presidentName: "Abhishek Kumar",
+      logoPath: path.resolve("public/logo.png"),
+      signPath: path.resolve("public/signature.png")
+     
     })
 
     const cloudinaryResult = await uploadToCloudinary(

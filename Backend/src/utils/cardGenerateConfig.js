@@ -47,11 +47,11 @@ const generateIDCard = async ({
     } else if (ngo.logoUrl && fs.existsSync(ngo.logoUrl)) {
       logo = await loadImage(ngo.logoUrl)
     } else {
-      const fallbackLogo = path.resolve("public/fallback-logo.png")
+      const fallbackLogo = path.resolve("public/logo.png")
       logo = await loadImage(fallbackLogo)
     }
   } catch {
-    const fallbackLogo = path.resolve("public/fallback-logo.png")
+    const fallbackLogo = path.resolve("public/logo.png")
     logo = await loadImage(fallbackLogo)
   }
   ctx.drawImage(logo, 20, 10, 50, 50)
