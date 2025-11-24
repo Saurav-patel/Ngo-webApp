@@ -9,7 +9,9 @@ const generateIDCard = async ({
   profilePicUrl,
   cardNumber = "N/A",
   expiryDate = "N/A",
-  qrBuffer
+  qrBuffer,
+  phone = "N/A",
+  address = ""
 }) => {
   const width = 650
   const height = 400
@@ -87,36 +89,7 @@ const generateIDCard = async ({
   ctx.drawImage(profile, 30, 130, 140, 140)
   ctx.restore()
 
-  // --------- User Info ---------
-  ctx.fillStyle = "#000"
-  ctx.font = "bold 24px Sans-serif"
-  ctx.fillText(name, 200, 170)
-  ctx.font = "20px Sans-serif"
-  ctx.fillStyle = "#333"
-  ctx.fillText(position, 200, 205)
-  ctx.font = "16px Sans-serif"
-  ctx.fillText(`Card No: ${cardNumber}`, 200, 240)
-  ctx.fillText(`Valid Till: ${expiryDate}`, 200, 265)
-
-  // --------- QR Code ---------
-  try {
-    const qrDataUrl = `data:image/png;base64,${qrBuffer.toString("base64")}`
-    const qrImg = await loadImage(qrDataUrl)
-    ctx.drawImage(qrImg, width - 150, height - 170, 120, 120)
-  } catch {
-    const fallbackQR = path.resolve("public/fallback-qr.jpg")
-    const qrImg = await loadImage(fallbackQR)
-    ctx.drawImage(qrImg, width - 150, height - 170, 120, 120)
-  }
-
-  // --------- Footer ---------
-  ctx.fillStyle = theme.primary
-  ctx.fillRect(0, height - 60, width, 60)
-  ctx.fillStyle = "#fff"
-  ctx.font = "16px Sans-serif"
-
-  const address = ngo.address || "Address not available"
-
+  // --------- Text wrapping helper (used for cardholder + NGO address) ---------
   const wrapText = (text, x, y, maxWidth, lineHeight) => {
     const words = text.split(" ")
     let line = ""
@@ -134,7 +107,51 @@ const generateIDCard = async ({
     ctx.fillText(line, x, y)
   }
 
-  wrapText(address, 20, height - 35, width - 40, 18)
+  // --------- User Info (Cardholder) ---------
+  ctx.fillStyle = "#000"
+  ctx.font = "bold 24px Sans-serif"
+  ctx.fillText(name, 200, 160)
+
+  ctx.font = "20px Sans-serif"
+  ctx.fillStyle = "#333"
+  ctx.fillText(position, 200, 190)
+
+  ctx.font = "16px Sans-serif"
+  ctx.fillText(`Card No: ${cardNumber}`, 200, 220)
+  ctx.fillText(`Valid Till: ${expiryDate}`, 200, 245)
+
+  if (phone) {
+    ctx.fillText(`Phone: ${phone}`, 200, 270)
+  }
+
+  if (address) {
+    const cardholderAddress = address
+    const addrX = 200
+    const addrY = 295
+    const addrMaxWidth = width - 220
+    const addrLineHeight = 18
+    wrapText(cardholderAddress, addrX, addrY, addrMaxWidth, addrLineHeight)
+  }
+
+  // --------- QR Code ---------
+  try {
+    const qrDataUrl = `data:image/png;base64,${qrBuffer.toString("base64")}`
+    const qrImg = await loadImage(qrDataUrl)
+    ctx.drawImage(qrImg, width - 150, height - 170, 120, 120)
+  } catch {
+    const fallbackQR = path.resolve("public/fallback-qr.jpg")
+    const qrImg = await loadImage(fallbackQR)
+    ctx.drawImage(qrImg, width - 150, height - 170, 120, 120)
+  }
+
+  // --------- Footer (NGO Address) ---------
+  ctx.fillStyle = theme.primary
+  ctx.fillRect(0, height - 60, width, 60)
+  ctx.fillStyle = "#fff"
+  ctx.font = "16px Sans-serif"
+
+  const ngoAddress = ngo.address || "Address not available"
+  wrapText(ngoAddress, 20, height - 35, width - 40, 18)
 
   // --------- Output ---------
   return canvas.toBuffer("image/png")

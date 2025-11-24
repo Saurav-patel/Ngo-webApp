@@ -7,10 +7,12 @@ import Ngo from "../Models/ngoModel.js"
 import path from "path"
 import { ApiError } from "../utils/apiError.js"
 import { ApiResponse } from "../utils/apiResponse.js"
+import User from "../Models/userModel.js"
 
 const applyIdCard = async (req, res, next) => {
   try {
     const userId = req.user?._id
+    console.log("Applying ID Card for User ID:", userId)
 
     if (!userId) {
       throw new ApiError(401, "Unauthorized access. Please log in again.")
@@ -30,6 +32,18 @@ const applyIdCard = async (req, res, next) => {
       throw new ApiError(500, "NGO information missing. Cannot issue ID Card.")
     }
 
+    // ✅ Require address & phone on profile
+    const user = await User.findById(userId)
+    const address = user?.address
+    const phone = user?.phone
+    
+    if (!address || !phone) {
+      throw new ApiError(
+        400,
+        "Please update your profile with address and phone number before applying for an ID Card."
+      )
+    }
+
     const cardNumber = `ID-${Date.now()}`
     const expiryDateObj = new Date()
     expiryDateObj.setFullYear(expiryDateObj.getFullYear() + 1)
@@ -43,14 +57,19 @@ const applyIdCard = async (req, res, next) => {
         ? "Vice President"
         : role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
 
+    const profilePicUrl =
+      req.user.profilePic || path.resolve("public/default-avatar.jpg")
+
     const idCardBuffer = await generateIDCard({
       ngo,
-      name: req.user.name,
+      name: req.user.username,
       position: normalizedRole || "Member",
-      profilePicUrl: req.user.profilePic || path.resolve("public/default-avatar.jpg"),
+      profilePicUrl,
       cardNumber,
       expiryDate: expiryDateObj.toLocaleDateString("en-IN"),
-      qrBuffer
+      qrBuffer,
+      phone,
+      address
     })
 
     const uploadResult = await uploadToCloudinary(
@@ -70,19 +89,22 @@ const applyIdCard = async (req, res, next) => {
       filePublicId: uploadResult.publicId
     })
 
-    return res
-      .status(201)
-      .json(
-        new ApiResponse(201, {
+    return res.status(201).json(
+      new ApiResponse(
+        201,
+        {
           cardNumber: newIdCard.cardNumber,
           expiryDate: newIdCard.expiryDate,
           fileUrl: newIdCard.fileUrl
-        }, "ID Card issued successfully.")
+        },
+        "ID Card issued successfully."
       )
+    )
   } catch (error) {
     next(error)
   }
 }
+
 
 const renewIdCard = async (req, res, next) => {
   try {
