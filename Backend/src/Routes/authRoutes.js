@@ -1,5 +1,5 @@
 import express from 'express'
-import { createAdmin, login , logout ,refreshAccessToken , signUp } from '../controllers/authControllers.js'
+import { createAdmin, login , logout ,refreshAccessToken , signUp } from "../Controllers/authControllers.js"
 import { verifyRefreshToken } from "../middlewares/authMiddlewares.js"
 import { create } from 'qrcode'
 

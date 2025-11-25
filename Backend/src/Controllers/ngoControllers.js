@@ -39,5 +39,22 @@ const aboutNgo = async (req, res, next) => {
     next(error)
   }
 }
+const getNgoMembers = async (req, res, next) => {
+  try {
+    
 
-export { aboutNgo }
+    const ngo = await Ngo.findOne()
+    if (!ngo) {
+      throw new ApiError(404, "NGO not found")
+    }
+    
+    const members = ngo.members || []
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, members, "Members fetched successfully"))
+  } catch (error) {
+    next(error)
+  }
+}
+export { aboutNgo , getNgoMembers}

@@ -17,6 +17,7 @@ import appointLetterRouter from './src/Routes/appointLetterRoutes.js';
 import idCardRouter from './src/Routes/idCardRoutes.js';
 import certificateRouter from './src/Routes/certificateRoutes.js';
 import { errorHandler } from './src/middlewares/errorHandler.js';
+import ngoRouter from './src/Routes/ngoRoutes.js';
 
 const app = express()
 
@@ -42,6 +43,7 @@ app.use('/api/v1/participation',participationRouter)
 app.use('/api/v1/appointments', appointLetterRouter)
 app.use('/api/v1/idcards', idCardRouter)
 app.use('/api/v1/certificates', certificateRouter)
+app.use('/api/v1/ngo', ngoRouter)
 app.get('/', (req, res) => {
   res.send("hello from the app")
 })

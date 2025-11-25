@@ -275,27 +275,7 @@ const updateMemberInfo = async (req, res, next) => {
   }
 }
 
-const getNgoMembers = async (req, res, next) => {
-  try {
-    const user = req.user
-    if (!user || user.role !== "admin") {
-      throw new ApiError(403, "Forbidden: Admins only")
-    }
 
-    const ngo = await Ngo.findOne()
-    if (!ngo) {
-      throw new ApiError(404, "NGO not found")
-    }
-
-    const members = ngo.members || []
-
-    return res
-      .status(200)
-      .json(new ApiResponse(200, members, "Members fetched successfully"))
-  } catch (error) {
-    next(error)
-  }
-}
 
 const deleteMember = async (req, res, next) => {
   try {
@@ -343,5 +323,5 @@ export {
   addMemberInfo,
   deleteMember,
   updateMemberInfo,
-  getNgoMembers
+  
 }

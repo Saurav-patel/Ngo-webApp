@@ -20,10 +20,7 @@ const memberSchema = new mongoose.Schema({
         url:{ type: String},
         publicId:{ type: String}
     },
-    aadharNumber: { 
-        type: String, 
-        unique: true
-    },
+    
     address: { 
         type: String,
         required: true
@@ -51,11 +48,11 @@ const ngoSchema = new mongoose.Schema({
   },
   address: {
     type: String,
-    default: "Patna City, Bihar, India"
+    default: "Virat Complex Near By Krishna Apt. , Room No:- 302 , Boring Road , Patna "
   },
   contactEmail: {
     type: String,
-    default: "brightfuture@gmail.com",
+    default: "Brightfuturefoundation.ngo@gmail.com",
     lowercase: true
   },
   contactPhone: {

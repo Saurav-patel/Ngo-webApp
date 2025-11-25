@@ -1,5 +1,5 @@
 import express from 'express'
-import {getAllUsers, deleteUser, getMembers , uploadNgoDocuments , addMemberInfo , deleteMember , updateMemberInfo , getNgoMembers } from '../controllers/adminControllers.js'
+import {getAllUsers, deleteUser, getMembers , uploadNgoDocuments , addMemberInfo , deleteMember , updateMemberInfo  } from '../controllers/adminControllers.js'
 import { protectedRoute } from '../middlewares/authMiddlewares.js'
 import { handleMulterErrors } from '../middlewares/upload.js'
 import { verifyAccessToken } from '../middlewares/authMiddlewares.js'
@@ -11,11 +11,11 @@ adminRouter.delete('/delete-user', verifyAccessToken , protectedRoute, deleteUse
 adminRouter.get('/members', verifyAccessToken , protectedRoute, getMembers)
 adminRouter.delete('/delete-member/:memberId', verifyAccessToken , protectedRoute, deleteMember)
 
-// Upload NGO documents (multiple files, PDF/JPEG/PNG)
+
 adminRouter.post('/upload-ngo-documents', verifyAccessToken , protectedRoute, handleMulterErrors('documents'), uploadNgoDocuments)
 
-// Add member (single profile photo)
+
 adminRouter.post('/add-member', verifyAccessToken , protectedRoute, handleMulterErrors('profile'), addMemberInfo)
-adminRouter.get('/ngo-members', verifyAccessToken , protectedRoute, getNgoMembers)
+
 adminRouter.put('/update-member/:memberId', verifyAccessToken , protectedRoute, handleMulterErrors('profile'), updateMemberInfo)
 export default adminRouter
