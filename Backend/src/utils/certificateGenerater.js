@@ -5,10 +5,10 @@ const generateCertificate = async ({
   ngoName,
   regNo,
   presidentName,
-  logoPath,     // use relative or absolute path
-  signPath,     // these can be URLs or static assets
+  logoPath,     
+  signPath,     
 }) => {
-  const width = 1123  // A4 landscape ratio at 96 DPI
+  const width = 1123  
   const height = 794
   const canvas = createCanvas(width, height)
   const ctx = canvas.getContext("2d")
