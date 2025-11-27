@@ -93,14 +93,13 @@ const login = async (req, res, next) => {
 
     const accessToken = user.generateAccessToken()
     const refreshToken = user.generateRefreshToken()
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    })
-
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      })
     const responseData = {
       id: user._id,
       email: user.email,
@@ -155,4 +154,22 @@ const logout = async (req, res, next) => {
   }
 }
 
-export { login, refreshAccessToken, logout, signUp, createAdmin }
+const getCurrentUser = async (req ,res  , next ) => {
+  try {
+    const user = req.user
+    if(!user){
+      throw new ApiError(401 , "User is missing , please login again")
+    }
+    const currentUser = await User.findById(user._id).select('-password -__v -createdAt -updatedAt')
+    if(!currentUser){
+      throw new ApiError(404 , "User not found")
+    }
+
+    return res.status(200)
+    .json(new ApiResponse(200 , currentUser , "Current user fetched successfully"))
+
+  } catch (error) {
+    next(error)
+  }
+}
+export { login, refreshAccessToken, logout, signUp, createAdmin , getCurrentUser }
