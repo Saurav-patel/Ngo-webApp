@@ -9,6 +9,6 @@ userRouter.post('/complete-profile/:userId',verifyAccessToken, completeProfile)
 userRouter.post('/change-password/:userId',verifyAccessToken, changePassword)
 userRouter.get('/membership-status/:userId',verifyAccessToken, getMembershipStatus)
 userRouter.post('/upload-profile-picture/:userId',verifyAccessToken, handleMulterErrors('profile'), uploadProfilePicture)
-userRouter.put('/update-profile-picture/:userId',verifyAccessToken, handleMulterErrors('profile'), updateProfilePicture)
+userRouter.patch('/update-profile-picture/:userId',verifyAccessToken, handleMulterErrors('profile'), updateProfilePicture)
 
 export default userRouter
