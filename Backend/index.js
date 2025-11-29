@@ -41,7 +41,7 @@ app.use('/api/v1/notice', noticeRouter)
 app.use('/api/v1/events', eventRouter)
 app.use('/api/v1/participation',participationRouter)
 app.use('/api/v1/appointments', appointLetterRouter)
-app.use('/api/v1/idcards', idCardRouter)
+app.use('/api/v1/idCards', idCardRouter)
 app.use('/api/v1/certificates', certificateRouter)
 app.use('/api/v1/ngo', ngoRouter)
 app.get('/', (req, res) => {

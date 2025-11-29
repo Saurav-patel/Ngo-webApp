@@ -1,18 +1,12 @@
-import apiClient from "../lib/apiClient.js";
+// src/services/ngoService.js
+import apiClient from "../lib/apiClient.js"
+import { BaseService } from "./baseService.js"
 
-class NgoService {
-    validate(response, fallbackMessage = "Something went wrong") {
-        const data = response?.data
-        if (!data?.success) {
-            throw new Error(data?.message || fallbackMessage)
-        }
-        return data
-    }
-
-    async getNgoInfo() {
-        const res = await apiClient.get("/ngo/about")
-        const data = this.validate(res, "Failed to fetch NGO information")
-        return data.data // ngo info object
-    }
+class NgoService extends BaseService {
+  async getNgoInfo() {
+    const res = await apiClient.get("/ngo/about")
+    return this.parseData(res, "Failed to fetch NGO information")
+  }
 }
+
 export const ngoService = new NgoService()

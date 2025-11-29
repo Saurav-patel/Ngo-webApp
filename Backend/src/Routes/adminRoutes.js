@@ -7,7 +7,7 @@ import { verifyAccessToken } from '../middlewares/authMiddlewares.js'
 const adminRouter = express.Router()
 
 adminRouter.get('/all-users', verifyAccessToken , protectedRoute, getAllUsers)
-adminRouter.delete('/delete-user', verifyAccessToken , protectedRoute, deleteUser)
+adminRouter.delete('/delete-user/:userId', verifyAccessToken , protectedRoute, deleteUser)
 adminRouter.get('/members', verifyAccessToken , protectedRoute, getMembers)
 adminRouter.delete('/delete-member/:memberId', verifyAccessToken , protectedRoute, deleteMember)
 
