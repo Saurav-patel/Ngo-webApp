@@ -8,7 +8,9 @@ const apiClient = axios.create({
   withCredentials: true
 })
 
-// -------- Helpers for refresh handling --------
+// ---------------------
+// Refresh Helpers
+// ---------------------
 let isRefreshing = false
 let failedQueue = []
 
@@ -23,7 +25,9 @@ const processQueue = (error, token = null) => {
   failedQueue = []
 }
 
-// -------- Request Interceptor --------
+// ---------------------
+// Request Interceptor
+// ---------------------
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token")
@@ -35,24 +39,36 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// -------- Response Interceptor (Silent Refresh) --------
+// ---------------------
+// Response Interceptor
+// ---------------------
 apiClient.interceptors.response.use(
   (response) => response,
+
   async (error) => {
     const originalRequest = error.config
     const status = error?.response?.status
 
-    // If no response or it's not 401 -> just reject
+    // No response OR not a 401 -> reject normally
     if (!status || status !== 401) {
       return Promise.reject(error)
     }
 
-    // Already retried once -> don't loop
+    // 👉 Skip refresh for login & refresh-token endpoint itself
+    const url = originalRequest?.url || ""
+    if (
+      url.includes("/auth/login") ||
+      url.includes("/auth/refresh-token")
+    ) {
+      return Promise.reject(error)
+    }
+
+    // Prevent infinite loops
     if (originalRequest._retry) {
       return Promise.reject(error)
     }
 
-    // Queue requests while refresh is in progress
+    // Queue request if refresh already in progress
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({
@@ -65,17 +81,16 @@ apiClient.interceptors.response.use(
       })
     }
 
+    // Mark this request for retry
     originalRequest._retry = true
     isRefreshing = true
 
     try {
-      // Call refresh-token endpoint using cookie
+      // Call refresh-token endpoint (cookie included automatically)
       const refreshResponse = await axios.post(
         `${baseURL}/auth/refresh-token`,
         {},
-        {
-          withCredentials: true
-        }
+        { withCredentials: true }
       )
 
       const newToken = refreshResponse?.data?.accessToken
@@ -84,24 +99,23 @@ apiClient.interceptors.response.use(
         throw new Error("No access token returned from refresh-token endpoint")
       }
 
-      // Save new access token
+      // Set new token
       localStorage.setItem("token", newToken)
-
-      // Update default header for future requests
       apiClient.defaults.headers.common.Authorization = `Bearer ${newToken}`
 
-      // Resolve queued requests
+      // Resolve all queued requests
       processQueue(null, newToken)
 
-      // Retry the original request with new token
+      // Retry original request
       originalRequest.headers.Authorization = `Bearer ${newToken}`
       return apiClient(originalRequest)
+
     } catch (refreshError) {
       processQueue(refreshError, null)
 
       // Hard logout
       localStorage.removeItem("token")
-      localStorage.removeItem("user") // if you store user here
+      localStorage.removeItem("user")
 
       window.location.href = "/login"
 

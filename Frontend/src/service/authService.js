@@ -14,7 +14,9 @@ class AuthService extends BaseService {
       localStorage.setItem("token", data.accessToken)
     }
 
-    return data   
+    const { accessToken, ...user } = data
+
+    return user
   }
 
   

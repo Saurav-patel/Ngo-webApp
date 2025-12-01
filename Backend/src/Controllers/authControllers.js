@@ -160,7 +160,7 @@ const getCurrentUser = async (req ,res  , next ) => {
     if(!user){
       throw new ApiError(401 , "User is missing , please login again")
     }
-    const currentUser = await User.findById(user._id).populate('username email role')
+    const currentUser = await User.findById(user._id).populate('username email role _id')
     if(!currentUser){
       throw new ApiError(404 , "User not found")
     }
