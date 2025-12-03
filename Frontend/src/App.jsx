@@ -1,28 +1,52 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMyParticipations } from "./store/slices/participationSlice";
-import { selectIsAuthenticated } from "./store/slices/authSlice";
-import HomePage from "./components/homePage.jsx";
+import { fetchMyParticipations } from "./store/slices/participationSlice.js";
+import { selectIsAuthenticated } from "./store/slices/authSlice.js";
+
+import Navbar from "./layout/navBar.jsx";
+import Footer from "./layout/footer.jsx";
+import HomePage from "./pages/homePage.jsx";
+// import EventsPage, AboutPage, ContactPage later
 
 function App() {
   const dispatch = useDispatch();
   const isAuth = useSelector(selectIsAuthenticated);
 
- useEffect(() => {
-  let mounted = true;
-  const hydrate = async () => {
-    if (!isAuth || !mounted) return;
-    try {
-      await dispatch(fetchMyParticipations()).unwrap();
-    } catch (err) {
-      console.warn("Failed to hydrate participations:", err);
-    }
-  };
-  hydrate();
-  return () => { mounted = false; };
-}, [isAuth, dispatch]);
+  useEffect(() => {
+    let mounted = true;
+    const hydrate = async () => {
+      if (!isAuth || !mounted) return;
+      try {
+        await dispatch(fetchMyParticipations()).unwrap();
+      } catch (err) {
+        console.warn("Failed to hydrate participations:", err);
+      }
+    };
+    hydrate();
+    return () => {
+      mounted = false;
+    };
+  }, [isAuth, dispatch]);
 
-  return <HomePage />;
+  return (
+    <BrowserRouter>
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            {/* <Route path="/events" element={<EventsPage />} /> */}
+            {/* <Route path="/about" element={<AboutPage />} /> */}
+            {/* <Route path="/contact" element={<ContactPage />} /> */}
+          </Routes>
+        </main>
+
+        <Footer />
+      </div>
+    </BrowserRouter>
+  );
 }
 
 export default App;
