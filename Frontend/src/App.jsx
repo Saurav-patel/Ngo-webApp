@@ -3,10 +3,11 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMyParticipations } from "./store/slices/participationSlice.js";
 import { selectIsAuthenticated } from "./store/slices/authSlice.js";
-
+import RequireAuth from "./routes/requireAuth.jsx";
 import Navbar from "./layout/navBar.jsx";
 import Footer from "./layout/footer.jsx";
 import HomePage from "./pages/homePage.jsx";
+import AppRoutes from "./routes/appRoutes.jsx";
 // import EventsPage, AboutPage, ContactPage later
 
 function App() {
@@ -35,12 +36,7 @@ function App() {
         <Navbar />
 
         <main className="flex-1">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            {/* <Route path="/events" element={<EventsPage />} /> */}
-            {/* <Route path="/about" element={<AboutPage />} /> */}
-            {/* <Route path="/contact" element={<ContactPage />} /> */}
-          </Routes>
+         <AppRoutes />
         </main>
 
         <Footer />
