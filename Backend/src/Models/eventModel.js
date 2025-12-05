@@ -28,18 +28,9 @@ const eventSchema = new Schema({
         required: true 
     },
     
-   participants: [
-     {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    email: String,
-    status: { type: String, enum: ["registered", "attended", "cancelled"], default: "registered" }
-    }
-    ],
+   
 
-    certificateIssued: { 
-        type: Boolean, 
-        default: false 
-    }
+    
 }, { timestamps: true })
 
 
