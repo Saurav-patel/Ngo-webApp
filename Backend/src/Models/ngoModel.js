@@ -72,10 +72,7 @@ const ngoSchema = new mongoose.Schema({
     type: String,
     default: "Creating a world where every individual has the opportunity to thrive and contribute positively to society."
   },
-  logoUrl: {
-    type: String,
-    default: ""
-  },
+ 
   members: [memberSchema]
 }, { timestamps: true })
 

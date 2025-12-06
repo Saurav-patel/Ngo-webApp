@@ -8,7 +8,7 @@ const eventRouter = express.Router()
 // Upload event photos with max 8 files
 eventRouter.post('/create-event',verifyAccessToken, protectedRoute, handleMulterErrors('event'), createEvent)
 eventRouter.get('/all-events', getAllEvents)
-eventRouter.get('/single-event/:eventId', verifyAccessToken , getSingleEvent)
+eventRouter.get('/single-event/:eventId',  getSingleEvent)
 eventRouter.put('/update-event/:eventId', verifyAccessToken , protectedRoute,  handleMulterErrors('event') , updateEvent)
 eventRouter.delete('/delete-event/:eventId', verifyAccessToken , protectedRoute ,deleteEvent)
 

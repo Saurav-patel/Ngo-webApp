@@ -22,6 +22,7 @@ import idCardRouter from "./src/Routes/idCardRoutes.js";
 import certificateRouter from "./src/Routes/certificateRoutes.js";
 import { errorHandler } from "./src/middlewares/errorHandler.js";
 import ngoRouter from "./src/Routes/ngoRoutes.js";
+import contactRouter from "./src/Routes/contactRoutes.js";
 
 const app = express();
 
@@ -59,6 +60,7 @@ app.use("/api/v1/appointments", appointLetterRouter);
 app.use("/api/v1/idCards", idCardRouter);
 app.use("/api/v1/certificates", certificateRouter);
 app.use("/api/v1/ngo", ngoRouter);
+app.use("/contact",contactRouter)
 
 app.get("/", (req, res) => {
   res.send("hello from the app");
