@@ -7,6 +7,8 @@ import RegisterPage from "../pages/auth/registerpage";
 import AboutPage from "../pages/aboutPage";
 import EventDetailPage from "../pages/singleEventPage";
 import AllEventsPage from "../pages/eventsPage";
+import ContactPage from "../pages/contactPage";
+import DashboardPage from "../pages/dashboardPage";
 const AppRoutes = () => {
     return (
         <Routes>
@@ -16,9 +18,10 @@ const AppRoutes = () => {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/events/:eventId" element={<EventDetailPage />} />
             <Route path="/events" element={<AllEventsPage />} />
+            <Route path="/contact" element={<ContactPage />} />
             {/* Protected routes can be added here using RequireAuth */}
             <Route element = {<RequireAuth />} >
-            <Route path = "/Dashboard " element = "" >
+            <Route path = "/dashboard" element = {<DashboardPage />} >
 
 
 
