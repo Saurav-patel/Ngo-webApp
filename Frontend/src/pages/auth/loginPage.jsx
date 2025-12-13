@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { loginUser } from "../../store/slices/authSlice.js";
-import { useDispatch, useSelector} from "react-redux";
-import {useNavigate, useLocation, Link} from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { selectAuthStatus } from "../../store/slices/authSlice.js";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -22,13 +23,16 @@ const LoginPage = () => {
     },
   });
 
-  const authLoading = useSelector((state) => state.auth?.loading);
+  // ✅ FIX: status is a STRING
+  const authStatus = useSelector(selectAuthStatus);
+  console.log("LoginPage authStatus:", authStatus);
+  const isAuthLoading = authStatus === "loading";
+  console.log("isAuthLoading:", isAuthLoading);
 
   const onSubmit = async (data) => {
     clearErrors("root");
 
     try {
-      // adjust payload keys if your backend expects different names
       await dispatch(
         loginUser({
           email: data.email,
@@ -36,7 +40,7 @@ const LoginPage = () => {
         })
       ).unwrap();
 
-      const from = location.state?.from?.pathname || "/dashboard";
+      const from = location.state?.from?.pathname || "/";
       navigate(from, { replace: true });
     } catch (err) {
       setError("root", {
@@ -216,10 +220,10 @@ const LoginPage = () => {
 
                 <button
                   type="submit"
-                  disabled={isSubmitting || authLoading}
+                  disabled={isSubmitting || isAuthLoading}
                   className="mt-2 inline-flex w-full items-center justify-center rounded-full bg-emerald-500 px-6 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/30 hover:bg-emerald-400 disabled:opacity-60 disabled:cursor-not-allowed transition"
                 >
-                  {isSubmitting || authLoading ? (
+                  {isSubmitting || isAuthLoading ? (
                     <span className="flex items-center gap-2">
                       <span className="h-3 w-3 animate-spin rounded-full border-[2px] border-slate-900 border-t-transparent" />
                       Signing you in...

@@ -19,60 +19,40 @@ const initialState = eventsAdapter.getInitialState({
   fetchStatus: 'idle', // for list fetch
   status: 'idle', // for single/create/update/delete flows
   error: null,
-  meta: { total: null }, // optional, if backend returns totals later
+  meta: { total: null },
 })
 
-/* =========================
-   Helper: normalize various payload shapes
-   - supports:
-     - arrays: data = [ ... ]
-     - single object: data = { _id: ..., ... }
-     - paginated object: data = { items: [...], total: N }
-     - validate() style: { success, message, data: ... }  (we unwrap it)
-   Returns: { items: Array, single: Object|null, meta: {} }
-   ========================= */
 function normalizeServicePayload(payload) {
   if (payload == null) return { items: [], single: null, meta: {} }
-
-  // If validate() returned: { success, message, data }
   if (typeof payload === 'object' && payload.success === true && 'data' in payload) {
     payload = payload.data
   }
 
-  // Array of events
   if (Array.isArray(payload)) return { items: payload, single: null, meta: {} }
-
-  // Paginated: { items: [...], total: N }
+ 
   if (typeof payload === 'object' && Array.isArray(payload.items)) {
     return { items: payload.items, single: null, meta: { total: payload.total ?? null } }
   }
 
-  // Single event object (has _id or id)
+  
   if (typeof payload === 'object' && (payload._id || payload.id)) {
     return { items: [], single: payload, meta: {} }
   }
 
-  // Fallback: check nested shapes commonly used
+  
   if (payload.data && Array.isArray(payload.data)) return { items: payload.data, single: null, meta: {} }
   if (payload.data && Array.isArray(payload.data.items)) return { items: payload.data.items, single: null, meta: { total: payload.data.total ?? null } }
 
   return { items: [], single: null, meta: {} }
 }
 
-/* =========================
-   Thunks
-   ========================= */
 
-/**
- * GET /events/all-events
- * eventService.getAllEvents() calls parseData() and returns inner data (per your BaseService)
- */
 export const fetchAllEvents = createAsyncThunk(
   'events/fetchAllEvents',
   async (_, { rejectWithValue }) => {
     try {
       const res = await eventService.getAllEvents()
-      return res
+      return res.data
     } catch (err) {
       const msg = err?.response?.data?.message ?? err?.message ?? 'Failed to fetch events'
       return rejectWithValue(msg)
@@ -88,7 +68,7 @@ export const fetchEventDetails = createAsyncThunk(
   async (eventId, { rejectWithValue }) => {
     try {
       const res = await eventService.getEventDetails(eventId)
-      return res
+      return res.data
     } catch (err) {
       const msg = err?.response?.data?.message ?? err?.message ?? 'Failed to fetch event details'
       return rejectWithValue(msg)
@@ -105,7 +85,7 @@ export const createEvent = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const res = await eventService.createEvent(formData)
-      return res
+      return res.data
     } catch (err) {
       const msg = err?.response?.data?.message ?? err?.message ?? 'Failed to create event'
       return rejectWithValue(msg)
@@ -121,7 +101,7 @@ export const updateEvent = createAsyncThunk(
   async ({ eventId, formData }, { rejectWithValue }) => {
     try {
       const res = await eventService.updateEvent(eventId, formData)
-      return res
+      return res.data
     } catch (err) {
       const msg = err?.response?.data?.message ?? err?.message ?? 'Failed to update event'
       return rejectWithValue(msg)
@@ -146,14 +126,11 @@ export const deleteEvent = createAsyncThunk(
   }
 )
 
-/* =========================
-   Slice
-   ========================= */
 const eventSlice = createSlice({
   name: 'events',
   initialState,
   reducers: {
-    // Used for logout/cleanup or manual reset
+    
     clearEventsState(state) {
       eventsAdapter.removeAll(state)
       state.fetchStatus = 'idle'

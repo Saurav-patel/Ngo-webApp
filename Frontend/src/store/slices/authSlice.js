@@ -1,25 +1,25 @@
 // src/store/slices/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { authService } from "../../service/authService.js"
+import { userService } from "../../service/userService.js"
 
 /* --------------------------
    Thunks
-   -------------------------- */
+-------------------------- */
 
 // SIGNUP
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (payload, { rejectWithValue }) => {
     try {
-      // payload should include: { username, email, password, ... }
-      const data = await authService.signUp(payload)
-      return data
+      const user = await authService.signUp(payload)
+      return user // ✅ PURE DATA
     } catch (error) {
-      const message =
+      return rejectWithValue(
         error?.response?.data?.message ||
         error.message ||
         "Signup failed"
-      return rejectWithValue(message)
+      )
     }
   }
 )
@@ -30,52 +30,51 @@ export const loginUser = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const user = await authService.login(credentials)
-      return user
+      return user // ✅ PURE USER OBJECT
     } catch (error) {
-      const message =
-        error?.response?.data?.message || error.message || "Login failed"
-      return rejectWithValue(message)
+      return rejectWithValue(
+        error?.response?.data?.message ||
+        error.message ||
+        "Login failed"
+      )
     }
   }
 )
 
-// Fetch current user
+// FETCH CURRENT USER
 export const fetchCurrentUser = createAsyncThunk(
   "auth/fetchCurrentUser",
   async (_, { rejectWithValue }) => {
     try {
-      const user = await authService.getCurrentUser()
-      return user
+      const user = await userService.getUserDetails()
+      return user // ✅ PURE USER OBJECT
     } catch (error) {
-      const message =
+      return rejectWithValue(
         error?.response?.data?.message ||
         error.message ||
         "Fetching current user failed"
-      return rejectWithValue(message)
+      )
     }
   }
 )
 
 /* --------------------------
    Initial State
-   -------------------------- */
+-------------------------- */
 
 const initialState = {
   user: null,
   isAuthenticated: false,
-
-  // for login / fetchCurrentUser
-  status: "idle", // "idle" | "loading" | "succeeded" | "failed"
+  status: "idle", // idle | loading | succeeded | failed
   error: null,
 
-  // for signup
-  signUpStatus: "idle", // "idle" | "loading" | "succeeded" | "failed"
+  signUpStatus: "idle",
   signUpError: null,
 }
 
 /* --------------------------
    Slice
-   -------------------------- */
+-------------------------- */
 
 const authSlice = createSlice({
   name: "auth",
@@ -86,60 +85,43 @@ const authSlice = createSlice({
       state.isAuthenticated = false
       state.status = "idle"
       state.error = null
-      state.signUpStatus = "idle"
-      state.signUpError = null
       localStorage.removeItem("token")
       localStorage.removeItem("user")
-    },
-    // optional helper to set user from localStorage (if you want to rehydrate)
-    setUserFromStorage: (state, action) => {
-      state.user = action.payload
-      state.isAuthenticated = !!action.payload
     },
   },
   extraReducers: (builder) => {
     builder
-      /* ---------- registerUser (signup) ---------- */
+
+      // REGISTER
       .addCase(registerUser.pending, (state) => {
         state.signUpStatus = "loading"
-        state.signUpError = null
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(registerUser.fulfilled, (state) => {
         state.signUpStatus = "succeeded"
-        state.signUpError = null
-        // we do NOT auto-login here; user will login manually after signup
-        // you could set some "justSignedUp" flag here if needed
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.signUpStatus = "failed"
         state.signUpError = action.payload
       })
 
-      /* ---------- loginUser ---------- */
+      // LOGIN
       .addCase(loginUser.pending, (state) => {
         state.status = "loading"
-        state.error = null
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = "succeeded"
         state.user = action.payload
         state.isAuthenticated = true
-
-        // persist minimal user info for page refresh (optional)
-        try {
-          localStorage.setItem("user", JSON.stringify(action.payload))
-        } catch (e) {
-          // ignore storage errors
-        }
+        localStorage.setItem("user", JSON.stringify(action.payload))
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.status = "failed"
-        state.error = action.payload
         state.user = null
         state.isAuthenticated = false
+        state.error = action.payload
       })
 
-      /* ---------- fetchCurrentUser ---------- */
+      // FETCH CURRENT USER
       .addCase(fetchCurrentUser.pending, (state) => {
         state.status = "loading"
       })
@@ -147,11 +129,7 @@ const authSlice = createSlice({
         state.status = "succeeded"
         state.user = action.payload
         state.isAuthenticated = true
-
-        // keep local copy updated
-        try {
-          localStorage.setItem("user", JSON.stringify(action.payload))
-        } catch (e) {}
+        localStorage.setItem("user", JSON.stringify(action.payload))
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
         state.status = "failed"
@@ -162,19 +140,16 @@ const authSlice = createSlice({
   },
 })
 
-export const { logOut, setUserFromStorage } = authSlice.actions
-
+export const { logOut } = authSlice.actions
 export default authSlice.reducer
 
 /* --------------------------
    Selectors
-   -------------------------- */
+-------------------------- */
 
-export const selectAuthUser = (state) => state.auth?.user ?? null
-export const selectIsAuthenticated = (state) => !!state.auth?.isAuthenticated
-export const selectAuthStatus = (state) => state.auth?.status ?? "idle"
-export const selectAuthError = (state) => state.auth?.error ?? null
-
-export const selectSignUpStatus = (state) =>
-  state.auth?.signUpStatus ?? "idle"
-export const selectSignUpError = (state) => state.auth?.signUpError ?? null
+export const selectAuthUser = (state) => state.auth.user
+export const selectIsAuthenticated = (state) => state.auth.isAuthenticated
+export const selectAuthStatus = (state) => state.auth.status
+export const selectAuthError = (state) => state.auth.error
+export const selectSignUpStatus = (state) => state.auth.signUpStatus
+export const selectSignUpError = (state) => state.auth.signUpError

@@ -21,7 +21,7 @@ class EventService extends BaseService {
   }
 
   async myParticipatedEvents() {
-    const res = await apiClient.get(`/events/my-participation`)
+    const res = await apiClient.get(`/participation/my-participation`)
     return this.parseData(res, "Failed to fetch my participated events")
   }
 

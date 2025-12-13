@@ -187,22 +187,20 @@ const updateProfilePicture = async (req , res , next) =>{
 
 const getUserDetails = async (req, res , next) => {
     try {
-        const { userId } = req.params
+        
         const  user  = req.user
         
-        if (!userId) {
+        if (!user._id) {
             throw new ApiError(401 , "user is missing , please login again")
         }
 
-        if(!mongoose.Types.ObjectId.isValid(userId)){
+        if(!mongoose.Types.ObjectId.isValid(user._id)){
             throw new ApiError(400 , "Invalid user ID")
         }
 
-        if (userId !== user._id.toString()) {
-            throw new ApiError(403 , "You are not authorized to access this user's details")
-        }
+        
 
-        const getUser = await User.findById(userId)
+        const getUser = await User.findById(user._id).select("-password -__v")
         if (!getUser) {
             throw new ApiError(404 , "User not found")
         }
@@ -219,6 +217,9 @@ const getUserDetails = async (req, res , next) => {
             dob: getUser.dob,
             status: getUser.status,
             city: getUser.city,
+            profile_pic_url: getUser.profile_pic_url.url || null,
+            registerNumber: getUser.registerNumber,
+            validity: getUser.validity
         }, "User details fetched successfully"))
 
     } catch (error) {

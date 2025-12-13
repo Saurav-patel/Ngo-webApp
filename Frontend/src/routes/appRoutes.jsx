@@ -8,7 +8,7 @@ import AboutPage from "../pages/aboutPage";
 import EventDetailPage from "../pages/singleEventPage";
 import AllEventsPage from "../pages/eventsPage";
 import ContactPage from "../pages/contactPage";
-import DashboardPage from "../pages/dashboardPage";
+
 const AppRoutes = () => {
     return (
         <Routes>
@@ -21,11 +21,7 @@ const AppRoutes = () => {
             <Route path="/contact" element={<ContactPage />} />
             {/* Protected routes can be added here using RequireAuth */}
             <Route element = {<RequireAuth />} >
-            <Route path = "/dashboard" element = {<DashboardPage />} >
-
-
-
-            </Route>
+           
             </Route>
         </Routes>
     )

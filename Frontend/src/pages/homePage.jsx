@@ -29,7 +29,7 @@ const HomePage = () => {
             try {
               const data = await eventService.getAllEvents()
               setEvents(data || [])
-              console.log("Fetched events:", data)
+              
             } catch (err) {
               console.error(err)
               setEventsError(err.message || "Failed to load events")
