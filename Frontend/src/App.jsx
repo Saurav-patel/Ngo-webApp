@@ -18,12 +18,12 @@ function App() {
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   // 🔐 AUTH HYDRATION (VERY IMPORTANT)
-  useEffect(() => {
-    const token = localStorage.getItem("token")
-    if (token && !isAuth) {
-      dispatch(fetchCurrentUser())
-    }
-  }, [dispatch, isAuth])
+ useEffect(() => {
+  if (!isAuth) {
+    dispatch(fetchCurrentUser())
+  }
+}, [dispatch, isAuth])
+
 
   // 📦 Hydrate participations AFTER auth
   useEffect(() => {

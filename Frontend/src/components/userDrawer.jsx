@@ -13,7 +13,7 @@ const UserDrawer = ({ open, close }) => {
   console.log(user)
 
   const avatar =
-    user?.photo?.url || "/default-avatar.png"
+    user?.profile_pic_url || "/default-avatar.png"
 
   return (
     <>
@@ -43,7 +43,7 @@ const UserDrawer = ({ open, close }) => {
 
             <div>
               <p className="text-sm font-semibold leading-tight">
-                {user?.name || "Member"}
+                {user?.username || "Member"}
               </p>
               <p className="text-xs text-gray-400">
                 {user?.email || "user@email.com"}

@@ -1,13 +1,13 @@
 import express from "express";
 import {issueCertificate , myCertificates , allCertificates , getSingleCertificate , deleteCertificate} from "../Controllers/certificateControllers.js";
 import { protectedRoute } from "../middlewares/authMiddlewares.js";
-import { verifyAccessToken } from "../middlewares/authMiddlewares.js";
+import { verifyAuthToken } from "../middlewares/authMiddlewares.js";
 
 const certificateRouter = express.Router();
 
-certificateRouter.post('/issue-certificate', verifyAccessToken , issueCertificate)
-certificateRouter.get('/my-certificates/:userId', verifyAccessToken ,myCertificates)
-certificateRouter.get('/all-certificates', verifyAccessToken ,protectedRoute , allCertificates)
-certificateRouter.get('/get-certificate/:certificateId', verifyAccessToken, protectedRoute , getSingleCertificate)
-certificateRouter.delete('/delete-certificate/:certificateId', verifyAccessToken ,protectedRoute , deleteCertificate)
+certificateRouter.post('/issue-certificate', verifyAuthToken , issueCertificate)
+certificateRouter.get('/my-certificates/:userId', verifyAuthToken ,myCertificates)
+certificateRouter.get('/all-certificates', verifyAuthToken ,protectedRoute , allCertificates)
+certificateRouter.get('/get-certificate/:certificateId', verifyAuthToken, protectedRoute , getSingleCertificate)
+certificateRouter.delete('/delete-certificate/:certificateId', verifyAuthToken ,protectedRoute , deleteCertificate)
 export default certificateRouter

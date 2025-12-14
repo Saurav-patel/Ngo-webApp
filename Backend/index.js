@@ -13,7 +13,7 @@ import dbConnect from "./src/Database/dbconnect.js";
 import authRouter from "./src/Routes/authRoutes.js";
 import userRouter from "./src/Routes/userRoutes.js";
 import adminRouter from "./src/Routes/adminRoutes.js";
-import visitorRouter from "./src/Routes/visitorRoutes.js";
+
 import noticeRouter from "./src/Routes/noticeRoutes.js";
 import eventRouter from "./src/Routes/eventRoutes.js";
 import participationRouter from "./src/Routes/participationRoutes.js";
@@ -52,7 +52,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/admin", adminRouter);
-app.use("/api/v1/visitor", visitorRouter);
+
 app.use("/api/v1/notice", noticeRouter);
 app.use("/api/v1/events", eventRouter);
 app.use("/api/v1/participation", participationRouter);
@@ -60,7 +60,7 @@ app.use("/api/v1/appointments", appointLetterRouter);
 app.use("/api/v1/idCards", idCardRouter);
 app.use("/api/v1/certificates", certificateRouter);
 app.use("/api/v1/ngo", ngoRouter);
-app.use("/contact",contactRouter)
+app.use("/api/v1/contact",contactRouter)
 
 app.get("/", (req, res) => {
   res.send("hello from the app");

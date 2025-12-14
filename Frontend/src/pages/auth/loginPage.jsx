@@ -25,9 +25,9 @@ const LoginPage = () => {
 
   // ✅ FIX: status is a STRING
   const authStatus = useSelector(selectAuthStatus);
-  console.log("LoginPage authStatus:", authStatus);
+  
   const isAuthLoading = authStatus === "loading";
-  console.log("isAuthLoading:", isAuthLoading);
+  
 
   const onSubmit = async (data) => {
     clearErrors("root");
@@ -39,8 +39,9 @@ const LoginPage = () => {
           password: data.password,
         })
       ).unwrap();
-
+      
       const from = location.state?.from?.pathname || "/";
+      
       navigate(from, { replace: true });
     } catch (err) {
       setError("root", {

@@ -14,8 +14,13 @@ const RequireAuth = () => {
 
   // ⏳ WAIT while auth is NOT resolved
   if (status === "idle" || status === "loading") {
-    return null // or a full-page loader
-  }
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-slate-400 text-sm">Checking session…</p>
+    </div>
+  )
+}
+
 
   // 🔐 NOT AUTHENTICATED
   if (!isAuth) {

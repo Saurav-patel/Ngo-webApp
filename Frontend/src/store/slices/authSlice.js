@@ -3,64 +3,64 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { authService } from "../../service/authService.js"
 import { userService } from "../../service/userService.js"
 
-/* --------------------------
-   Thunks
--------------------------- */
+/* =========================
+   THUNKS
+========================= */
 
-// SIGNUP
+// REGISTER
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (payload, { rejectWithValue }) => {
     try {
       const user = await authService.signUp(payload)
-      return user // ✅ PURE DATA
+      return user
     } catch (error) {
       return rejectWithValue(
         error?.response?.data?.message ||
-        error.message ||
-        "Signup failed"
+          error.message ||
+          "Signup failed"
       )
     }
   }
 )
 
-// LOGIN
+// LOGIN (COOKIE-BASED)
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (credentials, { rejectWithValue }) => {
     try {
       const user = await authService.login(credentials)
-      return user // ✅ PURE USER OBJECT
+      return user // ✅ user object only
     } catch (error) {
       return rejectWithValue(
         error?.response?.data?.message ||
-        error.message ||
-        "Login failed"
+          error.message ||
+          "Login failed"
       )
     }
   }
 )
 
-// FETCH CURRENT USER
+// FETCH CURRENT USER (/me)
 export const fetchCurrentUser = createAsyncThunk(
   "auth/fetchCurrentUser",
   async (_, { rejectWithValue }) => {
     try {
       const user = await userService.getUserDetails()
-      return user // ✅ PURE USER OBJECT
+      return user
     } catch (error) {
       return rejectWithValue(
         error?.response?.data?.message ||
-        error.message ||
-        "Fetching current user failed"
+          error.message ||
+          "Fetching current user failed"
       )
     }
   }
 )
 
-/* --------------------------
-   Initial State
--------------------------- */
+/* =========================
+   INITIAL STATE
+========================= */
 
 const initialState = {
   user: null,
@@ -72,9 +72,9 @@ const initialState = {
   signUpError: null,
 }
 
-/* --------------------------
-   Slice
--------------------------- */
+/* =========================
+   SLICE
+========================= */
 
 const authSlice = createSlice({
   name: "auth",
@@ -85,14 +85,13 @@ const authSlice = createSlice({
       state.isAuthenticated = false
       state.status = "idle"
       state.error = null
-      localStorage.removeItem("token")
-      localStorage.removeItem("user")
+      // ❌ no localStorage cleanup needed
     },
   },
   extraReducers: (builder) => {
     builder
 
-      // REGISTER
+      /* ---------- REGISTER ---------- */
       .addCase(registerUser.pending, (state) => {
         state.signUpStatus = "loading"
       })
@@ -104,7 +103,7 @@ const authSlice = createSlice({
         state.signUpError = action.payload
       })
 
-      // LOGIN
+      /* ---------- LOGIN ---------- */
       .addCase(loginUser.pending, (state) => {
         state.status = "loading"
       })
@@ -112,7 +111,6 @@ const authSlice = createSlice({
         state.status = "succeeded"
         state.user = action.payload
         state.isAuthenticated = true
-        localStorage.setItem("user", JSON.stringify(action.payload))
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.status = "failed"
@@ -121,7 +119,7 @@ const authSlice = createSlice({
         state.error = action.payload
       })
 
-      // FETCH CURRENT USER
+      /* ---------- FETCH CURRENT USER ---------- */
       .addCase(fetchCurrentUser.pending, (state) => {
         state.status = "loading"
       })
@@ -129,7 +127,6 @@ const authSlice = createSlice({
         state.status = "succeeded"
         state.user = action.payload
         state.isAuthenticated = true
-        localStorage.setItem("user", JSON.stringify(action.payload))
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
         state.status = "failed"
@@ -140,12 +137,16 @@ const authSlice = createSlice({
   },
 })
 
+/* =========================
+   EXPORTS
+========================= */
+
 export const { logOut } = authSlice.actions
 export default authSlice.reducer
 
-/* --------------------------
-   Selectors
--------------------------- */
+/* =========================
+   SELECTORS
+========================= */
 
 export const selectAuthUser = (state) => state.auth.user
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated

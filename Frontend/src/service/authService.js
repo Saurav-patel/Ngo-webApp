@@ -7,16 +7,11 @@ class AuthService extends BaseService {
   
   async login(payload) {
     const res = await apiClient.post("/auth/login", payload)
-    const data = this.validate(res, "Login failed")
-
+    const data= this.parseData(res, "Login failed")
+    console.log(data)
+    return data 
     
-    if (data.accessToken) {
-      localStorage.setItem("token", data.accessToken)
-    }
-
-    const { accessToken, ...user } = data
-
-    return user
+    
   }
 
   
@@ -34,12 +29,10 @@ class AuthService extends BaseService {
 
   
   async logout() {
-    try {
+    
       const res = await apiClient.post("/auth/logout")
       return this.validate(res, "Logout failed")
-    } finally {
-      localStorage.removeItem("token")
-    }
+   
   }
 }
 

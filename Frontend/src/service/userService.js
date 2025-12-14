@@ -13,7 +13,7 @@ class UserService extends BaseService {
   
   async getUserDetails() {
     const res = await apiClient.get(`/user/get-user-details`)
-    return this.validate(res, "Failed to fetch user details")
+    return this.parseData(res, "Failed to fetch user details")
     
   }
 

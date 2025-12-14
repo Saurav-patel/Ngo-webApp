@@ -1,8 +1,12 @@
+// src/controllers/authController.js
 import User from "../Models/userModel.js"
 import jwt from "jsonwebtoken"
 import { ApiError } from "../utils/apiError.js"
 import { ApiResponse } from "../utils/apiResponse.js"
 
+/* =========================
+   SIGN UP
+========================= */
 const signUp = async (req, res, next) => {
   try {
     const { name, email, password } = req.body
@@ -20,14 +24,14 @@ const signUp = async (req, res, next) => {
       username: name,
       email,
       password,
-      role: "member"
+      role: "member",
     })
 
     const responseData = {
       id: user._id,
       email: user.email,
       username: user.username,
-      role: user.role
+      role: user.role,
     }
 
     return res
@@ -38,6 +42,9 @@ const signUp = async (req, res, next) => {
   }
 }
 
+/* =========================
+   CREATE ADMIN
+========================= */
 const createAdmin = async (req, res, next) => {
   try {
     const { name, email, password } = req.body
@@ -55,14 +62,14 @@ const createAdmin = async (req, res, next) => {
       username: name,
       email,
       password,
-      role: "admin"
+      role: "admin",
     })
 
     const responseData = {
       id: admin._id,
       email: admin.email,
       username: admin.username,
-      role: admin.role
+      role: admin.role,
     }
 
     return res
@@ -73,6 +80,9 @@ const createAdmin = async (req, res, next) => {
   }
 }
 
+/* =========================
+   LOGIN (COOKIE-BASED)
+========================= */
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body
@@ -91,21 +101,22 @@ const login = async (req, res, next) => {
       throw new ApiError(400, "Invalid credentials")
     }
 
-    const accessToken = user.generateAccessToken()
+    // 🔐 Generate ONLY refresh token (cookie-based auth)
     const refreshToken = user.generateRefreshToken()
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-        path: "/",
-        maxAge: 7 * 24 * 60 * 60 * 1000
-      })
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    })
+
     const responseData = {
       id: user._id,
       email: user.email,
       username: user.username,
       role: user.role,
-      accessToken
     }
 
     return res
@@ -116,6 +127,10 @@ const login = async (req, res, next) => {
   }
 }
 
+/* =========================
+   REFRESH ACCESS TOKEN
+   (OPTIONAL / FUTURE USE)
+========================= */
 const refreshAccessToken = async (req, res, next) => {
   try {
     const user = req.user
@@ -125,25 +140,38 @@ const refreshAccessToken = async (req, res, next) => {
     }
 
     const newAccessToken = jwt.sign(
-      { _id: user._id, email: user.email, username: user.username, role: user.role },
+      {
+        _id: user._id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+      },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
     )
 
-    return res
-      .status(200)
-      .json(new ApiResponse(200, { accessToken: newAccessToken }, "New access token generated"))
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        { accessToken: newAccessToken },
+        "New access token generated"
+      )
+    )
   } catch (error) {
     next(error)
   }
 }
 
+/* =========================
+   LOGOUT
+========================= */
 const logout = async (req, res, next) => {
   try {
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict"
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      path: "/",
     })
 
     return res
@@ -154,22 +182,42 @@ const logout = async (req, res, next) => {
   }
 }
 
-const getCurrentUser = async (req ,res  , next ) => {
+/* =========================
+   GET CURRENT USER (/me)
+========================= */
+const getCurrentUser = async (req, res, next) => {
   try {
     const user = req.user
-    if(!user){
-      throw new ApiError(401 , "User is missing , please login again")
-    }
-    const currentUser = await User.findById(user._id).populate('username email role _id')
-    if(!currentUser){
-      throw new ApiError(404 , "User not found")
+
+    if (!user) {
+      throw new ApiError(401, "User is missing, please login again")
     }
 
-    return res.status(200)
-    .json(new ApiResponse(200 , currentUser , "Current user fetched successfully"))
+    const currentUser = await User.findById(user._id).select(
+      "-password -refreshToken"
+    )
 
+    if (!currentUser) {
+      throw new ApiError(404, "User not found")
+    }
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        currentUser,
+        "Current user fetched successfully"
+      )
+    )
   } catch (error) {
     next(error)
   }
 }
-export { login, refreshAccessToken, logout, signUp, createAdmin , getCurrentUser }
+
+export {
+  login,
+  refreshAccessToken,
+  logout,
+  signUp,
+  createAdmin,
+  getCurrentUser,
+}

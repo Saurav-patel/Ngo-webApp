@@ -1,27 +1,40 @@
-import jwt from "jsonwebtoken";
+// src/middlewares/auth.middleware.js
+import jwt from "jsonwebtoken"
 
-const verifyAccessToken = (req, res, next) => {
+/**
+ * ✅ COOKIE-BASED AUTH (REPLACES HEADER-BASED ACCESS TOKEN)
+ * Uses httpOnly refreshToken cookie
+ */
+const verifyAuthToken = (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization
+    const token = req.cookies?.refreshToken
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return res.status(401).json({ message: "Access token missing or invalid" })
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authenticated",
+      })
     }
 
-    const token = authHeader.split(" ")[1]
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+    const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET)
     req.user = decoded
     next()
   } catch (error) {
-    if (error.name === "TokenExpiredError") {
-        return res.status(403).json({ message: "Access token expired" })
-    } else {
-        return res.status(403).json({ message: "Invalid access token" })
-    }
+    return res.status(403).json({
+      success: false,
+      message:
+        error.name === "TokenExpiredError"
+          ? "Session expired"
+          : "Invalid session",
+    })
   }
 }
 
- const verifyRefreshToken = (req, res, next) => {
+/**
+ * ✅ OPTIONAL: Keep if you use refresh flow explicitly
+ * (can be used for /refresh-token route)
+ */
+const verifyRefreshToken = (req, res, next) => {
   const refreshToken = req.cookies?.refreshToken
 
   if (!refreshToken) {
@@ -32,12 +45,13 @@ const verifyAccessToken = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    )
     req.user = decoded
     next()
   } catch (error) {
-    console.error("Refresh token verification failed:", error.message)
-
     return res.status(403).json({
       success: false,
       message:
@@ -48,20 +62,30 @@ const verifyAccessToken = (req, res, next) => {
   }
 }
 
-const protectedRoute = (req , res , next) => {
-    try {
-        const user = req.user
-        
-        if(!user){
-            return res.status(400).json({message: "Please login"})
-        }
-        if(user.role !== 'admin'){
-            return res.status(403).json({message: "You are not authorized to access this route"})
-        }
-        next()
-    } catch (error) {
-        return res.status(400).json({message: "This route is protected"})
+/**
+ * ✅ ROLE-BASED AUTH (UNCHANGED LOGIC)
+ * Must run AFTER verifyAccessToken
+ */
+const protectedRoute = (req, res, next) => {
+  try {
+    const user = req.user
+
+    if (!user) {
+      return res.status(401).json({ message: "Please login" })
     }
+
+    if (user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to access this route" })
+    }
+
+    next()
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ message: "This route is protected" })
+  }
 }
 
-export { verifyAccessToken , verifyRefreshToken , protectedRoute }
+export { verifyAuthToken, verifyRefreshToken, protectedRoute }
