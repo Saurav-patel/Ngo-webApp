@@ -4,7 +4,6 @@ import { eventService } from "../../service/eventService.js";
 const eventsAdapter = createEntityAdapter({
   selectId: (e) => e._id ?? e.id,
   sortComparer: (a, b) => {
-    // prefer startDate (your API uses startDate)
     const da = a.startDate ?? a.date ?? a.eventDate ?? a.createdAt ?? null
     const db = b.startDate ?? b.date ?? b.eventDate ?? b.createdAt ?? null
     if (!da || !db) return 0
@@ -12,12 +11,9 @@ const eventsAdapter = createEntityAdapter({
   },
 })
 
-/* =========================
-   Initial state
-   ========================= */
 const initialState = eventsAdapter.getInitialState({
-  fetchStatus: 'idle', // for list fetch
-  status: 'idle', // for single/create/update/delete flows
+  fetchStatus: 'idle', 
+  status: 'idle',
   error: null,
   meta: { total: null },
 })
@@ -60,9 +56,6 @@ export const fetchAllEvents = createAsyncThunk(
   }
 )
 
-/**
- * GET /events/single-event/:id
- */
 export const fetchEventDetails = createAsyncThunk(
   'events/fetchEventDetails',
   async (eventId, { rejectWithValue }) => {
@@ -76,10 +69,6 @@ export const fetchEventDetails = createAsyncThunk(
   }
 )
 
-/**
- * POST /event/create-event
- * eventService.createEvent uses validate() -> returns { success, message, data }
- */
 export const createEvent = createAsyncThunk(
   'events/createEvent',
   async (formData, { rejectWithValue }) => {
@@ -93,9 +82,6 @@ export const createEvent = createAsyncThunk(
   }
 )
 
-/**
- * PUT /event/update-event/:id
- */
 export const updateEvent = createAsyncThunk(
   'events/updateEvent',
   async ({ eventId, formData }, { rejectWithValue }) => {
@@ -109,10 +95,6 @@ export const updateEvent = createAsyncThunk(
   }
 )
 
-/**
- * DELETE /event/delete-event/:id
- * eventService.deleteEvent uses validate(); reducer only needs the id
- */
 export const deleteEvent = createAsyncThunk(
   'events/deleteEvent',
   async (eventId, { rejectWithValue }) => {
@@ -240,9 +222,6 @@ const eventSlice = createSlice({
 
 export const { clearEventsState } = eventSlice.actions
 
-/* =========================
-   Selectors
-   ========================= */
 export const {
   selectAll: selectAllEvents,
   selectById: selectEventById,

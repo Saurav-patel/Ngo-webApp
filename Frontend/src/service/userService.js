@@ -33,8 +33,8 @@ class UserService extends BaseService {
 
   
   async uploadProfilePicture(formData, userId) {
-    const res = await apiClient.post(
-      `/user/upload-profile-picture/${userId}`,
+    const res = await apiClient.put(
+      `/user/profile-picture/${userId}`,
       formData
     )
     return this.validate(res, "Failed to upload profile picture")
@@ -42,13 +42,11 @@ class UserService extends BaseService {
   }
 
  
-  async updateProfilePicture(formData, userId) {
-    const res = await apiClient.patch(
-      `/user/update-profile-picture/${userId}`,
-      formData
-    )
-    return this.validate(res, "Failed to update profile picture")
+  async updateProfile(payload, userId) {
+    const res = await apiClient.patch(`/user/update-profile/${userId}`, payload)
+    return this.validate(res, "Failed to update profile")
   }
+
 }
 
 export const userService = new UserService()

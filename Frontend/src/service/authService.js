@@ -8,7 +8,7 @@ class AuthService extends BaseService {
   async login(payload) {
     const res = await apiClient.post("/auth/login", payload)
     const data= this.parseData(res, "Login failed")
-    console.log(data)
+    
     return data 
     
     

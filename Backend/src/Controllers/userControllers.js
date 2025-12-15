@@ -5,6 +5,7 @@ import mongoose from "mongoose"
 import { uploadToCloudinary } from "../utils/cloudConfig.js"
 import { ApiResponse } from "../utils/apiResponse.js"
 import { ApiError } from "../utils/apiError.js"
+import { maskAadhaar } from "../utils/aadharMasker.js"
 
 
 
@@ -34,7 +35,7 @@ const completeProfile = async (req , res , next) => {
         existingUser.fatherName = fatherName
         existingUser.phone = phone
         existingUser.dob = dob
-        existingUser.aadhaarNumber = aadhaarNumber
+        existingUser.aadhaarNumber = maskAadhaar(aadhaarNumber)
 
         await existingUser.save()
 
@@ -46,50 +47,6 @@ const completeProfile = async (req , res , next) => {
 }
 
 
-
-const uploadProfilePicture = async (req , res , next) =>{
-    try {
-        const user = req.user
-        const {userId} = req.params
-        const photo = req.file
-        
-        if(userId !== user._id.toString()){
-            throw new ApiError(403 , "You are not authorized to upload this user's profile picture")
-        }
-        if(!userId){
-            throw new ApiError(401 , "user is missing , please login again")
-        }
-        if(!mongoose.Types.ObjectId.isValid(userId)){
-            throw new ApiError(400 , "Invalid user ID")
-        }
-        if(!photo){
-            throw new ApiError(400 , "Please upload a profile picture")
-        }
-
-        const checkUser = await User.findOne({ _id: userId })
-        if(!checkUser){
-            throw new ApiError(404 , "User not found")
-        }
-        if(checkUser.profile_pic_url?.publicId){
-            throw new ApiError(400 , "Profile picture already exists. Please use update endpoint to change it.")
-        }
-
-        const uploadedPhoto =  await uploadToCloudinary(photo.buffer , "profile_pictures")
-        
-        const fileUrl = {
-            url: uploadedPhoto.url,
-            publicId: uploadedPhoto.publicId
-        }
-        
-        checkUser.profile_pic_url = fileUrl
-        await checkUser.save()
-
-        return res.status(200).json(new ApiResponse(200 , checkUser.profile_pic_url.url , "Profile picture uploaded successfully"))
-
-    } catch (error) {
-        next(error)
-    }
-}
 
 
 
@@ -137,51 +94,112 @@ const changePassword = async (req, res , next) => {
 
 
 
-const updateProfilePicture = async (req , res , next) =>{
-    try {
-        const user = req.user
-        const { userId } = req.params
-        const photo = req.file
+const uploadOrUpdateProfilePicture = async (req, res, next) => {
+  try {
+    const { userId } = req.params
+    const user = req.user
+    const photo = req.file
 
-        if (!userId) {
-            throw new ApiError(401 , "user is missing , please login again")
-        }
-        if(!mongoose.Types.ObjectId.isValid(userId)){
-            throw new ApiError(400 , "Invalid user ID")
-        }
-        if (userId !== user._id.toString()) {
-            throw new ApiError(403 , "You are not authorized to update this user's profile picture")
-        }
-        if(!photo){
-            throw new ApiError(400 , "Please upload a profile picture")
-        }
-
-        const checkUser = await User.findOne({ _id: userId })
-        if(!checkUser){
-            throw new ApiError(404 , "User not found")
-        }
-
-        const previousPublicId = checkUser.profile_pic_url?.publicId
-        if(previousPublicId){
-            await uploadToCloudinary.deleteFromCloudinary(previousPublicId)
-        }
-
-        const uploadedPhoto =  await uploadToCloudinary(photo.buffer , "profile_pictures")
-        
-        const fileUrl = {
-            url: uploadedPhoto.url,
-            publicId: uploadedPhoto.publicId
-        }
-        
-        checkUser.profile_pic_url = fileUrl
-        await checkUser.save()
-
-        return res.status(200).json(new ApiResponse(200 , checkUser.profile_pic_url.url , "Profile picture updated successfully"))
-
-    } catch (error) {
-        next(error)
+    if (!userId) {
+      throw new ApiError(401, "User missing, please login again")
     }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new ApiError(400, "Invalid user ID")
+    }
+
+    if (userId !== user._id.toString()) {
+      throw new ApiError(403, "You are not authorized to update this profile picture")
+    }
+
+    if (!photo) {
+      throw new ApiError(400, "Please upload a profile picture")
+    }
+
+    const existingUser = await User.findById(userId)
+    if (!existingUser) {
+      throw new ApiError(404, "User not found")
+    }
+
+    // delete old image if exists
+    if (existingUser.profile_pic_url?.publicId) {
+      await uploadToCloudinary.deleteFromCloudinary(
+        existingUser.profile_pic_url.publicId
+      )
+    }
+
+    const uploadedPhoto = await uploadToCloudinary(
+      photo.buffer,
+      "profile_pictures"
+    )
+
+    existingUser.profile_pic_url = {
+      url: uploadedPhoto.url,
+      publicId: uploadedPhoto.publicId
+    }
+
+    await existingUser.save()
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        existingUser.profile_pic_url.url,
+        "Profile picture updated successfully"
+      )
+    )
+  } catch (error) {
+    next(error)
+  }
 }
+
+const updateProfile = async (req, res, next) => {
+  try {
+    const { userId } = req.params
+    const user = req.user
+
+    if (!userId) {
+      throw new ApiError(401, "User missing, please login again")
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new ApiError(400, "Invalid user ID")
+    }
+
+    if (userId !== user._id.toString()) {
+      throw new ApiError(403, "You are not authorized to update this profile")
+    }
+
+    const existingUser = await User.findById(userId).select("-password -__v")
+    if (!existingUser) {
+      throw new ApiError(404, "User not found")
+    }
+
+    const {
+      address,
+      city,
+      fatherName,
+      phone,
+      dob
+    } = req.body
+
+    const updates = { address, city, fatherName, phone, dob }
+
+    Object.keys(updates).forEach((key) => {
+      if (updates[key] !== undefined) {
+        existingUser[key] = updates[key]
+      }
+    })
+
+    await existingUser.save()
+
+    return res.status(200).json(
+      new ApiResponse(200, existingUser, "Profile updated successfully")
+    )
+  } catch (error) {
+    next(error)
+  }
+}
+
 
 
 
@@ -284,4 +302,4 @@ const getMembershipStatus = async (req, res , next) => {
 
 
 
-export { changePassword, getUserDetails, getMembershipStatus , uploadProfilePicture , updateProfilePicture , completeProfile }
+export { changePassword, getUserDetails, getMembershipStatus , uploadOrUpdateProfilePicture , completeProfile ,updateProfile}

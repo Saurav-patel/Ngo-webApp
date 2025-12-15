@@ -194,7 +194,7 @@ const getCurrentUser = async (req, res, next) => {
     }
 
     const currentUser = await User.findById(user._id).select(
-      "-password -refreshToken"
+      "-password  -v"
     )
 
     if (!currentUser) {

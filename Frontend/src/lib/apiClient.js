@@ -9,38 +9,34 @@ const apiClient = axios.create({
 })
 
 // ---------------------
-// Refresh Helpers
+// Refresh Control
 // ---------------------
 let isRefreshing = false
 let failedQueue = []
 
-const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error)
-    } else {
-      prom.resolve(token)
-    }
+const processQueue = (error) => {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) reject(error)
+    else resolve()
   })
   failedQueue = []
 }
 
 // ---------------------
-// Request Interceptor
+// REQUEST INTERCEPTOR
 // ---------------------
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token")
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
+    // ❌ NO localStorage
+    // ❌ NO Authorization header
+    // Cookies handle auth
     return config
   },
   (error) => Promise.reject(error)
 )
 
 // ---------------------
-// Response Interceptor
+// RESPONSE INTERCEPTOR
 // ---------------------
 apiClient.interceptors.response.use(
   (response) => response,
@@ -49,77 +45,54 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config
     const status = error?.response?.status
 
-    // No response OR not a 401 -> reject normally
-    if (!status || status !== 401) {
+    if (status !== 401 || !originalRequest) {
       return Promise.reject(error)
     }
 
-    // 👉 Skip refresh for login & refresh-token endpoint itself
-    const url = originalRequest?.url || ""
+    const url = originalRequest.url || ""
+
+    // ❌ NEVER refresh on auth endpoints
     if (
       url.includes("/auth/login") ||
-      url.includes("/auth/refresh-token")
+      url.includes("/auth/refresh-token") ||
+      url.includes("/auth/logout")
     ) {
       return Promise.reject(error)
     }
 
-    // Prevent infinite loops
+    // ❌ Prevent retry loops
     if (originalRequest._retry) {
       return Promise.reject(error)
     }
 
-    // Queue request if refresh already in progress
+    // Queue requests while refresh is happening
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
-        failedQueue.push({
-          resolve: (token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`
-            resolve(apiClient(originalRequest))
-          },
-          reject
-        })
+        failedQueue.push({ resolve, reject })
       })
     }
 
-    // Mark this request for retry
     originalRequest._retry = true
     isRefreshing = true
 
     try {
-      // Call refresh-token endpoint (cookie included automatically)
-      const refreshResponse = await axios.post(
-        `${baseURL}/auth/refresh-token`,
-        {},
-        { withCredentials: true }
-      )
+      // Try refreshing session (cookie-based)
+      await apiClient.post("/auth/refresh-token")
 
-      const newToken = refreshResponse?.data?.accessToken
-
-      if (!newToken) {
-        throw new Error("No access token returned from refresh-token endpoint")
-      }
-
-      // Set new token
-      localStorage.setItem("token", newToken)
-      apiClient.defaults.headers.common.Authorization = `Bearer ${newToken}`
-
-      // Resolve all queued requests
-      processQueue(null, newToken)
+      processQueue(null)
 
       // Retry original request
-      originalRequest.headers.Authorization = `Bearer ${newToken}`
       return apiClient(originalRequest)
 
     } catch (refreshError) {
-      processQueue(refreshError, null)
+      processQueue(refreshError)
 
-      // Hard logout
-      localStorage.removeItem("token")
-      localStorage.removeItem("user")
-
-      window.location.href = "/login"
+      // ❌ NO redirect
+      // ❌ NO storage cleanup
+      // Redux will handle logout
 
       return Promise.reject(refreshError)
+
     } finally {
       isRefreshing = false
     }

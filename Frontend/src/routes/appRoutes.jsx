@@ -8,6 +8,7 @@ import AboutPage from "../pages/aboutPage";
 import EventDetailPage from "../pages/singleEventPage";
 import AllEventsPage from "../pages/eventsPage";
 import ContactPage from "../pages/contactPage";
+import Settings from "../pages/dashboard/settings";
 
 const AppRoutes = () => {
     return (
@@ -21,7 +22,9 @@ const AppRoutes = () => {
             <Route path="/contact" element={<ContactPage />} />
             {/* Protected routes can be added here using RequireAuth */}
             <Route element = {<RequireAuth />} >
-           
+                {/* Example protected route */}
+                <Route path="/settings" element={<Settings/>} />
+                {/* <Route path="/protected" element={<ProtectedPage />} /> */}
             </Route>
         </Routes>
     )

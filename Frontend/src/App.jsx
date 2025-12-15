@@ -17,21 +17,24 @@ function App() {
   const isAuth = useSelector(selectIsAuthenticated)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
-  // 🔐 AUTH HYDRATION (VERY IMPORTANT)
- useEffect(() => {
-  if (!isAuth) {
+  /* =========================
+     AUTH HYDRATION (RUN ONCE)
+  ========================= */
+  useEffect(() => {
     dispatch(fetchCurrentUser())
-  }
-}, [dispatch, isAuth])
+  }, [dispatch])
 
-
-  // 📦 Hydrate participations AFTER auth
+  /* =========================
+     DATA HYDRATION (AFTER AUTH)
+  ========================= */
   useEffect(() => {
     if (!isAuth) return
     dispatch(fetchMyParticipations())
   }, [isAuth, dispatch])
 
-  // 🧹 Close drawer on logout
+  /* =========================
+     UI CLEANUP ON LOGOUT
+  ========================= */
   useEffect(() => {
     if (!isAuth) setDrawerOpen(false)
   }, [isAuth])

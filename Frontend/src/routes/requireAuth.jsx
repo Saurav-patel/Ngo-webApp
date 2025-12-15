@@ -10,7 +10,7 @@ const RequireAuth = () => {
   const status = useSelector(selectAuthStatus)
   const location = useLocation()
 
-  console.log("RequireAuth:", { isAuth, status })
+  
 
   // ⏳ WAIT while auth is NOT resolved
   if (status === "idle" || status === "loading") {
