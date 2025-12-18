@@ -5,9 +5,9 @@ import { handleMulterErrors } from '../middlewares/upload.js'
 
 const userRouter = express.Router()
 userRouter.get('/get-user-details',verifyAuthToken, getUserDetails)
-userRouter.post('/complete-profile/:userId',verifyAuthToken, completeProfile)
+userRouter.post('/complete-profile',verifyAuthToken, completeProfile)
 userRouter.post('/change-password/:userId',verifyAuthToken, changePassword)
-userRouter.get('/membership-status/:userId',verifyAuthToken, getMembershipStatus)
+userRouter.get('/membership-status',verifyAuthToken, getMembershipStatus)
 userRouter.patch('/update-profile/:userId',verifyAuthToken, updateProfile)
 userRouter.put('/profile-picture/:userId',verifyAuthToken, handleMulterErrors('profile'), uploadOrUpdateProfilePicture)
 

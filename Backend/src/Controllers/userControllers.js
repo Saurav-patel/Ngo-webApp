@@ -11,13 +11,11 @@ import { maskAadhaar } from "../utils/aadharMasker.js"
 
 const completeProfile = async (req , res , next) => {
     try {
-        const {userId} = req.params
-        const user = req.user
+        
+        const userId = req.user?._id
         const { address, city, fatherName, phone, dob, aadhaarNumber } = req.body
       
-        if(userId !== user._id.toString()){
-            throw new ApiError(403 , "You are not authorized to complete this profile")
-        }
+       
         if(!userId){
             throw new ApiError(401 , "user is missing , please login again")
         }
@@ -247,59 +245,44 @@ const getUserDetails = async (req, res , next) => {
 
 
 
-const getMembershipStatus = async (req, res , next) => {
-    try {
-        const { userId } = req.params
-        const  user  = req.user
-       
-        if (!userId) {
-            throw new ApiError(401 , "user is missing , please login again")
-        }
-        
-        if(!mongoose.Types.ObjectId.isValid(userId)){
-            throw new ApiError(400 , "Invalid user ID")
-        }
+const getMembershipStatus = async (req, res, next) => {
+  try {
+    const userId = req.user._id
 
-        if (userId !== user._id.toString()) {
-            throw new ApiError(403 , "You are not authorized to access this user's details")
-        }
-        
-        const latestDonation = await Donation.findOne({ donor: userId }).sort({ date: -1 })
-        let status = "Inactive"
-        let validity = null
+    const latestDonation = await Donation
+      .findOne({ donor: userId })
+      .sort({ date: -1 })
 
-        if (latestDonation && latestDonation.isVerified) {
-            const donationDate = new Date(latestDonation.date)
-            const currentDate = new Date()
-            const diffInTime = currentDate.getTime() - donationDate.getTime()
-            const diffInDays = diffInTime / (1000 * 3600 * 24)
+    let status = "Inactive"
+    let validity = null
+    let verification = false
 
-            if (diffInDays <= 365) {
-                status = "Active"
-                validity = new Date(donationDate.setFullYear(donationDate.getFullYear() + 1))
-            }
+    if (latestDonation && latestDonation.isVerified) {
+      verification = true
+      const donationDate = new Date(latestDonation.date)
+      validity = new Date(donationDate.setFullYear(donationDate.getFullYear() + 1))
 
-            if (!user.registerNumber) {
-                const totalMembers = await User.countDocuments({ registerNumber: { $exists: true } })
-                const registerNumber = `MEM${(totalMembers + 1).toString().padStart(4, "0")}`
-                await User.findByIdAndUpdate(userId, { registerNumber: registerNumber })
-            }
-        }
-
-        await User.findByIdAndUpdate(userId, { status: status, validity: validity })
-
-        return res.status(200).json(new ApiResponse(200 , {
-            status: status,
-            validity: validity,
-            registerNumber: user.registerNumber || null,
-            verification: latestDonation ? latestDonation.isVerified : false
-        }, "Membership status fetched successfully"))
-
-    } catch (error) {
-        next(error)
+      if (validity > new Date()) {
+        status = "Active"
+      }
     }
-}
 
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          status,
+          validity,
+          registerNumber: req.user.registerNumber || null,
+          verification
+        },
+        "Membership status fetched successfully"
+      )
+    )
+  } catch (error) {
+    next(error)
+  }
+}
 
 
 export { changePassword, getUserDetails, getMembershipStatus , uploadOrUpdateProfilePicture , completeProfile ,updateProfile}

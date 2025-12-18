@@ -116,7 +116,7 @@ const myParticipation = async (req, res, next) => {
       .sort({ createdAt: -1 })
 
     if (!participations.length) {
-      throw new ApiError(404, "No events found for this user")
+      throw new ApiResponse(200, "No events found for this user")
     }
 
     return res.status(200).json(new ApiResponse(200, participations, "Events fetched successfully"))

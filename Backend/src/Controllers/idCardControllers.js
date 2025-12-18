@@ -62,7 +62,7 @@ const applyIdCard = async (req, res, next) => {
 
     const idCardBuffer = await generateIDCard({
       ngo,
-      name: req.user.username,
+      name: user.username,
       position: normalizedRole || "Member",
       profilePicUrl,
       cardNumber,
@@ -166,20 +166,9 @@ const renewIdCard = async (req, res, next) => {
 
 const getMyIdCard = async (req, res, next) => {
   try {
-    const { userId } = req.params
-    const user = req.user
+    
 
-    if (userId !== user._id.toString()) {
-      throw new ApiError(403, "Forbidden: You can only access your own ID Card")
-    }
-
-    if (!userId) {
-      throw new ApiError(401, "Please provide user ID to fetch ID Card")
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      throw new ApiError(400, "Invalid user ID")
-    }
+    const userId = req.user?._id
 
     const myIdCard = await IDCARD.findOne({ issuedTo: userId })
     if (!myIdCard) {
@@ -188,7 +177,11 @@ const getMyIdCard = async (req, res, next) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, myIdCard, "ID Card fetched successfully"))
+      .json(new ApiResponse(200,   200,
+        myIdCard, 
+        myIdCard
+          ? "ID Card fetched successfully"
+          : "ID Card not issued yet"))
   } catch (error) {
     next(error)
   }

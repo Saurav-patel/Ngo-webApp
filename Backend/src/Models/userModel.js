@@ -32,7 +32,7 @@ const userSchema = new Schema({
         type: String,
        // required: [true, "Aadhaar Number is required"],
         
-        match: /^\d{12}$/
+        
     },
     role:{
         type: String,

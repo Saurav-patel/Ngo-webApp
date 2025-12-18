@@ -78,22 +78,19 @@ const issueCertificate = async (req, res, next) => {
 
 const myCertificates = async (req, res, next) => {
   try {
-    const { userId } = req.params
-    const user = req.user
+    
+    const userId = req.user?._id
 
     if (!userId) {
       throw new ApiError(400, "Please provide user ID to fetch Certificates")
     }
 
-    if (userId !== String(user._id)) {
-      throw new ApiError(403, "Forbidden: You can only access your own Certificates")
-    }
+    
 
     const certificates = await Certificate.find({ issuedTo: userId })
-    if (certificates.length === 0) {
-      throw new ApiError(404, "No certificates found for this user")
-    }
+    .sort({ createdAt: -1 })
 
+    
     return res
       .status(200)
       .json(new ApiResponse(200, certificates, "Certificates fetched successfully"))

@@ -25,8 +25,8 @@ class UserService extends BaseService {
   }
 
   
-  async getMembershipStatus(userId) {
-    const res = await apiClient.get(`/user/membership-status/${userId}`)
+  async getMembershipStatus() {
+    const res = await apiClient.get(`/user/membership-status`)
     return this.parseData(res, "Failed to fetch membership status")
     
   }

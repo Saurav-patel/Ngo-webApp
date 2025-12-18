@@ -7,7 +7,7 @@ const idCardRouter = express.Router()
 
 idCardRouter.post("/apply",  verifyAuthToken, applyIdCard)
 idCardRouter.post("/renew/:cardId", verifyAuthToken, renewIdCard)
-idCardRouter.get("/my-card/:userId", verifyAuthToken, getMyIdCard)
+idCardRouter.get("/my-card", verifyAuthToken, getMyIdCard)
 idCardRouter.get("/all-cards", verifyAuthToken ,protectedRoute, getAllIdCards)
 idCardRouter.get("/card/:cardId", verifyAuthToken ,protectedRoute, getSingleIdCard)
 

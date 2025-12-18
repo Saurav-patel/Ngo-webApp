@@ -14,8 +14,8 @@ class IdCardService extends BaseService {
     return this.validate(res, "Failed to renew ID Card")
   }
 
-  async getMyIdCard(userId) {
-    const res = await apiClient.get(`/idCards/my-card/${userId}`)
+  async getMyIdCard() {
+    const res = await apiClient.get(`/idCards/my-card`)
     return this.parseData(res, "Failed to fetch my ID Card")
   }
 
