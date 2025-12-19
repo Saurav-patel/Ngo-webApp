@@ -11,10 +11,11 @@ const UserDrawer = ({ open, close }) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const user = useSelector((state) => state.auth?.user)
+  
 
   // default person image
   const avatar =
-    user?.profile_pic_url ||
+    user?.profile_pic_url?.url ||
     "https://cdn-icons-png.flaticon.com/512/847/847969.png"
 
   const handleLogout = async () => {
@@ -82,7 +83,7 @@ const UserDrawer = ({ open, close }) => {
           />
 
           <DrawerItem
-            to="/dashboard/settings"
+            to="/settings"
             icon={<Settings size={18} />}
             label="Account Settings"
             onClick={close}

@@ -1,215 +1,252 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import { useSelector, useDispatch } from "react-redux"
-import { Camera } from "lucide-react"
-
 import { userService } from "../../service/userService.js"
-import { fetchCurrentUser } from "../../store/slices/authSlice.js"
+import { Camera, Lock } from "lucide-react"
 
-const Settings = () => {
-  const dispatch = useDispatch()
-  const user = useSelector((state) => state.auth.user)
+const AccountSettings = () => {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
 
-  const [profileLoading, setProfileLoading] = useState(false)
-  const [photoLoading, setPhotoLoading] = useState(false)
-  const [passwordLoading, setPasswordLoading] = useState(false)
-
-  const [avatarPreview, setAvatarPreview] = useState(null)
-
-  /* =========================
-     PROFILE FORM
-  ========================= */
   const {
     register,
     handleSubmit,
-    reset
+    reset,
+    formState: { isSubmitting }
   } = useForm()
 
-  useEffect(() => {
-    if (user) {
-      reset({
-        address: user.address || "",
-        city: user.city || "",
-        fatherName: user.fatherName || "",
-        phone: user.phone || "",
-        dob: user.dob ? user.dob.split("T")[0] : ""
-      })
-    }
-  }, [user, reset])
-
-  const onUpdateProfile = async (data) => {
-    try {
-      setProfileLoading(true)
-      await userService.updateProfile(data, user._id)
-      await dispatch(fetchCurrentUser()).unwrap()
-      alert("Profile updated successfully")
-    } catch (err) {
-      alert(err.message)
-    } finally {
-      setProfileLoading(false)
-    }
-  }
-
-  /* =========================
-     PROFILE PICTURE
-  ========================= */
-  const onPhotoChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      setAvatarPreview(URL.createObjectURL(file))
-    }
-  }
-
-  const onUploadPhoto = async (e) => {
-    e.preventDefault()
-    const file = e.target.photo.files[0]
-    if (!file) return alert("Please select an image")
-
-    const formData = new FormData()
-    formData.append("photo", file)
-
-    try {
-      setPhotoLoading(true)
-      await userService.uploadProfilePicture(formData, user._id)
-      await dispatch(fetchCurrentUser()).unwrap()
-      setAvatarPreview(null)
-      alert("Profile picture updated")
-    } catch (err) {
-      alert(err.message)
-    } finally {
-      setPhotoLoading(false)
-    }
-  }
-
-  /* =========================
-     PASSWORD FORM
-  ========================= */
   const {
     register: registerPwd,
     handleSubmit: handlePwdSubmit,
-    reset: resetPwd
+    reset: resetPwd,
+    formState: { isSubmitting: pwdSubmitting }
   } = useForm()
 
-  const onChangePassword = async (data) => {
-    try {
-      setPasswordLoading(true)
-      await userService.changePassword(data, user._id)
-      resetPwd()
-      alert("Password changed successfully")
-    } catch (err) {
-      alert(err.message)
-    } finally {
-      setPasswordLoading(false)
+  useEffect(() => {
+    const load = async () => {
+      const data = await userService.getUserDetails()
+      setUser(data)
+      reset({
+        fatherName: data.fatherName,
+        phone: data.phone,
+        address: data.address,
+        city: data.city,
+        dob: data.dob?.split("T")[0]
+      })
+      setLoading(false)
     }
+    load()
+  }, [reset])
+
+  const onUpdateProfile = async (data) => {
+    await userService.updateProfile(data)
   }
 
-  if (!user) return null
+  const onChangePassword = async (data) => {
+    await userService.changePassword(data)
+    resetPwd()
+  }
+
+  const onUploadPhoto = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const formData = new FormData()
+    formData.append("profile", file)
+    setUploading(true)
+    await userService.uploadProfilePicture(formData)
+    const updated = await userService.getUserDetails()
+    setUser(updated)
+    setUploading(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-gray-400">
+        Loading Account Settings...
+      </div>
+    )
+  }
+
+  const cardClass = `
+    bg-gray-900/60 border border-gray-700 rounded-3xl
+    shadow-lg p-8
+    transition-all duration-300 ease-out
+    hover:border-emerald-400/40
+    hover:shadow-2xl
+    hover:-translate-y-0.5
+  `
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10 space-y-10 text-gray-200">
+    <div className="bg-gray-950 text-gray-100 min-h-screen">
+      <div className="max-w-7xl mx-auto px-2 md:px-4 py-10 space-y-12">
 
-      {/* ================= PROFILE INFO ================= */}
-      <section className="bg-gray-900 rounded-xl p-6 shadow">
-        <h2 className="text-lg font-semibold mb-4">Profile Information</h2>
+        {/* HEADER */}
+        <div>
+          <p className="uppercase text-emerald-400 tracking-[0.25em] text-[11px]">
+            Account
+          </p>
+          <h1 className="text-3xl font-bold mt-1">
+            Account Settings
+          </h1>
+          <p className="text-sm text-gray-400 mt-2">
+            Manage your personal details and security
+          </p>
+        </div>
 
-        <form
-          onSubmit={handleSubmit(onUpdateProfile)}
-          className="grid md:grid-cols-2 gap-4"
-        >
-          <input {...register("address")} placeholder="Address" className="input" />
-          <input {...register("city")} placeholder="City" className="input" />
-          <input {...register("fatherName")} placeholder="Father's Name" className="input" />
-          <input {...register("phone")} placeholder="Phone" className="input" />
-          <input type="date" {...register("dob")} className="input" />
-
-          {/* Aadhaar (read-only) */}
-          <input
-            value={user.aadhaarNumber || "Not provided"}
-            disabled
-            className="input bg-gray-800 cursor-not-allowed"
-          />
-
-          <div className="md:col-span-2">
-            <button
-              disabled={profileLoading}
-              className="btn-primary"
-            >
-              {profileLoading ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
-        </form>
-      </section>
-
-      {/* ================= PROFILE PICTURE ================= */}
-      <section className="bg-gray-900 rounded-xl p-6 shadow">
-        <h2 className="text-lg font-semibold mb-4">Profile Picture</h2>
-
-        <form onSubmit={onUploadPhoto} className="flex items-center gap-6">
+        {/* PROFILE OVERVIEW */}
+        <section className={`${cardClass} flex flex-col md:flex-row gap-8 items-center`}>
           <div className="relative">
             <img
-              src={
-                avatarPreview ||
-                user.profile_pic_url?.url ||
-                "/default-avatar.png"
-              }
-              alt="Avatar"
-              className="w-24 h-24 rounded-full object-cover border border-gray-700"
+              src={user.profile_pic_url}
+              alt="Profile"
+              className="
+                w-28 h-28 rounded-full object-cover
+                border border-gray-700
+                transition hover:scale-[1.02]
+              "
             />
-
-            <label className="absolute bottom-0 right-0 bg-black/70 p-2 rounded-full cursor-pointer">
-              <Camera size={16} />
+            <label className="absolute bottom-1 right-1 bg-black/70 p-2 rounded-full cursor-pointer hover:bg-black transition">
+              <Camera size={16} className="text-white" />
               <input
-                type="file"
-                name="photo"
-                accept="image/*"
-                onChange={onPhotoChange}
                 hidden
+                type="file"
+                accept="image/*"
+                onChange={onUploadPhoto}
+                disabled={uploading}
               />
             </label>
           </div>
 
+          <div className="flex-1 text-center md:text-left space-y-2">
+            <h2 className="text-xl font-semibold text-white">
+              {user.username}
+            </h2>
+            <p className="text-sm text-gray-400">{user.email}</p>
+
+            <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs text-gray-400 pt-2">
+              <span className="bg-gray-900 border border-gray-700 px-3 py-1 rounded-full">
+                {user.city}
+              </span>
+              <span className="bg-gray-900 border border-gray-700 px-3 py-1 rounded-full">
+                DOB: {new Date(user.dob).toLocaleDateString("en-IN")}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* PERSONAL INFORMATION */}
+        <form
+          onSubmit={handleSubmit(onUpdateProfile)}
+          className={cardClass}
+        >
+          <h2 className="text-xl font-semibold mb-6">
+            Personal Information
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {[
+              ["Father’s Name", "fatherName"],
+              ["Phone Number", "phone"],
+              ["City", "city"],
+              ["Date of Birth", "dob", "date"]
+            ].map(([label, name, type]) => (
+              <div key={name}>
+                <p className="text-xs text-gray-400 mb-2">{label}</p>
+                <input
+                  type={type || "text"}
+                  {...register(name)}
+                  className="
+                    w-full bg-gray-900 border border-gray-700
+                    rounded-xl px-5 py-3 text-gray-200
+                    focus:outline-none focus:border-emerald-400/50
+                  "
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6">
+            <p className="text-xs text-gray-400 mb-2">Address</p>
+            <textarea
+              {...register("address")}
+              className="
+                w-full bg-gray-900 border border-gray-700
+                rounded-xl px-5 py-3 h-28 text-gray-200
+                focus:outline-none focus:border-emerald-400/50
+              "
+            />
+          </div>
+
           <button
-            disabled={photoLoading}
-            className="btn-primary"
+            disabled={isSubmitting}
+            className="mt-6 px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-sm font-semibold transition"
           >
-            {photoLoading ? "Uploading..." : "Update Photo"}
+            {isSubmitting ? "Saving..." : "Save Changes"}
           </button>
         </form>
-      </section>
 
-      {/* ================= CHANGE PASSWORD ================= */}
-      <section className="bg-gray-900 rounded-xl p-6 shadow">
-        <h2 className="text-lg font-semibold mb-4">Change Password</h2>
+        {/* IDENTITY INFORMATION */}
+        <section className={cardClass}>
+          <h2 className="text-xl font-semibold mb-4">
+            Identity Information
+          </h2>
 
+          <div className="flex items-center gap-4 bg-gray-900 border border-gray-700 rounded-2xl p-5">
+            <Lock size={18} className="text-gray-500" />
+            <div>
+              <p className="text-xs text-gray-400">Aadhaar Number</p>
+              <p className="text-sm text-gray-200 tracking-widest">
+                {user.aadhaarNumber}
+              </p>
+              <p className="text-[11px] text-gray-500 mt-1">
+                This information cannot be edited
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* SECURITY */}
         <form
           onSubmit={handlePwdSubmit(onChangePassword)}
-          className="grid md:grid-cols-2 gap-4"
+          className={cardClass}
         >
+          <h2 className="text-xl font-semibold mb-5">
+            Security
+          </h2>
+
           <input
             type="password"
-            {...registerPwd("oldPassword")}
-            placeholder="Old Password"
-            className="input"
-          />
-          <input
-            type="password"
-            {...registerPwd("newPassword")}
-            placeholder="New Password"
-            className="input"
+            {...registerPwd("oldPassword", { required: true })}
+            placeholder="Current password"
+            className="
+              w-full bg-gray-900 border border-gray-700
+              rounded-xl px-5 py-3 text-gray-200
+              focus:outline-none focus:border-red-400/50
+            "
           />
 
-          <div className="md:col-span-2">
-            <button
-              disabled={passwordLoading}
-              className="btn-danger"
-            >
-              {passwordLoading ? "Updating..." : "Change Password"}
-            </button>
-          </div>
+          <input
+            type="password"
+            {...registerPwd("newPassword", { required: true })}
+            placeholder="New password"
+            className="
+              w-full mt-4 bg-gray-900 border border-gray-700
+              rounded-xl px-5 py-3 text-gray-200
+              focus:outline-none focus:border-red-400/50
+            "
+          />
+
+          <button
+            disabled={pwdSubmitting}
+            className="mt-6 px-6 py-3 rounded-full bg-red-600 hover:bg-red-500 text-sm font-semibold transition"
+          >
+            {pwdSubmitting ? "Updating..." : "Change Password"}
+          </button>
         </form>
-      </section>
+
+      </div>
     </div>
   )
 }
 
-export default Settings
+export default AccountSettings

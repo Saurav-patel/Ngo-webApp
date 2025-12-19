@@ -8,7 +8,7 @@ import AboutPage from "../pages/aboutPage";
 import EventDetailPage from "../pages/singleEventPage";
 import AllEventsPage from "../pages/eventsPage";
 import ContactPage from "../pages/contactPage";
-import Settings from "../pages/dashboard/settings";
+import AccountSettings from "../pages/dashboard/settings";
 import DashboardPage from "../pages/dashboard/userDashboard";
 
 const AppRoutes = () => {
@@ -24,7 +24,7 @@ const AppRoutes = () => {
             {/* Protected routes can be added here using RequireAuth */}
             <Route element = {<RequireAuth />} >
                 <Route path="/dashboard" element={<DashboardPage/>} />
-                <Route path="/settings" element={<Settings/>} />
+                <Route path="/settings" element={<AccountSettings/>} />
                 {/* <Route path="/protected" element={<ProtectedPage />} /> */}
             </Route>
         </Routes>

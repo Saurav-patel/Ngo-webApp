@@ -50,21 +50,14 @@ const completeProfile = async (req , res , next) => {
 
 const changePassword = async (req, res , next) => {
     try {
-        const user = req.user
-        const { userId } = req.params
+        const userId = req.user?._id
+        
         const { oldPassword, newPassword } = req.body
         
         if (!userId) {
             throw new ApiError(401 , "user is missing , please login again")
         }
 
-        if(!mongoose.Types.ObjectId.isValid(userId)){
-            throw new ApiError(400 , "Invalid user ID")
-        }
-
-        if (userId !== user._id.toString()) {
-            throw new ApiError(403 , "You are not authorized to change this user's password")
-        }
         
         const findUser = await User.findById(userId)
         if (!findUser) {
@@ -94,20 +87,12 @@ const changePassword = async (req, res , next) => {
 
 const uploadOrUpdateProfilePicture = async (req, res, next) => {
   try {
-    const { userId } = req.params
-    const user = req.user
+
+    const userId = req.user?._id
     const photo = req.file
 
     if (!userId) {
       throw new ApiError(401, "User missing, please login again")
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      throw new ApiError(400, "Invalid user ID")
-    }
-
-    if (userId !== user._id.toString()) {
-      throw new ApiError(403, "You are not authorized to update this profile picture")
     }
 
     if (!photo) {
@@ -152,20 +137,14 @@ const uploadOrUpdateProfilePicture = async (req, res, next) => {
 
 const updateProfile = async (req, res, next) => {
   try {
-    const { userId } = req.params
-    const user = req.user
+
+    const userId = req.user?._id
 
     if (!userId) {
       throw new ApiError(401, "User missing, please login again")
     }
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      throw new ApiError(400, "Invalid user ID")
-    }
-
-    if (userId !== user._id.toString()) {
-      throw new ApiError(403, "You are not authorized to update this profile")
-    }
+   
 
     const existingUser = await User.findById(userId).select("-password -__v")
     if (!existingUser) {

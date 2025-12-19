@@ -24,7 +24,7 @@ export const uploadProfilePhoto = createMulterUpload({
   allowedMimes: ['image/jpeg', 'image/png'],
   maxSize: 5 * 1024 * 1024, // 5MB
   multiple: false,
-  fieldName: 'photo'
+  fieldName: 'profile'
 })
 
 // Event photos upload (multiple files)
