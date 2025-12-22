@@ -33,14 +33,21 @@ const LoginPage = () => {
     clearErrors("root");
 
     try {
-      await dispatch(
+      const user = await dispatch(
         loginUser({
           email: data.email,
           password: data.password,
         })
       ).unwrap();
-      
+      console.log("Logged in user:", user.role);
+      if (user.role === "admin") {
+        console.log("Redirecting to admin dashboard.");
+       navigate("/admin/dashboard", { replace: true });
+      } else {
+        console.log("Redirecting to previous page or home.");
       const from = location.state?.from?.pathname || "/";
+      navigate(from, { replace: true });
+    }
       
       navigate(from, { replace: true });
     } catch (err) {

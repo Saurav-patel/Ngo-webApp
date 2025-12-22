@@ -10,6 +10,9 @@ import AllEventsPage from "../pages/eventsPage";
 import ContactPage from "../pages/contactPage";
 import AccountSettings from "../pages/dashboard/settings";
 import DashboardPage from "../pages/dashboard/userDashboard";
+import RequireAdmin from "./requireAdmin";
+import AdminDashboard from "../pages/admin/adminDashboard";
+import AdminLayout from "../components/layout/adminLayout";
 
 const AppRoutes = () => {
     return (
@@ -25,7 +28,16 @@ const AppRoutes = () => {
             <Route element = {<RequireAuth />} >
                 <Route path="/dashboard" element={<DashboardPage/>} />
                 <Route path="/settings" element={<AccountSettings/>} />
-                {/* <Route path="/protected" element={<ProtectedPage />} /> */}
+                
+
+
+                <Route element = {<RequireAdmin />} >
+                    <Route element = {<AdminLayout />} >
+                    <Route path="/admin/dashboard" element={<AdminDashboard/>} />
+                    {/* Admin-only routes can be added here */}
+                    {/* <Route path="/admin" element={<AdminPage />} /> */}
+                    </Route>
+                </Route>
             </Route>
         </Routes>
     )

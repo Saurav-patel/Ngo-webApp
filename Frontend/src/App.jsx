@@ -2,8 +2,13 @@ import { BrowserRouter } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 
+import {
+  fetchCurrentUser,
+  selectIsAuthenticated,
+  selectAuthUser
+} from "./store/slices/authSlice.js"
+
 import { fetchMyParticipations } from "./store/slices/participationSlice.js"
-import { fetchCurrentUser, selectIsAuthenticated } from "./store/slices/authSlice.js"
 
 import Navbar from "./components/layout/navBar.jsx"
 import Footer from "./components/layout/footer.jsx"
@@ -14,7 +19,12 @@ import UserDrawerButton from "./components/userDrawerButton.jsx"
 
 function App() {
   const dispatch = useDispatch()
+
   const isAuth = useSelector(selectIsAuthenticated)
+  const user = useSelector(selectAuthUser)
+
+  const isAdmin = user?.role === "admin"
+
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   /* =========================
@@ -25,12 +35,12 @@ function App() {
   }, [dispatch])
 
   /* =========================
-     DATA HYDRATION (AFTER AUTH)
+     DATA HYDRATION (USER ONLY)
   ========================= */
   useEffect(() => {
-    if (!isAuth) return
+    if (!isAuth || isAdmin) return
     dispatch(fetchMyParticipations())
-  }, [isAuth, dispatch])
+  }, [isAuth, isAdmin, dispatch])
 
   /* =========================
      UI CLEANUP ON LOGOUT
@@ -42,9 +52,12 @@ function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen flex flex-col">
-        <Navbar />
 
-        {isAuth && (
+        {/* USER NAVBAR ONLY */}
+        {!isAdmin && <Navbar />}
+
+        {/* USER DRAWER ONLY */}
+        {isAuth && !isAdmin && (
           <>
             <UserDrawerButton
               open={drawerOpen}
@@ -61,7 +74,9 @@ function App() {
           <AppRoutes />
         </main>
 
-        <Footer />
+        {/* USER FOOTER ONLY */}
+        {!isAdmin && <Footer />}
+
       </div>
     </BrowserRouter>
   )
