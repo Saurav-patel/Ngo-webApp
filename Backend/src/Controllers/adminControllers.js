@@ -10,6 +10,7 @@ import { ApiResponse } from "../utils/apiResponse.js"
 const getAllUsers = async (req, res, next) => {
   try {
     const admin = req.user
+    console.log(admin);
     if (!admin || admin.role !== "admin") {
       throw new ApiError(403, "Forbidden: Admins only")
     }

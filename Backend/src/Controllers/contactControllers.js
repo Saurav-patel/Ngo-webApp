@@ -66,8 +66,8 @@ const createContactRequest = async (req, res, next) => {
 
 const getContactRequests = async (req, res, next) => {
   try {
-    // You should already have role in req.user from auth middleware
-    if (!req.user || req.user.role !== "admin") {
+    const user = req.user
+    if (!user || user.role !== "admin") {
       throw new ApiError(403, "Only admins can view contact requests")
     }
 

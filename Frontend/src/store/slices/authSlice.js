@@ -1,4 +1,3 @@
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { authService } from "../../service/authService.js"
 
@@ -56,7 +55,7 @@ export const logoutUser = createAsyncThunk(
     try {
       await authService.logout()
       return true
-    } catch (error) {
+    } catch {
       return rejectWithValue("Logout failed")
     }
   }
@@ -65,30 +64,31 @@ export const logoutUser = createAsyncThunk(
 const initialState = {
   user: null,
   isAuthenticated: false,
-  status: "idle",        
+
+  status: "idle",
   error: null,
+
+  authChecked: false, // ✅ ADDED (KEY FIX)
 
   signUpStatus: "idle",
   signUpError: null,
 }
 
-
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    
     logOut: (state) => {
       state.user = null
       state.isAuthenticated = false
       state.status = "idle"
       state.error = null
+      state.authChecked = true
     },
   },
   extraReducers: (builder) => {
     builder
-
-      
+      // REGISTER
       .addCase(registerUser.pending, (state) => {
         state.signUpStatus = "loading"
         state.signUpError = null
@@ -101,7 +101,7 @@ const authSlice = createSlice({
         state.signUpError = action.payload
       })
 
-      
+      // LOGIN
       .addCase(loginUser.pending, (state) => {
         state.status = "loading"
         state.error = null
@@ -118,7 +118,7 @@ const authSlice = createSlice({
         state.error = action.payload
       })
 
-      
+      // 🔥 AUTH HYDRATION (IMPORTANT)
       .addCase(fetchCurrentUser.pending, (state) => {
         state.status = "loading"
       })
@@ -126,24 +126,23 @@ const authSlice = createSlice({
         state.status = "succeeded"
         state.user = action.payload
         state.isAuthenticated = true
+        state.authChecked = true // ✅
       })
       .addCase(fetchCurrentUser.rejected, (state) => {
-        
         state.status = "idle"
         state.user = null
         state.isAuthenticated = false
+        state.authChecked = true // ✅
       })
 
-     
+      // LOGOUT
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null
         state.isAuthenticated = false
         state.error = null
       })
-      
   },
 })
-
 
 export const { logOut } = authSlice.actions
 export default authSlice.reducer

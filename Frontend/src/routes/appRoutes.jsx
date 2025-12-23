@@ -13,6 +13,9 @@ import DashboardPage from "../pages/dashboard/userDashboard";
 import RequireAdmin from "./requireAdmin";
 import AdminDashboard from "../pages/admin/adminDashboard";
 import AdminLayout from "../components/layout/adminLayout";
+import UsersDetails from "../pages/admin/usersDetails";
+import Events from "../pages/admin/eventsPage";
+import EventDetails from "../pages/admin/eventDetails";
 
 const AppRoutes = () => {
     return (
@@ -34,6 +37,10 @@ const AppRoutes = () => {
                 <Route element = {<RequireAdmin />} >
                     <Route element = {<AdminLayout />} >
                     <Route path="/admin/dashboard" element={<AdminDashboard/>} />
+                    <Route path="/admin/users" element={<UsersDetails/>} />
+                    <Route path="/admin/events" element={<Events/>} />
+                    <Route path="/admin/events/:eventId" element={<EventDetails/>} />
+
                     {/* Admin-only routes can be added here */}
                     {/* <Route path="/admin" element={<AdminPage />} /> */}
                     </Route>

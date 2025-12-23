@@ -18,6 +18,7 @@ const verifyAuthToken = (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET)
     req.user = decoded
+    console.log("Verified user:", req.user)
     next()
   } catch (error) {
     return res.status(403).json({
@@ -69,6 +70,8 @@ const verifyRefreshToken = (req, res, next) => {
 const protectedRoute = (req, res, next) => {
   try {
     const user = req.user
+    console.log(user)
+    console.log("Protected route accessed",user.role)
 
     if (!user) {
       return res.status(401).json({ message: "Please login" })

@@ -22,9 +22,9 @@ function App() {
 
   const isAuth = useSelector(selectIsAuthenticated)
   const user = useSelector(selectAuthUser)
+  const authChecked = useSelector(state => state.auth.authChecked) // ✅
 
   const isAdmin = user?.role === "admin"
-
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   /* =========================
@@ -48,6 +48,17 @@ function App() {
   useEffect(() => {
     if (!isAuth) setDrawerOpen(false)
   }, [isAuth])
+
+  /* =========================
+     ⛔ FIX BLINKING (DO NOT RENDER EARLY)
+  ========================= */
+  if (!authChecked) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-950 text-gray-300">
+        Loading...
+      </div>
+    )
+  }
 
   return (
     <BrowserRouter>

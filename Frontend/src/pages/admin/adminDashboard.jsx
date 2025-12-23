@@ -1,4 +1,9 @@
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { adminService } from "../../service/adminService.js"
+import { certificateService } from "../../service/certificateService.js"
+import { eventService } from "../../service/eventService.js"
+import contactService from "../../service/contactService.js"
 
 const StatCard = ({ title, value, subtitle, route }) => {
   const navigate = useNavigate()
@@ -11,11 +16,9 @@ const StatCard = ({ title, value, subtitle, route }) => {
                  hover:bg-gray-800/40 transition"
     >
       <p className="text-sm text-gray-400">{title}</p>
-
       <h2 className="text-2xl font-semibold text-gray-100 mt-1">
         {value}
       </h2>
-
       {subtitle && (
         <p className="text-xs text-gray-500 mt-2">
           {subtitle}
@@ -26,6 +29,50 @@ const StatCard = ({ title, value, subtitle, route }) => {
 }
 
 const AdminDashboard = () => {
+  const [stats, setStats] = useState({
+    totalUsers: "—",
+    totalEvents: "—",
+    certificatesIssued: "—",
+    newContacts: "—",
+  })
+
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        setLoading(true)
+
+        const [
+          usersRes,
+          eventsRes,
+          certificatesRes,
+          contactsRes,
+        ] = await Promise.all([
+          adminService.getAllUsers(),
+          eventService.getAllEvents(),
+          certificateService.getAllCertificates(),
+          contactService.getContactRequests({ page: 1, limit: 1000 }),
+        ])
+
+        setStats({
+          totalUsers: usersRes.totalUsers,
+          totalEvents: eventsRes.length,
+          certificatesIssued: certificatesRes.filter(
+            c => c.status === "issued"
+          ).length,
+          newContacts: contactsRes.total,
+        })
+      } catch (error) {
+        console.error("Admin dashboard fetch failed:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboardStats()
+  }, [])
+
   return (
     <>
       {/* Header */}
@@ -40,64 +87,38 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <StatCard
           title="Total Users"
-          value="1,248"
+          value={loading ? "—" : stats.totalUsers}
           subtitle="Including members & admins"
           route="/admin/users"
         />
+
         <StatCard
           title="Active Members"
-          value="342"
+          value="—"
           subtitle="Approved memberships"
           route="/admin/members"
         />
+
         <StatCard
           title="Events"
-          value="26"
+          value={loading ? "—" : stats.totalEvents}
           subtitle="Past & upcoming events"
           route="/admin/events"
         />
+
         <StatCard
           title="Certificates Issued"
-          value="914"
+          value={loading ? "—" : stats.certificatesIssued}
           subtitle="Across all events"
           route="/admin/certificates"
         />
-        <StatCard
-          title="Pending Certificates"
-          value="17"
-          subtitle="Require admin action"
-          route="/admin/certificates?status=pending"
-        />
+
         <StatCard
           title="New Contact Messages"
-          value="9"
+          value={loading ? "—" : stats.newContacts}
           subtitle="Last 7 days"
           route="/admin/contacts"
         />
-      </div>
-
-      {/* Divider */}
-      <div className="my-10 border-t border-gray-800" />
-
-      {/* Recent Activity */}
-      <div>
-        <h2 className="text-lg font-medium mb-4">
-          Recent Activity
-        </h2>
-
-        <div className="bg-gray-900 border border-gray-800 rounded-xl divide-y divide-gray-800">
-          <div className="p-4 text-sm text-gray-300">
-            Certificate uploaded for{" "}
-            <span className="text-gray-100">Blood Donation Camp</span>
-          </div>
-          <div className="p-4 text-sm text-gray-300">
-            New event created:{" "}
-            <span className="text-gray-100">Women Skill Workshop</span>
-          </div>
-          <div className="p-4 text-sm text-gray-300">
-            3 new contact messages received
-          </div>
-        </div>
       </div>
     </>
   )

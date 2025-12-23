@@ -182,9 +182,7 @@ const logout = async (req, res, next) => {
   }
 }
 
-/* =========================
-   GET CURRENT USER (/me)
-========================= */
+
 const getCurrentUser = async (req, res, next) => {
   try {
     const user = req.user
