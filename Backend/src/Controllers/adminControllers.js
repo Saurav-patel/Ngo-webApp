@@ -6,6 +6,8 @@ import Document from "../Models/documentModel.js"
 import Ngo from "../Models/ngoModel.js"
 import { ApiError } from "../utils/apiError.js"
 import { ApiResponse } from "../utils/apiResponse.js"
+import {Participation} from "../Models/participationModel.js"
+import Certificate from "../Models/certificateModel.js"
 
 const getAllUsers = async (req, res, next) => {
   try {
@@ -33,6 +35,8 @@ const getAllUsers = async (req, res, next) => {
     next(error)
   }
 }
+
+
 
 const deleteUser = async (req, res, next) => {
   try {
@@ -316,6 +320,49 @@ const deleteMember = async (req, res, next) => {
   }
 }
 
+const getSingleUser = async (req, res, next) => {
+  try {
+    const { userId } = req.params
+    const admin = req.user
+
+    if (!admin || admin.role !== "admin") {
+      throw new ApiError(403, "Forbidden: Admins only")
+    }
+
+    if (!userId) {
+      throw new ApiError(400, "User ID is required")
+    }
+
+    const user = await User.findById(userId).select("-password -__v")
+    if (!user) {
+      throw new ApiError(404, "User not found")
+    }
+
+    // ✅ COUNTS ONLY (FAST & CLEAN)
+    const [participationsCount, certificatesCount] = await Promise.all([
+      Participation.countDocuments({ userId: userId }),
+      Certificate.countDocuments({ issuedTo: userId })
+    ])
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          user,
+          stats: {
+            participationsCount,
+            certificatesCount
+          }
+        },
+        "User details fetched successfully"
+      )
+    )
+  } catch (error) {
+    next(error)
+  }
+}
+
+
 export {
   getAllUsers,
   deleteUser,
@@ -323,6 +370,7 @@ export {
   uploadNgoDocuments,
   addMemberInfo,
   deleteMember,
+  getSingleUser,
   updateMemberInfo,
   
 }

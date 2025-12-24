@@ -13,9 +13,12 @@ const Events = () => {
       try {
         setLoading(true)
         const res = await eventService.getAllEvents()
-        setEvents(res)
+
+        // 🔥 SAFETY: ensure array
+        setEvents(Array.isArray(res) ? res : [])
       } catch (error) {
         console.error("Failed to fetch events", error)
+        setEvents([])
       } finally {
         setLoading(false)
       }
@@ -25,16 +28,26 @@ const Events = () => {
   }, [])
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Events</h1>
-        <p className="text-sm text-gray-400 mt-1">
-          Manage all events
-        </p>
+    <div className="p-6 space-y-6 text-gray-200">
+
+      {/* HEADER */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Events</h1>
+          <p className="text-sm text-gray-400 mt-1">
+            Manage all events
+          </p>
+        </div>
+
+        <button
+          onClick={() => navigate("/admin/events/create-event")}
+          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium"
+        >
+          + Create Event
+        </button>
       </div>
 
-      {/* Table */}
+      {/* TABLE */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-800 text-gray-300">
@@ -51,40 +64,46 @@ const Events = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="6" className="px-4 py-6 text-center text-gray-400">
+                <td colSpan="6" className="px-4 py-8 text-center text-gray-400">
                   Loading events...
                 </td>
               </tr>
             ) : events.length === 0 ? (
               <tr>
-                <td colSpan="6" className="px-4 py-6 text-center text-gray-400">
+                <td colSpan="6" className="px-4 py-8 text-center text-gray-400">
                   No events found
                 </td>
               </tr>
             ) : (
-              events.map(event => (
+              events.map((event, index) => (
                 <tr
-                  key={event._id}
+                  key={`${event._id}-${index}`}
                   className="border-t border-gray-800 hover:bg-gray-800/40 transition"
                 >
                   <td className="px-4 py-3 font-medium">
-                    {event.title}
+                    {event.title || "-"}
                   </td>
 
                   <td className="px-4 py-3">
-                    {new Date(event.startDate).toLocaleDateString()}
+                    {event.startDate
+                      ? new Date(event.startDate).toLocaleDateString()
+                      : "-"}
                   </td>
 
                   <td className="px-4 py-3">
-                    {event.location}
+                    {event.location || "-"}
                   </td>
 
                   <td className="px-4 py-3">
-                    {event.photos?.length || 0}
+                    {Array.isArray(event.photos)
+                      ? event.photos.length
+                      : 0}
                   </td>
 
                   <td className="px-4 py-3">
-                    {new Date(event.createdAt).toLocaleDateString()}
+                    {event.createdAt
+                      ? new Date(event.createdAt).toLocaleDateString()
+                      : "-"}
                   </td>
 
                   <td className="px-4 py-3">

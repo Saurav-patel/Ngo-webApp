@@ -1,5 +1,5 @@
 import express from 'express'
-import {getAllUsers, deleteUser, getMembers , uploadNgoDocuments , addMemberInfo , deleteMember , updateMemberInfo  } from '../controllers/adminControllers.js'
+import {getAllUsers, deleteUser, getMembers , uploadNgoDocuments , addMemberInfo , deleteMember , updateMemberInfo , getSingleUser  } from "../Controllers/adminControllers.js"
 import { protectedRoute } from '../middlewares/authMiddlewares.js'
 import { handleMulterErrors } from '../middlewares/upload.js'
 import { verifyAuthToken } from '../middlewares/authMiddlewares.js'
@@ -7,6 +7,7 @@ import { verifyAuthToken } from '../middlewares/authMiddlewares.js'
 const adminRouter = express.Router()
 
 adminRouter.get('/all-users', verifyAuthToken , protectedRoute, getAllUsers)
+adminRouter.get('/single-user/:userId', verifyAuthToken , protectedRoute, getSingleUser)
 adminRouter.delete('/delete-user/:userId', verifyAuthToken , protectedRoute, deleteUser)
 adminRouter.get('/members', verifyAuthToken , protectedRoute, getMembers)
 adminRouter.delete('/delete-member/:memberId', verifyAuthToken , protectedRoute, deleteMember)

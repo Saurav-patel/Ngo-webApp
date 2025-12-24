@@ -16,6 +16,8 @@ import AdminLayout from "../components/layout/adminLayout";
 import UsersDetails from "../pages/admin/usersDetails";
 import Events from "../pages/admin/eventsPage";
 import EventDetails from "../pages/admin/eventDetails";
+import SingleUserDetails from "../pages/admin/singleUserDetail";
+import CreateEvent from "../pages/admin/createEvent";
 
 const AppRoutes = () => {
     return (
@@ -40,6 +42,8 @@ const AppRoutes = () => {
                     <Route path="/admin/users" element={<UsersDetails/>} />
                     <Route path="/admin/events" element={<Events/>} />
                     <Route path="/admin/events/:eventId" element={<EventDetails/>} />
+                    <Route path="/admin/users/:userId" element={<SingleUserDetails/>} />
+                    <Route path="/admin/events/create-event" element={<CreateEvent />} />
 
                     {/* Admin-only routes can be added here */}
                     {/* <Route path="/admin" element={<AdminPage />} /> */}

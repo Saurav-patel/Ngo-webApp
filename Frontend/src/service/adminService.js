@@ -13,7 +13,10 @@ class AdminService extends BaseService {
     const res = await apiClient.delete(`/admin/delete-user/${userId}`)
     return this.validate(res, "Failed to delete user")
   }
-
+  async getSingleUser(userId) {
+    const res = await apiClient.get(`/admin/single-user/${userId}`)
+    return this.parseData(res, "Failed to fetch user details")
+  }
   
   async getMembers() {
     const res = await apiClient.get("/admin/members")
