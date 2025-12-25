@@ -18,6 +18,13 @@ import Events from "../pages/admin/eventsPage";
 import EventDetails from "../pages/admin/eventDetails";
 import SingleUserDetails from "../pages/admin/singleUserDetail";
 import CreateEvent from "../pages/admin/createEvent";
+import Certificates from "../pages/admin/certificates";
+import CertificateDetails from "../pages/admin/certificateDetails";
+import ContactInbox from "../pages/admin/contactInbox";
+import ContactMessage from "../pages/admin/contactMessages";
+import Notices from "../pages/admin/notices";
+import CreateNotice from "../pages/admin/createNotice";
+import NoticeDetails from "../pages/admin/noticeDetails";
 
 const AppRoutes = () => {
     return (
@@ -44,6 +51,13 @@ const AppRoutes = () => {
                     <Route path="/admin/events/:eventId" element={<EventDetails/>} />
                     <Route path="/admin/users/:userId" element={<SingleUserDetails/>} />
                     <Route path="/admin/events/create-event" element={<CreateEvent />} />
+                    <Route path="/admin/certificates" element={<Certificates />} />
+                    <Route path="/admin/certificates/:certificateId" element={<CertificateDetails />} />
+                    <Route path="/admin/contacts" element={<ContactInbox />} />
+                    <Route path="/admin/contacts/:contactId" element={<ContactMessage />} />
+                    <Route path="/admin/notices" element={<Notices />} />
+                    <Route path="/admin/notices/create" element={<CreateNotice />} />
+                    <Route path="/admin/notices/:noticeId" element={<NoticeDetails />} />
 
                     {/* Admin-only routes can be added here */}
                     {/* <Route path="/admin" element={<AdminPage />} /> */}

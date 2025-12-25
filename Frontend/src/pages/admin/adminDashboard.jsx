@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+
 import { adminService } from "../../service/adminService.js"
 import { certificateService } from "../../service/certificateService.js"
 import { eventService } from "../../service/eventService.js"
@@ -13,7 +14,8 @@ const StatCard = ({ title, value, subtitle, route }) => {
       onClick={() => route && navigate(route)}
       className="bg-gray-900 border border-gray-800 rounded-xl p-5
                  cursor-pointer hover:border-gray-700
-                 hover:bg-gray-800/40 transition"
+                 hover:bg-gray-800/40 transition
+                 w-full"
     >
       <p className="text-sm text-gray-400">{title}</p>
       <h2 className="text-2xl font-semibold text-gray-100 mt-1">
@@ -74,7 +76,9 @@ const AdminDashboard = () => {
   }, [])
 
   return (
-    <>
+    /* ✅ WIDTH CONSTRAINER (CRITICAL FIX) */
+    <div className="w-full max-w-full overflow-hidden">
+
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
@@ -83,8 +87,8 @@ const AdminDashboard = () => {
         </p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {/* ✅ GRID CONSTRAINED TO AVAILABLE WIDTH */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full max-w-full">
         <StatCard
           title="Total Users"
           value={loading ? "—" : stats.totalUsers}
@@ -120,7 +124,8 @@ const AdminDashboard = () => {
           route="/admin/contacts"
         />
       </div>
-    </>
+
+    </div>
   )
 }
 
