@@ -9,6 +9,7 @@ import {
 } from "./store/slices/authSlice.js"
 
 import { fetchMyParticipations } from "./store/slices/participationSlice.js"
+import NoticeFloating from "./components/noticeFloating.jsx"
 
 import Navbar from "./components/layout/navBar.jsx"
 import Footer from "./components/layout/footer.jsx"
@@ -88,6 +89,7 @@ function App() {
         {/* USER FOOTER ONLY */}
         {!isAdmin && <Footer />}
 
+         {!isAdmin && <NoticeFloating />}
       </div>
     </BrowserRouter>
   )

@@ -1,8 +1,13 @@
-import { eventService } from "../service/eventService.js";
-import { useEffect, useRef, useState } from "react";
-import EventShowcase from "../components/eventShowcase.jsx";
+import { eventService } from "../service/eventService.js"
+import { noticeService } from "../service/noticeService.js"
+import { useEffect, useRef, useState } from "react"
+import EventShowcase from "../components/eventShowcase.jsx"
 
 const HomePage = () => {
+  // ---- Notice state ----
+  const [notices, setNotices] = useState([])
+  const [noticeOpen, setNoticeOpen] = useState(false)
+
   // ---- Events state ----
   const [events, setEvents] = useState([])
   const [eventsLoading, setEventsLoading] = useState(false)
@@ -12,7 +17,42 @@ const HomePage = () => {
 
   const eventsSectionRef = useRef(null)
 
-  // ---- IntersectionObserver for events section ----
+  /* ===========================
+     FETCH VALID NOTICES
+     (expiresAt + latest first)
+  =========================== */
+  useEffect(() => {
+    let cancelled = false
+
+    const fetchNotices = async () => {
+      try {
+        const data = await noticeService.getAllNotices()
+        if (cancelled || !Array.isArray(data)) return
+
+        const now = new Date()
+
+        const validNotices = data
+          .filter(n => {
+            if (!n.expiresAt) return true
+            return new Date(n.expiresAt) >= now
+          })
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+        setNotices(validNotices)
+      } catch (err) {
+        console.error("Failed to load notices:", err)
+      }
+    }
+
+    fetchNotices()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  /* ===========================
+     EVENTS INTERSECTION LOGIC
+  =========================== */
   useEffect(() => {
     const section = eventsSectionRef.current
     if (!section) return
@@ -29,7 +69,6 @@ const HomePage = () => {
             try {
               const data = await eventService.getAllEvents()
               setEvents(data || [])
-              
             } catch (err) {
               console.error(err)
               setEventsError(err.message || "Failed to load events")
@@ -47,7 +86,7 @@ const HomePage = () => {
   }, [eventsFetched])
 
   return (
-    <div className="bg-gray-50">
+    <div className="bg-gray-50 relative">
       {/* ---- HERO SECTION ---- */}
       <section
         className="relative overflow-hidden"
@@ -61,26 +100,18 @@ const HomePage = () => {
 
         <div className="relative max-w-6xl mx-auto px-4 py-16 md:py-24">
           <div className="grid gap-8 md:grid-cols-[1.3fr,1fr] items-center">
-            {/* Left text content */}
+            {/* Left text */}
             <div className="space-y-4 md:space-y-6">
               <p className="text-xs md:text-sm font-semibold uppercase tracking-[0.2em] text-yellow-300">
                 Now we need your help
               </p>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
                 Together we can rewrite{" "}
-                <span className="text-yellow-300">
-                  a child&apos;s future.
-                </span>
+                <span className="text-yellow-300">a child&apos;s future.</span>
               </h1>
               <p className="text-sm md:text-base text-gray-100 max-w-xl">
                 Your support turns empty classrooms into learning spaces and
-                silent nights into dreams full of possibilities. Join us in
-                funding education, health and hope for vulnerable children.
-              </p>
-              <p className="text-xs md:text-sm text-gray-200 max-w-md">
-                Every donation sponsors notebooks, school fees, medical help or
-                warm meals. No amount is small when it becomes someone&apos;s
-                reason to smile.
+                silent nights into dreams full of possibilities.
               </p>
 
               <div className="flex flex-wrap gap-4 pt-2">
@@ -93,18 +124,15 @@ const HomePage = () => {
               </div>
             </div>
 
-            {/* Right floating image card */}
+            {/* Right image */}
             <div className="flex justify-center md:justify-end">
               <div className="group relative w-[260px] md:w-[320px] lg:w-[360px]">
-                <div className="rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 backdrop-blur-sm transform transition duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
+                <div className="rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 backdrop-blur-sm">
                   <img
                     src="/img2.jpg"
                     alt="Children education"
-                    className="w-full h-64 md:h-80 object-cover opacity-95 group-hover:opacity-100 transition"
+                    className="w-full h-64 md:h-80 object-cover"
                   />
-                </div>
-                <div className="absolute -bottom-4 left-4 px-3 py-2 rounded-2xl bg-yellow-400 text-gray-900 text-[11px] font-semibold shadow-lg">
-                  Every month, your kindness writes new chapters of hope.
                 </div>
               </div>
             </div>
@@ -112,7 +140,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* ---- EVENTS SHOWCASE SECTION ---- */}
+      {/* ---- EVENTS SECTION ---- */}
       <section
         ref={eventsSectionRef}
         className={`transition-all duration-700 ${
@@ -121,29 +149,17 @@ const HomePage = () => {
             : "opacity-0 translate-y-6"
         }`}
       >
-        {/* Loading / error / empty states */}
-        {eventsLoading && (
-          <div className="max-w-5xl mx-auto px-4 py-8 text-sm text-gray-600">
-            Loading events...
-          </div>
-        )}
-
-        {eventsError && (
-          <div className="max-w-5xl mx-auto px-4 py-8 text-sm text-red-500">
-            {eventsError} – please try again later.
-          </div>
-        )}
-
-        {!eventsLoading && !eventsError && events.length === 0 && (
-          <div className="max-w-5xl mx-auto px-4 py-8 text-sm text-gray-600">
-            No events to display right now. Check back soon.
-          </div>
-        )}
-
         {!eventsLoading && !eventsError && events.length > 0 && (
           <EventShowcase events={events} />
         )}
       </section>
+
+    
+
+             
+              
+        
+      
     </div>
   )
 }

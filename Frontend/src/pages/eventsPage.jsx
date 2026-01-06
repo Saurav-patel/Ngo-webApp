@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { eventService } from "../service/eventService.js"
 import EventShowcase from "../components/eventShowcase"
 
@@ -33,11 +33,32 @@ const AllEventsPage = () => {
     }
   }, [])
 
+  /* ======================================================
+     EVENT STATUS LOGIC (START DATE ONLY)
+  ====================================================== */
+  const today = new Date()
+
+  const upcomingEvents = useMemo(() => {
+    return events.filter((event) => {
+      if (!event.startDate) return false
+      const startDate = new Date(event.startDate)
+      return startDate > today
+    })
+  }, [events, today])
+
+  const pastEvents = useMemo(() => {
+    return events.filter((event) => {
+      if (!event.startDate) return false
+      const startDate = new Date(event.startDate)
+      return startDate <= today
+    })
+  }, [events, today])
+
+  /* ====================================================== */
+
   return (
     <div className="bg-gray-950 min-h-screen text-gray-100">
-      {/* keep spacing consistent with EventShowcase (max-w-7xl etc.) */}
       <div className="max-w-7xl mx-auto px-2 md:px-4 py-10 md:py-14 space-y-6">
-        {/* Small page heading / breadcrumb */}
         <div className="flex items-center justify-between gap-2">
           <div className="space-y-1">
             <p className="text-[11px] uppercase tracking-[0.25em] text-emerald-400">
@@ -53,7 +74,6 @@ const AllEventsPage = () => {
           </div>
         </div>
 
-        {/* Loading / error / empty */}
         {loading && (
           <div className="text-sm text-gray-400 pt-4">Loading events...</div>
         )}
@@ -70,12 +90,23 @@ const AllEventsPage = () => {
           </div>
         )}
 
-        {!loading && !error && events.length > 0 && (
+        {/* ================= UPCOMING EVENTS ================= */}
+        {!loading && !error && upcomingEvents.length > 0 && (
           <EventShowcase
-            events={events}
-            headingPrefix="All Events"
-            headingTitle="See every moment of impact."
-            headingSubtitle="From skills training to hunger relief, explore the full timeline of our work on the ground."
+            events={upcomingEvents}
+            headingPrefix="Upcoming Events"
+            headingTitle="Join our upcoming initiatives."
+            headingSubtitle="Register for upcoming programs and be part of the change."
+          />
+        )}
+
+        {/* ================= PAST EVENTS ================= */}
+        {!loading && !error && pastEvents.length > 0 && (
+          <EventShowcase
+            events={pastEvents}
+            headingPrefix="Past Events"
+            headingTitle="Moments that made an impact."
+            headingSubtitle="A look back at the initiatives that changed lives."
           />
         )}
       </div>
