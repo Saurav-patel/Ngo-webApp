@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { loginUser } from "../../store/slices/authSlice.js";
+import { loginUser , fetchCurrentUser } from "../../store/slices/authSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { selectAuthStatus } from "../../store/slices/authSlice.js";
+
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -30,33 +31,35 @@ const LoginPage = () => {
   
 
   const onSubmit = async (data) => {
-    clearErrors("root");
+  clearErrors("root");
 
-    try {
-      const user = await dispatch(
-        loginUser({
-          email: data.email,
-          password: data.password,
-        })
-      ).unwrap();
-      console.log("Logged in user:", user.role);
-      if (user.role === "admin") {
-        console.log("Redirecting to admin dashboard.");
-       navigate("/admin/dashboard", { replace: true });
-      } else {
-        console.log("Redirecting to previous page or home.");
+  try {
+    // 1️⃣ Login (token only, partial user is OK)
+    await dispatch(
+      loginUser({
+        email: data.email,
+        password: data.password,
+      })
+    ).unwrap();
+
+    // 2️⃣ Hydrate full user (THIS FIXES YOUR BUG)
+    const fullUser = await dispatch(fetchCurrentUser()).unwrap();
+
+    // 3️⃣ Navigate AFTER hydration
+    if (fullUser.role === "admin") {
+      navigate("/admin/dashboard", { replace: true });
+    } else {
       const from = location.state?.from?.pathname || "/";
       navigate(from, { replace: true });
     }
-      
-      navigate(from, { replace: true });
-    } catch (err) {
-      setError("root", {
-        type: "manual",
-        message: err?.message || "Failed to login. Please try again.",
-      });
-    }
-  };
+
+  } catch (err) {
+    setError("root", {
+      type: "manual",
+      message: err?.message || "Failed to login. Please try again.",
+    });
+  }
+};
 
   useEffect(() => {
     window.scrollTo(0, 0);

@@ -25,6 +25,7 @@ import ContactMessage from "../pages/admin/contactMessages";
 import Notices from "../pages/admin/notices";
 import CreateNotice from "../pages/admin/createNotice";
 import NoticeDetails from "../pages/admin/noticeDetails";
+import MyIdCard from "../pages/dashboard/idCard";
 
 const AppRoutes = () => {
     return (
@@ -40,7 +41,7 @@ const AppRoutes = () => {
             <Route element = {<RequireAuth />} >
                 <Route path="/dashboard" element={<DashboardPage/>} />
                 <Route path="/settings" element={<AccountSettings/>} />
-                
+                <Route path="/id-card" element={<MyIdCard/>} />
 
 
                 <Route element = {<RequireAdmin />} >

@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
 import {
   LayoutDashboard,
+  IdCard,
   Settings,
   LogOut
 } from "lucide-react"
@@ -13,7 +14,7 @@ const UserDrawer = ({ open, close }) => {
   const user = useSelector((state) => state.auth?.user)
   
 
-  // default person image
+  
   const avatar =
     user?.profile_pic_url?.url ||
     "https://cdn-icons-png.flaticon.com/512/847/847969.png"
@@ -30,7 +31,7 @@ const UserDrawer = ({ open, close }) => {
 
   return (
     <>
-      {/* Overlay */}
+      
       {open && (
         <div
           onClick={close}
@@ -38,7 +39,7 @@ const UserDrawer = ({ open, close }) => {
         />
       )}
 
-      {/* Drawer */}
+     
       <aside
         className={`fixed top-0 right-0 h-full w-80 z-50
         bg-gradient-to-b from-gray-950 to-gray-900
@@ -46,7 +47,7 @@ const UserDrawer = ({ open, close }) => {
         transition-transform duration-300 ease-in-out
         ${open ? "translate-x-0" : "translate-x-full"}`}
       >
-        {/* Header */}
+        
         <div className="p-6 border-b border-gray-800">
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -73,7 +74,7 @@ const UserDrawer = ({ open, close }) => {
           </div>
         </div>
 
-        {/* Navigation */}
+        
         <nav className="p-4 space-y-1">
           <DrawerItem
             to="/dashboard"
@@ -88,9 +89,16 @@ const UserDrawer = ({ open, close }) => {
             label="Account Settings"
             onClick={close}
           />
+          <DrawerItem
+            to="id-card"
+            icon={<IdCard size={18} />}
+            label="My ID Card"
+            onClick={close}
+          />
+
         </nav>
 
-        {/* Footer */}
+        
         <div className="absolute bottom-0 w-full p-4 border-t border-gray-800">
           <button
             onClick={handleLogout}

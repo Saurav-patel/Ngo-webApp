@@ -177,7 +177,7 @@ const getMyIdCard = async (req, res, next) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200,   200,
+      .json(new ApiResponse(200,   
         myIdCard, 
         myIdCard
           ? "ID Card fetched successfully"
