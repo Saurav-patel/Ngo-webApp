@@ -49,18 +49,18 @@ app.use(
 app.use(express.static(path.join(__dirname, "public")));
 
 // ---------- API routes ----------
-app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/admin", adminRouter);
+app.use("/auth", authRouter);
+app.use("/user", userRouter);
+app.use("/admin", adminRouter);
 
-app.use("/api/v1/notice", noticeRouter);
-app.use("/api/v1/events", eventRouter);
-app.use("/api/v1/participation", participationRouter);
-app.use("/api/v1/appointments", appointLetterRouter);
-app.use("/api/v1/idCards", idCardRouter);
-app.use("/api/v1/certificates", certificateRouter);
-app.use("/api/v1/ngo", ngoRouter);
-app.use("/api/v1/contact",contactRouter)
+app.use("/notice", noticeRouter);
+app.use("/events", eventRouter);
+app.use("/participation", participationRouter);
+app.use("/appointments", appointLetterRouter);
+app.use("/idCards", idCardRouter);
+app.use("/certificates", certificateRouter);
+app.use("/ngo", ngoRouter);
+app.use("/contact",contactRouter)
 
 app.get("/", (req, res) => {
   res.send("hello from the app");
