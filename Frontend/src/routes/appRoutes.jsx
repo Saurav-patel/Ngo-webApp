@@ -3,7 +3,7 @@ import HomePage from "../pages/homePage";
 import { Routes , Route } from "react-router-dom";
 import RequireAuth from "./requireAuth";
 import LoginPage from "../pages/auth/loginPage";
-import RegisterPage from "../pages/auth/registerpage";
+import RegisterPage from "../pages/auth/registerPage";
 import AboutPage from "../pages/aboutPage";
 import EventDetailPage from "../pages/singleEventPage";
 import AllEventsPage from "../pages/eventsPage";
