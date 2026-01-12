@@ -1,6 +1,5 @@
 // src/controllers/authController.js
 import User from "../Models/userModel.js"
-import jwt from "jsonwebtoken"
 import { ApiError } from "../utils/apiError.js"
 import { ApiResponse } from "../utils/apiResponse.js"
 
@@ -81,7 +80,7 @@ const createAdmin = async (req, res, next) => {
 }
 
 /* =========================
-   LOGIN (COOKIE-BASED)
+   LOGIN (ACCESS + REFRESH)
 ========================= */
 const login = async (req, res, next) => {
   try {
@@ -101,15 +100,26 @@ const login = async (req, res, next) => {
       throw new ApiError(400, "Invalid credentials")
     }
 
-    // 🔐 Generate ONLY refresh token (cookie-based auth)
+    // ✅ Generate tokens
+    const accessToken = user.generateAccessToken()
     const refreshToken = user.generateRefreshToken()
 
+    // ✅ Access token (short-lived)
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      path: "/",
+      maxAge: 15 * 60 * 1000 // 15 minutes
+    })
+
+    // ✅ Refresh token (long-lived)
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     })
 
     const responseData = {
@@ -129,7 +139,6 @@ const login = async (req, res, next) => {
 
 /* =========================
    REFRESH ACCESS TOKEN
-   (OPTIONAL / FUTURE USE)
 ========================= */
 const refreshAccessToken = async (req, res, next) => {
   try {
@@ -139,24 +148,19 @@ const refreshAccessToken = async (req, res, next) => {
       throw new ApiError(401, "User is missing or invalid")
     }
 
-    const newAccessToken = jwt.sign(
-      {
-        _id: user._id,
-        email: user.email,
-        username: user.username,
-        role: user.role,
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
-    )
+    const newAccessToken = user.generateAccessToken()
 
-    return res.status(200).json(
-      new ApiResponse(
-        200,
-        { accessToken: newAccessToken },
-        "New access token generated"
-      )
-    )
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      path: "/",
+      maxAge: 15 * 60 * 1000
+    })
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, "Access token refreshed"))
   } catch (error) {
     next(error)
   }
@@ -167,6 +171,13 @@ const refreshAccessToken = async (req, res, next) => {
 ========================= */
 const logout = async (req, res, next) => {
   try {
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      path: "/",
+    })
+
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -182,7 +193,9 @@ const logout = async (req, res, next) => {
   }
 }
 
-
+/* =========================
+   GET CURRENT USER
+========================= */
 const getCurrentUser = async (req, res, next) => {
   try {
     const user = req.user
@@ -192,7 +205,7 @@ const getCurrentUser = async (req, res, next) => {
     }
 
     const currentUser = await User.findById(user._id).select(
-      "-password  -v"
+      "-password -__v"
     )
 
     if (!currentUser) {
@@ -212,10 +225,10 @@ const getCurrentUser = async (req, res, next) => {
 }
 
 export {
+  signUp,
+  createAdmin,
   login,
   refreshAccessToken,
   logout,
-  signUp,
-  createAdmin,
   getCurrentUser,
 }

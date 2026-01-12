@@ -5,12 +5,12 @@ const baseURL = import.meta.env.VITE_BACKEND_URL
 const apiClient = axios.create({
   baseURL,
   timeout: 15000,
-  withCredentials: true
+  withCredentials: true, // ✅ send cookies
 })
 
-// ---------------------
-// Refresh Control
-// ---------------------
+/* =========================
+   REFRESH CONTROL
+========================= */
 let isRefreshing = false
 let failedQueue = []
 
@@ -22,22 +22,18 @@ const processQueue = (error) => {
   failedQueue = []
 }
 
-// ---------------------
-// REQUEST INTERCEPTOR
-// ---------------------
+/* =========================
+   REQUEST INTERCEPTOR
+   (Nothing added — cookies only)
+========================= */
 apiClient.interceptors.request.use(
-  (config) => {
-    // ❌ NO localStorage
-    // ❌ NO Authorization header
-    // Cookies handle auth
-    return config
-  },
+  (config) => config,
   (error) => Promise.reject(error)
 )
 
-// ---------------------
-// RESPONSE INTERCEPTOR
-// ---------------------
+/* =========================
+   RESPONSE INTERCEPTOR
+========================= */
 apiClient.interceptors.response.use(
   (response) => response,
 
@@ -45,27 +41,28 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config
     const status = error?.response?.status
 
+    // Only handle unauthorized errors
     if (status !== 401 || !originalRequest) {
       return Promise.reject(error)
     }
 
     const url = originalRequest.url || ""
 
-    // ❌ NEVER refresh on auth endpoints
+    // ❌ Never refresh on auth endpoints
     if (
       url.includes("/auth/login") ||
-      url.includes("/auth/refresh-token") ||
+      url.includes("/auth/refresh") ||
       url.includes("/auth/logout")
     ) {
       return Promise.reject(error)
     }
 
-    // ❌ Prevent retry loops
+    // ❌ Prevent infinite retry loops
     if (originalRequest._retry) {
       return Promise.reject(error)
     }
 
-    // Queue requests while refresh is happening
+    // ⏳ Queue requests while refresh is in progress
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject })
@@ -76,9 +73,10 @@ apiClient.interceptors.response.use(
     isRefreshing = true
 
     try {
-      // Try refreshing session (cookie-based)
-      await apiClient.post("/auth/refresh-token")
+      // 🔄 Refresh access token using refresh-token cookie
+      await apiClient.post("/auth/refresh")
 
+      // Retry all queued requests
       processQueue(null)
 
       // Retry original request
@@ -87,9 +85,9 @@ apiClient.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError)
 
-      // ❌ NO redirect
-      // ❌ NO storage cleanup
-      // Redux will handle logout
+      // ❌ Do NOT redirect here
+      // ❌ Do NOT clear cookies here
+      // Redux / app-level logic should handle logout
 
       return Promise.reject(refreshError)
 
