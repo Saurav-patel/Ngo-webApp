@@ -55,7 +55,7 @@ app.use(
     credentials: true,
   })
 );
-app.options("*", cors());
+
 
 
 app.use(express.static(path.join(__dirname, "public")));
