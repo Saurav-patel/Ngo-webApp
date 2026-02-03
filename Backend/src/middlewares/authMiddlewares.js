@@ -1,10 +1,6 @@
-// src/middlewares/auth.middleware.js
-import jwt from "jsonwebtoken"
 
-/* =========================
-   VERIFY ACCESS TOKEN
-   (Used for ALL protected APIs)
-========================= */
+import jwt from "jsonwebtoken"
+import User from "../Models/userModel.js"
 const verifyAccessToken = (req, res, next) => {
   try {
     const token = req.cookies?.accessToken
@@ -30,42 +26,43 @@ const verifyAccessToken = (req, res, next) => {
   }
 }
 
-/* =========================
-   VERIFY REFRESH TOKEN
-   (Used ONLY for /auth/refresh)
-========================= */
-const verifyRefreshToken = (req, res, next) => {
-  const refreshToken = req.cookies?.refreshToken
+const verifyRefreshToken = async (req, res, next) => {
+  const refreshToken = req.cookies?.refreshToken;
 
   if (!refreshToken) {
     return res.status(401).json({
       success: false,
       message: "Refresh token missing",
-    })
+    });
   }
 
   try {
     const decoded = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET
-    )
-    req.user = decoded
-    next()
+    );
+
+    const user = await User.findById(decoded._id);
+
+    if (!user || user.refreshToken !== refreshToken) {
+      return res.status(403).json({
+        success: false,
+        message: "Refresh token invalid or reused",
+      });
+    }
+
+    req.user = user;
+    next();
+
   } catch (error) {
     return res.status(403).json({
       success: false,
-      message:
-        error.name === "TokenExpiredError"
-          ? "Refresh token expired"
-          : "Invalid refresh token",
-    })
+      message: "Invalid refresh token",
+    });
   }
-}
+};
 
-/* =========================
-   ROLE-BASED AUTH
-   (Runs AFTER verifyAccessToken)
-========================= */
+
 const protectedRoute = (req, res, next) => {
   try {
     const user = req.user
