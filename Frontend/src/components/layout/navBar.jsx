@@ -1,4 +1,4 @@
-// src/components/layout/Navbar.jsx
+
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -9,22 +9,15 @@ const Navbar = () => {
 
   return (
     <header className="w-full shadow-md sticky top-0 z-50">
-      {/* ✅ TOP INFO BAR (Fixed Mobile Responsive) */}
       <div className="w-full bg-emerald-700 text-[11px] text-emerald-50">
         <div className="w-full px-4 lg:px-12 py-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-          
-          {/* LEFT SIDE (Phone + Email) */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-center sm:text-left">
-            {/* Phone always visible */}
             <span>📞 +919876543210</span>
-
-            {/* Email wraps nicely on mobile */}
-            <span className="break-all sm:break-normal">
+            <span className="hidden md:inline">
               ✉️ Brightfuturefoundation.ngo@gmail.com
             </span>
           </div>
 
-          {/* RIGHT SIDE (Login/Register always visible) */}
           <div className="flex justify-center md:justify-end gap-4">
             <Link to="/auth/login" className="hover:underline">
               Login
@@ -36,12 +29,9 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* ✅ MAIN NAV BAR */}
       <nav className="w-full bg-emerald-800 text-white">
         <div className="w-full px-6 lg:px-12">
           <div className="flex items-center justify-between py-3">
-            
-            {/* LOGO */}
             <Link to="/" className="flex items-center gap-3">
               <img
                 src="/logo.png"
@@ -54,23 +44,19 @@ const Navbar = () => {
               </p>
             </Link>
 
-            {/* ✅ DESKTOP MENU */}
             <div className="hidden md:flex items-center gap-10">
               <ul className="flex items-center gap-6 text-sm font-medium uppercase tracking-wide">
                 <NavItem label="Home" to="/" active={path === "/"} />
-
                 <NavItem
                   label="Events"
                   to="/events"
                   active={path.startsWith("/events")}
                 />
-
                 <NavItem
                   label="About"
                   to="/about"
                   active={path.startsWith("/about")}
                 />
-
                 <NavItem
                   label="Contact"
                   to="/contact"
@@ -83,7 +69,6 @@ const Navbar = () => {
               </button>
             </div>
 
-            {/* ✅ MOBILE MENU BUTTON */}
             <button
               className="md:hidden inline-flex items-center justify-center p-2 rounded-md border border-emerald-600"
               onClick={() => setIsMobileOpen((prev) => !prev)}
@@ -101,7 +86,6 @@ const Navbar = () => {
             </button>
           </div>
 
-          {/* ✅ MOBILE MENU */}
           {isMobileOpen && (
             <div
               id="mobile-nav"
@@ -114,21 +98,18 @@ const Navbar = () => {
                   active={path === "/"}
                   onClick={() => setIsMobileOpen(false)}
                 />
-
                 <MobileNavItem
                   label="Events"
                   to="/events"
                   active={path.startsWith("/events")}
                   onClick={() => setIsMobileOpen(false)}
                 />
-
                 <MobileNavItem
                   label="About"
                   to="/about"
                   active={path.startsWith("/about")}
                   onClick={() => setIsMobileOpen(false)}
                 />
-
                 <MobileNavItem
                   label="Contact"
                   to="/contact"
@@ -137,12 +118,10 @@ const Navbar = () => {
                 />
               </ul>
 
-              {/* Donate Button */}
               <button className="mt-3 w-full px-5 py-2 rounded-full bg-yellow-400 text-gray-900 font-semibold text-sm hover:bg-yellow-300 transition">
                 Donate
               </button>
 
-              {/* Login/Register inside mobile dropdown */}
               <div className="mt-3 flex justify-between text-xs px-1">
                 <Link
                   to="/auth/login"
@@ -151,7 +130,6 @@ const Navbar = () => {
                 >
                   Login
                 </Link>
-
                 <Link
                   to="/auth/register"
                   className="hover:underline"
@@ -168,7 +146,6 @@ const Navbar = () => {
   );
 };
 
-/* ✅ DESKTOP NAV ITEM */
 const NavItem = ({ label, to, active }) => (
   <li className="relative cursor-pointer">
     <Link
@@ -179,14 +156,12 @@ const NavItem = ({ label, to, active }) => (
     >
       {label}
     </Link>
-
     {active && (
       <span className="absolute -bottom-1 left-0 w-6 h-[3px] bg-yellow-400 rounded-full" />
     )}
   </li>
 );
 
-/* ✅ MOBILE NAV ITEM */
 const MobileNavItem = ({ label, to, active, onClick }) => (
   <li className={`px-1 ${active ? "text-yellow-300 font-semibold" : ""}`}>
     <Link to={to} onClick={onClick}>
