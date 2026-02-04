@@ -1,4 +1,4 @@
-
+// src/components/layout/Navbar.jsx
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -10,15 +10,15 @@ const Navbar = () => {
   return (
     <header className="w-full shadow-md sticky top-0 z-50">
       <div className="w-full bg-emerald-700 text-[11px] text-emerald-50">
-        <div className="w-full px-4 lg:px-12 py-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-center sm:text-left">
+        <div className="w-full px-4 lg:px-12 py-1 flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <span>📞 +919876543210</span>
             <span className="hidden md:inline">
               ✉️ Brightfuturefoundation.ngo@gmail.com
             </span>
           </div>
 
-          <div className="flex justify-center md:justify-end gap-4">
+          <div className="flex items-center gap-4">
             <Link to="/auth/login" className="hover:underline">
               Login
             </Link>
