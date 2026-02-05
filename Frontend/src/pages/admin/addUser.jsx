@@ -116,7 +116,7 @@ const AddUser = () => {
           <input
             type="file"
             accept="image/*"
-            {...register("profile_pic")}
+            {...register("profile")}
             className="block w-full text-sm text-gray-400
               file:mr-4 file:py-2 file:px-4
               file:rounded-lg file:border-0
