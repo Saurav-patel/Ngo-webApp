@@ -26,6 +26,7 @@ import Notices from "../pages/admin/notices";
 import CreateNotice from "../pages/admin/createNotice";
 import NoticeDetails from "../pages/admin/noticeDetails";
 import MyIdCard from "../pages/dashboard/idCard";
+import AddUser from "../pages/admin/addUser";
 
 const AppRoutes = () => {
     return (
@@ -59,6 +60,7 @@ const AppRoutes = () => {
                     <Route path="/admin/notices" element={<Notices />} />
                     <Route path="/admin/notices/create" element={<CreateNotice />} />
                     <Route path="/admin/notices/:noticeId" element={<NoticeDetails />} />
+                    <Route path="/admin/users/add" element={<AddUser />} />
 
                     {/* Admin-only routes can be added here */}
                     {/* <Route path="/admin" element={<AdminPage />} /> */}

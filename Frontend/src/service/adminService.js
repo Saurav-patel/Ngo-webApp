@@ -28,14 +28,14 @@ class AdminService extends BaseService {
     return this.validate(res, "Failed to delete member")
   }
 
-  async addMemberInfo(formData) {
-    const res = await apiClient.post("/admin/add-member", formData)
-    return this.validate(res, "Failed to add member info")
+  async addUser(formData) {
+    const res = await apiClient.post("/admin/add-user", formData)
+    return this.validate(res, "Failed to add user info")
   }
 
-  async updateMemberInfo(memberId, formData) {
-    const res = await apiClient.put(`/admin/update-member/${memberId}`, formData)
-    return this.validate(res, "Failed to update member info")
+  async updateUser(userId, formData) {
+    const res = await apiClient.put(`/admin/update-user/${userId}`, formData)
+    return this.validate(res, "Failed to update user info")
   }
 
   

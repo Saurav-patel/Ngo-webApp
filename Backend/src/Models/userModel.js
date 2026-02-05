@@ -40,8 +40,8 @@ const userSchema = new Schema({
     },
     role:{
         type: String,
-        enum: ['admin','member',"secretary","treasurer","president" , "vice president" , "staff" , "volunteer"],
-        default: 'visitor'
+        enum: ['admin',"user"],
+        default: 'user'
     },
     address:{
         type: String
@@ -52,15 +52,12 @@ const userSchema = new Schema({
     },
     fatherName:{
         type: String,
-        //required: [true, "Father's name is required"]
-    },
-    designation:{
-        type: String,
         
     },
+    
     phone:{
         type: String,
-       // required: [true, "Phone number is required"],
+       
         match: /^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/
     },
     profile_pic_url:{

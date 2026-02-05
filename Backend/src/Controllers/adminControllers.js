@@ -170,111 +170,122 @@ const uploadNgoDocuments = async (req, res, next) => {
   }
 }
 
-const addMemberInfo = async (req, res, next) => {
+const addUserByAdmin = async (req, res, next) => {
   try {
-    const user = req.user
-    const { name, email, phone, address, city, designation, dob } = req.body
+    const admin = req.user
+    const { username, email, phone, address, city, dob, password } = req.body
     const file = req.file
 
-    if (!user || user.role !== "admin") {
+    if (!admin || admin.role !== "admin") {
       throw new ApiError(403, "Forbidden: Admins only")
     }
 
-    if (!name || !email || !phone || !address || !city || !designation || !dob) {
-      throw new ApiError(400, "Please provide all required member details")
+    if (!username || !email || !password) {
+      throw new ApiError(400, "Username, email and password are required")
     }
 
-    if (!file) {
-      throw new ApiError(400, "Please upload member photo")
+    const existingUser = await User.findOne({ email })
+    if (existingUser) {
+      throw new ApiError(400, "User with this email already exists")
     }
 
-    const dobDate = new Date(dob)
-    if (isNaN(dobDate)) {
-      throw new ApiError(400, "Invalid DOB format")
+    let dobDate
+    if (dob) {
+      dobDate = new Date(dob)
+      if (isNaN(dobDate)) {
+        throw new ApiError(400, "Invalid DOB format")
+      }
     }
 
-    let ngo = await Ngo.findOne()
-    if (!ngo) {
-      ngo = await Ngo.create({})
+    let profilePic = null
+    if (file) {
+      const uploadedPhoto = await uploadToCloudinary(file.buffer, "profile_pictures")
+      profilePic = {
+        url: uploadedPhoto.url,
+        publicId: uploadedPhoto.publicId
+      }
     }
 
-    const existingMember = ngo.members.find(m => m.email.toLowerCase() === email.toLowerCase())
-    if (existingMember) {
-      throw new ApiError(400, "Member with this email already exists")
-    }
-
-    const uploadedPhoto = await uploadToCloudinary(file.buffer, "member-photos")
-    const fileUrl = { url: uploadedPhoto.url, publicId: uploadedPhoto.publicId }
-
-    const newMember = {
-      name,
+    const newUser = await User.create({
+      username,
       email,
+      password,          // generic password
       phone,
       address,
       city,
-      designation,
-      dob,
-      photo: fileUrl
-    }
+      dob: dobDate,
+      role: "user",
+      isActive: true,
+      profile_pic_url: profilePic
+    })
 
-    ngo.members.push(newMember)
-    await ngo.save()
-
-    return res
-      .status(201)
-      .json(new ApiResponse(201, newMember, "Member added successfully"))
+    return res.status(201).json(
+      new ApiResponse(201, {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email
+      }, "User added successfully")
+    )
   } catch (error) {
     next(error)
   }
 }
 
-const updateMemberInfo = async (req, res, next) => {
+
+const updateUserByAdmin = async (req, res, next) => {
   try {
-    const user = req.user
-    const { memberId } = req.params
-    const { name, email, phone, address, city, designation, dob } = req.body
+    const admin = req.user
+    const { userId } = req.params
+    const { username, email, phone, address, city, dob, isActive } = req.body
     const file = req.file
 
-    if (!user || user.role !== "admin") {
+    if (!admin || admin.role !== "admin") {
       throw new ApiError(403, "Forbidden: Admins only")
     }
 
-    if (!memberId) {
-      throw new ApiError(400, "Please provide member ID to update member info")
+    if (!userId) {
+      throw new ApiError(400, "User ID is required")
     }
 
-    const ngo = await Ngo.findOne()
-    if (!ngo) {
-      throw new ApiError(404, "NGO not found")
+    const user = await User.findById(userId)
+    if (!user) {
+      throw new ApiError(404, "User not found")
     }
 
-    const member = ngo.members.find(m => m._id.toString() === memberId)
-    if (!member) {
-      throw new ApiError(404, "Member not found")
-    }
+    if (username) user.username = username
+    if (email) user.email = email
+    if (phone) user.phone = phone
+    if (address) user.address = address
+    if (city) user.city = city
+    if (typeof isActive === "boolean") user.isActive = isActive
 
-    if (name) member.name = name
-    if (email) member.email = email
-    if (phone) member.phone = phone
-    if (address) member.address = address
-    if (city) member.city = city
-    if (designation) member.designation = designation
-    if (dob) member.dob = new Date(dob)
+    if (dob) {
+      const dobDate = new Date(dob)
+      if (isNaN(dobDate)) {
+        throw new ApiError(400, "Invalid DOB format")
+      }
+      user.dob = dobDate
+    }
 
     if (file) {
-      if (member.photo?.publicId) {
-        await uploadToCloudinary.deleteFromCloudinary(member.photo.publicId)
+      if (user.profile_pic_url?.publicId) {
+        await uploadToCloudinary.deleteFromCloudinary(
+          user.profile_pic_url.publicId
+        )
       }
 
-      const uploadedPhoto = await uploadToCloudinary(file.buffer, "member-photos")
-      member.photo = { url: uploadedPhoto.url, publicId: uploadedPhoto.publicId }
+      const uploadedPhoto = await uploadToCloudinary(file.buffer, "profile_pictures")
+      user.profile_pic_url = {
+        url: uploadedPhoto.url,
+        publicId: uploadedPhoto.publicId
+      }
     }
 
-    await ngo.save()
+    await user.save()
 
-    return res
-      .status(200)
-      .json(new ApiResponse(200, member, "Member info updated successfully"))
+    return res.status(200).json(
+      new ApiResponse(200, user, "User updated successfully")
+    )
   } catch (error) {
     next(error)
   }
@@ -368,9 +379,9 @@ export {
   deleteUser,
   getMembers,
   uploadNgoDocuments,
-  addMemberInfo,
+  addUserByAdmin,
   deleteMember,
   getSingleUser,
-  updateMemberInfo,
+  updateUserByAdmin,
   
 }

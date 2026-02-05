@@ -15,7 +15,6 @@ const UsersDetails = () => {
       try {
         setLoading(true)
         const res = await adminService.getAllUsers({ page, limit: 10 })
-
         setUsers(res.users)
         setTotalPages(Math.ceil(res.totalUsers / 10))
       } catch (error) {
@@ -30,15 +29,21 @@ const UsersDetails = () => {
 
   return (
     <div className="p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Users</h1>
-        <p className="text-sm text-gray-400 mt-1">
-          Manage all registered users
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Users</h1>
+          <p className="text-sm text-gray-400 mt-1">
+            Manage all registered users
+          </p>
+        </div>
+        <button
+          onClick={() => navigate("/admin/users/add")}
+          className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-500 rounded-lg font-medium"
+        >
+          + Add User
+        </button>
       </div>
 
-      {/* Table */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-800 text-gray-300">
@@ -51,7 +56,6 @@ const UsersDetails = () => {
               <th className="px-4 py-3 text-left">Action</th>
             </tr>
           </thead>
-
           <tbody>
             {loading ? (
               <tr>
@@ -103,7 +107,6 @@ const UsersDetails = () => {
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="flex justify-end gap-2 mt-4">
         <button
           disabled={page === 1}
