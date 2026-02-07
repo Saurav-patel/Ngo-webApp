@@ -30,28 +30,27 @@ const NoticeFloating = () => {
     }
   }, [])
 
-  // 🔴 Outside click close (clean & safe)
   useEffect(() => {
     if (!open) return
 
-    const handleClickOutside = e => {
+    const handleOutside = e => {
       if (boxRef.current && !boxRef.current.contains(e.target)) {
         setOpen(false)
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside)
-    document.addEventListener("touchstart", handleClickOutside)
+    document.addEventListener("mousedown", handleOutside)
+    document.addEventListener("touchstart", handleOutside)
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-      document.removeEventListener("touchstart", handleClickOutside)
+      document.removeEventListener("mousedown", handleOutside)
+      document.removeEventListener("touchstart", handleOutside)
     }
   }, [open])
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      {/* 🔔 Bell */}
+    <div className="fixed inset-x-0 bottom-6 sm:right-6 sm:inset-x-auto z-50 flex justify-center sm:justify-end px-4">
+      
       <button
         onClick={() => setOpen(prev => !prev)}
         className="w-14 h-14 rounded-full bg-yellow-400 text-gray-900 shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition"
@@ -60,16 +59,12 @@ const NoticeFloating = () => {
         🔔
       </button>
 
-      {/* 📦 Notice Box */}
       {open && (
         <div
           ref={boxRef}
           className="
             absolute bottom-20
-            left-1/2 -translate-x-1/2
-            sm:left-auto sm:right-0 sm:translate-x-0
-            w-[calc(100vw-2rem)]
-            max-w-sm
+            w-full sm:w-96
             max-h-[70vh]
             bg-white
             rounded-2xl
@@ -79,7 +74,6 @@ const NoticeFloating = () => {
             animate-in fade-in slide-in-from-bottom-2 duration-200
           "
         >
-          {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b bg-gray-50">
             <p className="text-base font-semibold text-gray-800">
               Notices
@@ -92,7 +86,6 @@ const NoticeFloating = () => {
             </button>
           </div>
 
-          {/* List */}
           <div className="max-h-[60vh] overflow-y-auto">
             {notices.length > 0 ? (
               notices.map(n => (
