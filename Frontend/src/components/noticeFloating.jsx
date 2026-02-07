@@ -49,8 +49,9 @@ const NoticeFloating = () => {
   }, [open])
 
   return (
-    <div className="fixed inset-x-0 bottom-6 sm:right-6 sm:inset-x-auto z-50 flex justify-center sm:justify-end px-4">
+    <div className="fixed bottom-6 right-6 z-50">
       
+      {/* 🔔 Bell stays in corner */}
       <button
         onClick={() => setOpen(prev => !prev)}
         className="w-14 h-14 rounded-full bg-yellow-400 text-gray-900 shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition"
@@ -59,12 +60,16 @@ const NoticeFloating = () => {
         🔔
       </button>
 
+      {/* 📦 Notice box */}
       {open && (
         <div
           ref={boxRef}
           className="
-            absolute bottom-20
-            w-full sm:w-96
+            fixed bottom-24
+            left-1/2 -translate-x-1/2
+            sm:left-auto sm:translate-x-0 sm:right-6
+            w-[calc(100vw-2rem)]
+            max-w-sm
             max-h-[70vh]
             bg-white
             rounded-2xl
