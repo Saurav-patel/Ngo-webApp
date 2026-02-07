@@ -76,10 +76,9 @@ const AdminDashboard = () => {
   }, [])
 
   return (
-    /* ✅ WIDTH CONSTRAINER (CRITICAL FIX) */
+    
     <div className="w-full max-w-full overflow-hidden">
 
-      {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
         <p className="text-sm text-gray-400 mt-1">
@@ -87,7 +86,6 @@ const AdminDashboard = () => {
         </p>
       </div>
 
-      {/* ✅ GRID CONSTRAINED TO AVAILABLE WIDTH */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full max-w-full">
         <StatCard
           title="Total Users"

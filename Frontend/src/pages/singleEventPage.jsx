@@ -1,4 +1,4 @@
-// src/pages/singleEventPage.jsx
+
 import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import { eventService } from "../service/eventService.js"
@@ -78,10 +78,8 @@ const EventDetailPage = () => {
   const photos = Array.isArray(event.photos) ? event.photos : []
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100">
-      {/* ✅ same container spacing as EventShowcase */}
+    <div className="min-h-screen bg-gray-950 text-gray-100">     
       <div className="max-w-7xl mx-auto px-2 md:px-4 py-10 md:py-14 space-y-8 md:space-y-10">
-        {/* Top: breadcrumb + back */}
         <div className="flex items-center justify-between gap-3 text-[11px] md:text-xs text-gray-400">
           <div className="flex items-center gap-2">
             <Link to="/" className="hover:text-gray-100 transition-colors">
@@ -106,7 +104,6 @@ const EventDetailPage = () => {
           </Link>
         </div>
 
-        {/* Title + meta – matches premium feel */}
         <header className="space-y-3">
           <p className="text-[10px] uppercase tracking-[0.25em] text-emerald-400">
             Field Report
@@ -123,7 +120,6 @@ const EventDetailPage = () => {
           )}
         </header>
 
-        {/* GALLERY – same side spacing, consistent gaps */}
         {photos.length > 0 && (
           <section
             className="
@@ -171,9 +167,7 @@ const EventDetailPage = () => {
           </section>
         )}
 
-        {/* Main content + side card – consistent gaps & padding */}
-        <section className="grid md:grid-cols-[2.1fr,1fr] gap-5 md:gap-7 lg:gap-8 items-start">
-          {/* LEFT: description card */}
+        <section className="grid md:grid-cols-[2.1fr,1fr] gap-5 md:gap-7 lg:gap-8 items-start">        
           <div
             className="
               rounded-3xl
@@ -194,8 +188,6 @@ const EventDetailPage = () => {
               </p>
             </div>
 
-          
-
             {Array.isArray(event.highlights) && event.highlights.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-sm md:text-base font-semibold text-gray-50">
@@ -210,7 +202,6 @@ const EventDetailPage = () => {
             )}
           </div>
 
-          {/* RIGHT: info card */}
           <aside className="space-y-4 md:space-y-5">
             <div
               className="

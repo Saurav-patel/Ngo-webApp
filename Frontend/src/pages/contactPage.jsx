@@ -58,7 +58,6 @@ const ContactPage = () => {
 
         <div className={`${cardClass} p-8 flex flex-col lg:flex-row gap-10`}>
 
-          {/* FORM */}
           <div className="flex-1">
             <h1 className="text-3xl font-semibold mb-2 text-gray-100">
               Contact Us
@@ -181,7 +180,6 @@ const ContactPage = () => {
             </form>
           </div>
 
-          {/* SIDEBAR */}
           <aside className="w-full lg:w-80">
             <div className={`${cardClass} p-6 sticky top-24`}>
               <h3 className="text-lg font-semibold mb-3 text-gray-100">

@@ -62,7 +62,7 @@ const RegisterPage = () => {
     <div className="min-h-[calc(100vh-4rem-4rem)] flex items-center justify-center bg-slate-950 px-4 py-8">
       <div className="w-full max-w-6xl border border-slate-800 rounded-3xl bg-slate-950/80 shadow-2xl shadow-black/40 overflow-hidden">
         <div className="grid md:grid-cols-2 md:divide-x md:divide-slate-800">
-          {/* LEFT PANEL – attractive content */}
+          
           <section className="h-full flex flex-col justify-center px-6 sm:px-10 py-10 bg-gradient-to-br from-sky-500/10 via-emerald-500/10 to-fuchsia-500/10 relative overflow-hidden">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_#22c55e22,_transparent_55%),_radial-gradient(circle_at_bottom,_#0ea5e922,_transparent_55%)]" />
 
@@ -108,9 +108,8 @@ const RegisterPage = () => {
             </div>
           </section>
 
-          {/* RIGHT PANEL – logo + signup form */}
           <section className="flex flex-col items-center justify-center px-6 sm:px-10 py-10 bg-slate-950">
-            {/* 👇 Make this exactly same logo style as login page */}
+            
             <div className="mb-6 flex flex-col items-center">
               <div className="w-28 h-28 rounded-full bg-white shadow-lg flex items-center justify-center overflow-hidden mb-3 border border-slate-300">
                 <img
@@ -139,7 +138,7 @@ const RegisterPage = () => {
               )}
 
               <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-                {/* Name */}
+                
                 <div className="space-y-1.5">
                   <label
                     htmlFor="name"
@@ -199,7 +198,6 @@ const RegisterPage = () => {
                   )}
                 </div>
 
-                {/* Password + Confirm */}
                 <div className="grid sm:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <label

@@ -1,14 +1,9 @@
 import { eventService } from "../service/eventService.js"
-import { noticeService } from "../service/noticeService.js"
 import { useEffect, useRef, useState } from "react"
 import EventShowcase from "../components/eventShowcase.jsx"
 
 const HomePage = () => {
-  // ---- Notice state ----
-  const [notices, setNotices] = useState([])
-  const [noticeOpen, setNoticeOpen] = useState(false)
 
-  // ---- Events state ----
   const [events, setEvents] = useState([])
   const [eventsLoading, setEventsLoading] = useState(false)
   const [eventsError, setEventsError] = useState(null)
@@ -17,42 +12,7 @@ const HomePage = () => {
 
   const eventsSectionRef = useRef(null)
 
-  /* ===========================
-     FETCH VALID NOTICES
-     (expiresAt + latest first)
-  =========================== */
-  useEffect(() => {
-    let cancelled = false
-
-    const fetchNotices = async () => {
-      try {
-        const data = await noticeService.getAllNotices()
-        if (cancelled || !Array.isArray(data)) return
-
-        const now = new Date()
-
-        const validNotices = data
-          .filter(n => {
-            if (!n.expiresAt) return true
-            return new Date(n.expiresAt) >= now
-          })
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-
-        setNotices(validNotices)
-      } catch (err) {
-        console.error("Failed to load notices:", err)
-      }
-    }
-
-    fetchNotices()
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  /* ===========================
-     EVENTS INTERSECTION LOGIC
-  =========================== */
+ 
   useEffect(() => {
     const section = eventsSectionRef.current
     if (!section) return
@@ -124,7 +84,6 @@ const HomePage = () => {
               </div>
             </div>
 
-            {/* Right image */}
             <div className="flex justify-center md:justify-end">
               <div className="group relative w-[260px] md:w-[320px] lg:w-[360px]">
                 <div className="rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 backdrop-blur-sm">
@@ -140,7 +99,6 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* ---- EVENTS SECTION ---- */}
       <section
         ref={eventsSectionRef}
         className={`transition-all duration-700 ${
@@ -154,11 +112,6 @@ const HomePage = () => {
         )}
       </section>
 
-    
-
-             
-              
-        
       
     </div>
   )

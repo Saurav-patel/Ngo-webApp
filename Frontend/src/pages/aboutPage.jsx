@@ -1,4 +1,3 @@
-// src/pages/AboutPage.jsx
 
 import { useEffect, useState } from "react"
 import { ngoService } from "../service/ngoService.js"
@@ -59,11 +58,8 @@ const AboutPage = () => {
 
   return (
     <div className="bg-gray-950 text-gray-100">
-      {/* ↓ reduced vertical spacing between sections */}
       <div className="max-w-7xl mx-auto px-2 md:px-4 py-10 md:py-14 space-y-10 md:space-y-12">
-        {/* HERO */}
         <section className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-10">
-          {/* ↓ logo card now white */}
           <div className="w-24 h-24 rounded-3xl bg-white border border-gray-200 shadow-xl overflow-hidden flex items-center justify-center">
             <img
               src="/logo.png"
@@ -107,7 +103,6 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* IMPACT */}
         <section>
           <h2 className="text-xl font-semibold mb-3">Our Impact</h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -125,7 +120,6 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* MISSION / VISION */}
         <section className="grid md:grid-cols-2 gap-6">
           <div className="bg-gray-900/60 rounded-3xl border border-gray-700 p-6 shadow-lg">
             <h3 className="text-lg font-semibold text-emerald-400 mb-2">
@@ -146,7 +140,6 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* CORE TEAM */}
         <section>
           <h2 className="text-xl font-semibold mb-3">Our Core Team</h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -183,13 +176,12 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* DOCUMENTS */}
         <section>
           <h2 className="text-xl font-semibold mb-3">Verified Certificates</h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             {documents.map((doc) => {
               const file = doc.fileUrl?.[0]
-              // skip logo doc
+              
               if (doc.title.toLowerCase().includes("logo")) return null
 
               return (
@@ -220,7 +212,6 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* CTA */}
         <section className="bg-gray-900/60 border border-gray-700 rounded-3xl p-6 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
             <h3 className="text-lg font-semibold text-white">

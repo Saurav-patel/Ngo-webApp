@@ -35,7 +35,7 @@ const CertificateDetails = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Back */}
+    
       <button
         onClick={() => navigate(-1)}
         className="text-sm text-gray-400 hover:underline"
@@ -47,9 +47,8 @@ const CertificateDetails = () => {
         Certificate Details
       </h1>
 
-      {/* Main Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Meta Info */}
+        
         <div className="bg-gray-900 border border-gray-800 rounded-lg p-5 space-y-3">
           <Detail label="Certificate Code" value={certificate.certificateCode} mono />
           <Detail label="Name" value={certificate.name} />
@@ -63,7 +62,6 @@ const CertificateDetails = () => {
           <Detail label="Template" value={certificate.templateUsed} />
         </div>
 
-        {/* Preview */}
         <div className="bg-gray-900 border border-gray-800 rounded-lg p-5">
           <p className="text-sm text-gray-400 mb-3">Certificate Preview</p>
 
@@ -83,7 +81,6 @@ const CertificateDetails = () => {
         </div>
       </div>
 
-      {/* Audit Info */}
       <div className="bg-gray-900 border border-gray-800 rounded-lg p-5">
         <h2 className="text-sm font-semibold text-gray-300 mb-4">
           Audit Information

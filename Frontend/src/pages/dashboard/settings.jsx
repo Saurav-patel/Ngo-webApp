@@ -79,8 +79,6 @@ const AccountSettings = () => {
   return (
     <div className="bg-gray-950 text-gray-100 min-h-screen">
       <div className="max-w-7xl mx-auto px-2 md:px-4 py-10 space-y-12">
-
-        {/* HEADER */}
         <div>
           <p className="uppercase text-emerald-400 tracking-[0.25em] text-[11px]">
             Account
@@ -93,7 +91,6 @@ const AccountSettings = () => {
           </p>
         </div>
 
-        {/* PROFILE OVERVIEW */}
         <section className={`${cardClass} flex flex-col md:flex-row gap-8 items-center`}>
           <div className="relative">
             <img
@@ -134,7 +131,6 @@ const AccountSettings = () => {
           </div>
         </section>
 
-        {/* PERSONAL INFORMATION */}
         <form
           onSubmit={handleSubmit(onUpdateProfile)}
           className={cardClass}
@@ -185,7 +181,6 @@ const AccountSettings = () => {
           </button>
         </form>
 
-        {/* IDENTITY INFORMATION */}
         <section className={cardClass}>
           <h2 className="text-xl font-semibold mb-4">
             Identity Information
@@ -205,7 +200,6 @@ const AccountSettings = () => {
           </div>
         </section>
 
-        {/* SECURITY */}
         <form
           onSubmit={handlePwdSubmit(onChangePassword)}
           className={cardClass}

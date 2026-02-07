@@ -42,9 +42,6 @@ const MyIdCard = () => {
     }
   }
 
-  /* =========================
-     STATES
-  ========================= */
   if (loading)
     return (
       <>
@@ -65,12 +62,9 @@ const MyIdCard = () => {
       </>
     )
 
-  /* =========================
-     UI
-  ========================= */
   return (
     <>
-      {/* 🔑 FIXED BACKGROUND (does NOT affect height) */}
+      
       <div className="fixed inset-0 bg-gray-950 -z-10" />
 
       <div className="max-w-6xl mx-auto px-6 py-8">
@@ -79,8 +73,6 @@ const MyIdCard = () => {
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-          {/* LEFT: Card Preview */}
           <div className="lg:col-span-1 bg-gray-900 border border-gray-800 rounded-xl p-4">
             <img
               src={idCard.fileUrl}
@@ -89,7 +81,6 @@ const MyIdCard = () => {
             />
           </div>
 
-          {/* RIGHT: Details */}
           <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-xl p-6">
             <div className="space-y-4">
 

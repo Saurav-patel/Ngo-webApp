@@ -24,7 +24,6 @@ const LoginPage = () => {
     },
   });
 
-  // ✅ FIX: status is a STRING
   const authStatus = useSelector(selectAuthStatus);
   
   const isAuthLoading = authStatus === "loading";
@@ -34,7 +33,7 @@ const LoginPage = () => {
   clearErrors("root");
 
   try {
-    // 1️⃣ Login (token only, partial user is OK)
+    
     await dispatch(
       loginUser({
         email: data.email,
@@ -42,10 +41,8 @@ const LoginPage = () => {
       })
     ).unwrap();
 
-    // 2️⃣ Hydrate full user (THIS FIXES YOUR BUG)
     const fullUser = await dispatch(fetchCurrentUser()).unwrap();
 
-    // 3️⃣ Navigate AFTER hydration
     if (fullUser.role === "admin") {
       navigate("/admin/dashboard", { replace: true });
     } else {
@@ -71,7 +68,7 @@ const LoginPage = () => {
     <div className="min-h-[calc(100vh-4rem-4rem)] flex items-center justify-center bg-slate-950 px-4 py-8">
       <div className="w-full max-w-6xl border border-slate-800 rounded-3xl bg-slate-950/80 shadow-2xl shadow-black/40 overflow-hidden">
         <div className="grid md:grid-cols-2 md:divide-x md:divide-slate-800">
-          {/* LEFT PANEL – content + pills */}
+          
           <section className="h-full flex flex-col justify-center px-6 sm:px-10 py-10 bg-gradient-to-br from-sky-500/10 via-emerald-500/10 to-fuchsia-500/10 relative overflow-hidden">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_#22c55e22,_transparent_55%),_radial-gradient(circle_at_bottom,_#0ea5e922,_transparent_55%)]" />
 
@@ -123,9 +120,8 @@ const LoginPage = () => {
             </div>
           </section>
 
-          {/* RIGHT PANEL – logo + form */}
           <section className="flex flex-col items-center justify-center px-6 sm:px-10 py-10 bg-slate-950">
-            {/* circular logo */}
+            
             <div className="mb-6 flex flex-col items-center">
               <div className="w-28 h-28 rounded-full bg-white shadow-lg flex items-center justify-center overflow-hidden mb-3 border border-slate-300">
             <img
@@ -133,7 +129,7 @@ const LoginPage = () => {
                 alt="NGO logo"
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                e.currentTarget.src = "/fallback-logo.png"; // optional
+                e.currentTarget.src = "/fallback-logo.png"; 
                 }}
             />
             </div>
@@ -157,7 +153,7 @@ const LoginPage = () => {
               )}
 
               <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-                {/* email / username */}
+                
                 <div className="space-y-1.5">
                   <label
                     htmlFor="email"
@@ -190,7 +186,6 @@ const LoginPage = () => {
                   )}
                 </div>
 
-                {/* password */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-[11px]">
                     <label

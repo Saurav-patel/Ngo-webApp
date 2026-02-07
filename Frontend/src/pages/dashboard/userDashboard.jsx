@@ -20,7 +20,6 @@ const DashboardPage = () => {
   const [certLoading, setCertLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // ---------------- Initial load ----------------
   useEffect(() => {
     const loadDashboard = async () => {
       try {
@@ -30,7 +29,7 @@ const DashboardPage = () => {
           participationData
         ] = await Promise.all([
           userService.getMembershipStatus(),
-          idCardService.getMyIdCard().catch(() => null), // 404 = not issued yet
+          idCardService.getMyIdCard().catch(() => null), 
           eventService.myParticipatedEvents()
         ])
 
@@ -48,7 +47,6 @@ const DashboardPage = () => {
     loadDashboard()
   }, [])
 
-  // ---------------- Lazy certificates ----------------
   const loadCertificates = async () => {
     if (certificates.length > 0) return
     setCertLoading(true)
@@ -70,7 +68,6 @@ const DashboardPage = () => {
     <div className="min-h-screen bg-gray-950 text-gray-100">
       <div className="max-w-6xl mx-auto px-4 py-10 space-y-10">
 
-        {/* ---------------- HEADER ---------------- */}
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">
             Welcome back,{" "}
@@ -95,7 +92,7 @@ const DashboardPage = () => {
 
         {!loading && !error && (
           <>
-            {/* ---------------- STATS ---------------- */}
+           
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <StatCard
                 label="Participations"
@@ -116,10 +113,8 @@ const DashboardPage = () => {
               />
             </div>
 
-            {/* ---------------- MAIN GRID ---------------- */}
             <div className="grid gap-6 md:grid-cols-2">
 
-              {/* Membership */}
               <Card title="Membership Status">
                 <StatusPill status={membership?.status} />
                 {membership?.validity && (
@@ -132,7 +127,6 @@ const DashboardPage = () => {
                 )}
               </Card>
 
-              {/* ID Card */}
               <Card title="ID Card">
                 {idCard ? (
                   <>
@@ -156,7 +150,6 @@ const DashboardPage = () => {
               </Card>
             </div>
 
-            {/* ---------------- DONATION CTA ---------------- */}
             <div className="bg-gray-900 border border-gray-800 rounded-3xl p-6 shadow-lg flex flex-col md:flex-row md:items-center md:justify-between gap-6">
               <div>
                 <h3 className="text-lg font-bold text-gray-100">
@@ -173,7 +166,6 @@ const DashboardPage = () => {
               </button>
             </div>
 
-            {/* ---------------- CERTIFICATES ---------------- */}
             <Section title="Certificates" onAction={loadCertificates}>
               {certLoading && (
                 <p className="text-sm text-gray-400">
@@ -217,7 +209,6 @@ const DashboardPage = () => {
               )}
             </Section>
 
-            {/* ---------------- PARTICIPATIONS ---------------- */}
             <Section title="My Participations">
               {participations.length === 0 && (
                 <p className="text-sm text-gray-400">
@@ -265,7 +256,6 @@ const DashboardPage = () => {
 
 export default DashboardPage
 
-// ---------------- Reusable UI ----------------
 
 const Card = ({ title, children }) => (
   <div className="relative bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-lg">

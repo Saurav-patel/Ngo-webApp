@@ -33,9 +33,6 @@ const AllEventsPage = () => {
     }
   }, [])
 
-  /* ======================================================
-     EVENT STATUS LOGIC (START DATE ONLY)
-  ====================================================== */
   const today = new Date()
 
   const upcomingEvents = useMemo(() => {
@@ -53,8 +50,6 @@ const AllEventsPage = () => {
       return startDate <= today
     })
   }, [events, today])
-
-  /* ====================================================== */
 
   return (
     <div className="bg-gray-950 min-h-screen text-gray-100">
@@ -90,7 +85,6 @@ const AllEventsPage = () => {
           </div>
         )}
 
-        {/* ================= UPCOMING EVENTS ================= */}
         {!loading && !error && upcomingEvents.length > 0 && (
           <EventShowcase
             events={upcomingEvents}
@@ -100,7 +94,6 @@ const AllEventsPage = () => {
           />
         )}
 
-        {/* ================= PAST EVENTS ================= */}
         {!loading && !error && pastEvents.length > 0 && (
           <EventShowcase
             events={pastEvents}
