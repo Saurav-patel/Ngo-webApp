@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { noticeService } from "../service/noticeService.js"
 
 const NoticeFloating = () => {
   const [notices, setNotices] = useState([])
   const [open, setOpen] = useState(false)
+  const boxRef = useRef(null)
 
   useEffect(() => {
     let cancelled = false
@@ -13,12 +14,11 @@ const NoticeFloating = () => {
         const data = await noticeService.getAllNotices()
         if (cancelled || !Array.isArray(data)) return
 
-        // 🔹 simple & safe: latest first only
-        const latestFirst = [...data].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        setNotices(
+          [...data].sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          )
         )
-
-        setNotices(latestFirst)
       } catch (err) {
         console.error("Failed to fetch notices:", err)
       }
@@ -30,12 +30,31 @@ const NoticeFloating = () => {
     }
   }, [])
 
+  // 🔴 Outside click close (clean & safe)
+  useEffect(() => {
+    if (!open) return
+
+    const handleClickOutside = e => {
+      if (boxRef.current && !boxRef.current.contains(e.target)) {
+        setOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("touchstart", handleClickOutside)
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("touchstart", handleClickOutside)
+    }
+  }, [open])
+
   return (
-    <div className="fixed right-6 bottom-10 z-[999999]">
-      {/* 🔔 Bell Icon */}
+    <div className="fixed bottom-6 right-6 z-50">
+      {/* 🔔 Bell */}
       <button
         onClick={() => setOpen(prev => !prev)}
-        className="w-14 h-14 rounded-full bg-yellow-400 text-gray-900 shadow-lg flex items-center justify-center hover:bg-yellow-300 transition"
+        className="w-14 h-14 rounded-full bg-yellow-400 text-gray-900 shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition"
         title="Notices"
       >
         🔔
@@ -43,42 +62,56 @@ const NoticeFloating = () => {
 
       {/* 📦 Notice Box */}
       {open && (
-        <div className="absolute bottom-16 right-0 w-96 max-h-96 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
-          
+        <div
+          ref={boxRef}
+          className="
+            absolute bottom-20
+            left-1/2 -translate-x-1/2
+            sm:left-auto sm:right-0 sm:translate-x-0
+            w-[calc(100vw-2rem)]
+            max-w-sm
+            max-h-[70vh]
+            bg-white
+            rounded-2xl
+            shadow-2xl
+            border border-gray-200
+            overflow-hidden
+            animate-in fade-in slide-in-from-bottom-2 duration-200
+          "
+        >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-3 border-b">
+          <div className="flex items-center justify-between px-5 py-4 border-b bg-gray-50">
             <p className="text-base font-semibold text-gray-800">
               Notices
             </p>
             <button
               onClick={() => setOpen(false)}
-              className="text-gray-400 hover:text-gray-600 text-lg"
+              className="text-gray-400 hover:text-gray-700 text-lg"
             >
               ✕
             </button>
           </div>
 
-          {/* Notice List */}
-          <div className="max-h-80 overflow-y-auto">
-            {notices.map(n => (
-              <div
-                key={n._id}
-                className="px-5 py-4 text-sm border-b last:border-b-0"
-              >
-                <p className="font-medium text-gray-900">
-                  {n.title}
-                </p>
-
-                {n.body && (
-                  <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-                    {n.body}
+          {/* List */}
+          <div className="max-h-[60vh] overflow-y-auto">
+            {notices.length > 0 ? (
+              notices.map(n => (
+                <div
+                  key={n._id}
+                  className="px-5 py-4 border-b last:border-b-0 hover:bg-gray-50 transition"
+                >
+                  <p className="font-medium text-gray-900">
+                    {n.title}
                   </p>
-                )}
-              </div>
-            ))}
-
-            {notices.length === 0 && (
-              <p className="px-5 py-4 text-sm text-gray-500">
+                  {n.body && (
+                    <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                      {n.body}
+                    </p>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p className="px-5 py-6 text-sm text-gray-500 text-center">
                 No notices available.
               </p>
             )}
