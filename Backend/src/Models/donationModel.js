@@ -1,53 +1,74 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 
-const donationSchema = new Schema({
-    donor: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'User', 
-        required: false 
+const donationSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null
     },
-    name: { 
-        type: String 
-    }, 
-    email: { 
-        type: String,
-        lowercase: true,
-        match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-    }, 
-    amount: { 
-        type: Number, 
-        required: true 
+
+    donor: {
+      name: { type: String, trim: true },
+      email: { type: String, lowercase: true, trim: true },
+      phone: { type: String, trim: true }
     },
-    paymentMethod: { 
-        type: String, 
-        enum: ['Razorpay', 'PhonePe', 'Cash'], 
-        required: true 
+
+    purpose: {
+      type: String,
+      enum: ["donation", "membership"],
+      required: true,
+      index: true
     },
-    transactionId: { 
-        type: String ,
-        unique: true
-    }, 
-    receiptUrl: { 
-        type: String,
-        default: null , 
-    },   
-    qrCode: { 
-        type: String,
-        default: null , 
-        unique: true
+
+    amount: {
+      type: Number,
+      required: true,
+      min: 1
     },
-    date: { 
-        type: Date, 
-        default: Date.now 
+
+    currency: {
+      type: String,
+      default: "INR"
     },
-    isVerified: { 
-        type: Boolean, 
-        default: false 
+
+    razorpayOrderId: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true
+    },
+
+    razorpayPaymentId: {
+      type: String,
+      default: null
+    },
+
+    razorpaySignature: {
+      type: String,
+      default: null
+    },
+
+    receipt: {
+      type: String
+    },
+
+    status: {
+      type: String,
+      enum: ["created", "paid", "failed", "refunded"],
+      default: "created",
+      index: true
+    },
+
+    paidAt: {
+      type: Date,
+      default: null
     }
-},{ timestamps: true })
+  },
+  { timestamps: true }
+);
 
 
 
-const Donation = mongoose.model("Donation" , donationSchema)
-
-export default Donation
+const Donation = mongoose.model("Donation", donationSchema);
+export default Donation;

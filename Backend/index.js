@@ -26,6 +26,7 @@ import ngoRouter from "./src/Routes/ngoRoutes.js";
 import contactRouter from "./src/Routes/contactRoutes.js";
 
 import { errorHandler } from "./src/middlewares/errorHandler.js";
+import donationRouter from "./src/Routes/donationRoutes.js";
 
 const app = express();
 
@@ -72,6 +73,7 @@ app.use("/idCards", idCardRouter);
 app.use("/certificates", certificateRouter);
 app.use("/ngo", ngoRouter);
 app.use("/contact", contactRouter);
+app.use("/donation", donationRouter);
 
 app.get("/", (req, res) => {
   res.send("NGO backend is running");
