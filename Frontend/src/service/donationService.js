@@ -3,7 +3,6 @@ import { BaseService } from "./baseService.js";
 
 
 
-// load Razorpay script
 export const loadRazorpay = () => {
   return new Promise((resolve) => {
     const script = document.createElement("script");
@@ -13,15 +12,35 @@ export const loadRazorpay = () => {
     document.body.appendChild(script);
   });
 };
+class DonationService extends BaseService {
+  async createDonationOrder(payload) {
+    const res = await apiClient.post("/donation/create-order", payload, { withCredentials: true });
+    return this.parseData(res, "Failed to create donation order");
+  }
 
+  async verifyDonationPayment(payload) {
+    const res = await apiClient.post("/donation/verify-donation", payload, { withCredentials: true });
+    return this.parseData(res, "Failed to verify donation payment");
+  }
 
-export const createDonationOrder = async (payload) => {
-  const { data } = await apiClient.post("/donation/create-order", payload, { withCredentials: true });
-  return this.parseData(data, "Failed to create donation order");
-};
+  async getDonationHistory() {
+    const res = await apiClient.get("/donation/my-donations", { withCredentials: true });
+    return this.parseData(res, "Failed to fetch donation history");
+  }
 
+  async getAllDonations() {
+    const res = await apiClient.get("/donation/all-donations", { withCredentials: true });
+    return this.parseData(res, "Failed to fetch all donations");
+  }
 
-export const verifyDonationPayment = async (payload) => {
-  const { data } = await apiClient.post("/donation/verify-donation", payload, { withCredentials: true });
-  return this.parseData(data, "Failed to verify donation payment");
-};
+  async getSingleDonation(donationId) {
+    const res = await apiClient.get(`/donation/single-donation/${donationId}`, { withCredentials: true });
+    return this.parseData(res, "Failed to fetch donation details");
+  }
+  async getDonationStats() {
+    const res = await apiClient.get("/donation/donation-stats", { withCredentials: true });
+    return this.parseData(res, "Failed to fetch donation statistics");
+  }
+}
+
+export const donationService = new DonationService();
