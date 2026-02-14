@@ -27,6 +27,7 @@ import CreateNotice from "../pages/admin/createNotice";
 import NoticeDetails from "../pages/admin/noticeDetails";
 import MyIdCard from "../pages/dashboard/idCard";
 import AddUser from "../pages/admin/addUser";
+import DonationCheckout from "../pages/donation/donationCheckout";
 
 const AppRoutes = () => {
     return (
@@ -38,6 +39,7 @@ const AppRoutes = () => {
             <Route path="/events/:eventId" element={<EventDetailPage />} />
             <Route path="/events" element={<AllEventsPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/donate" element={<DonationCheckout />} />
             {/* Protected routes can be added here using RequireAuth */}
             <Route element = {<RequireAuth />} >
                 <Route path="/dashboard" element={<DashboardPage/>} />

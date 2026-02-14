@@ -16,7 +16,7 @@ const donationSchema = new mongoose.Schema(
 
     purpose: {
       type: String,
-      enum: ["donation", "membership"],
+      enum: ["DONATION", "MEMBERSHIP"],
       required: true,
       index: true
     },
@@ -41,29 +41,33 @@ const donationSchema = new mongoose.Schema(
 
     razorpayPaymentId: {
       type: String,
-      default: null
-    },
-
-    razorpaySignature: {
-      type: String,
-      default: null
-    },
-
-    receipt: {
-      type: String
+      unique: true,
+      sparse: true // allows multiple nulls
     },
 
     status: {
       type: String,
-      enum: ["created", "paid", "failed", "refunded"],
-      default: "created",
+      enum: [
+        "CREATED",
+        "AUTHORIZED",
+        "CAPTURED",
+        "FAILED",
+        "REFUNDED"
+      ],
+      default: "CREATED",
       index: true
     },
 
-    paidAt: {
-      type: Date,
-      default: null
+    paidAt: Date,
+
+    failedReason: {
+      type: String
+    },
+
+    refundId: {
+      type: String
     }
+
   },
   { timestamps: true }
 );

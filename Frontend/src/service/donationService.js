@@ -41,6 +41,11 @@ class DonationService extends BaseService {
     const res = await apiClient.get("/donation/donation-stats", { withCredentials: true });
     return this.parseData(res, "Failed to fetch donation statistics");
   }
+
+  async getDonationStatus(orderId) {
+    const res = await apiClient.get(`/donation/status/${orderId}`);
+    return this.parseData(res, "Failed to fetch donation status");
+  }
 }
 
 export const donationService = new DonationService();

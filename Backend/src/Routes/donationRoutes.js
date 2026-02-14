@@ -1,4 +1,4 @@
-import { createDonationOrder, donationStats, donationWebhook, getAllDonations, getDonationHistory, getSingleDonation, verifyDonationPayment} from "../Controllers/donationControllers.js";
+import { createDonationOrder, donationStats, donationWebhook, getAllDonations, getDonationHistory, getDonationStatus, getSingleDonation, verifyDonationPayment} from "../Controllers/donationControllers.js";
 import express from "express";
 import {protectedRoute , verifyAccessToken} from "../middlewares/authMiddlewares.js"
 const donationRouter = express.Router()
@@ -10,5 +10,6 @@ donationRouter.get('/all-donations',verifyAccessToken, protectedRoute, getAllDon
 donationRouter.get('/single-donation/:donationId',verifyAccessToken, protectedRoute, getSingleDonation)
 donationRouter.get('/donation-stats',verifyAccessToken, protectedRoute, donationStats)
 donationRouter.post('/webhook', donationWebhook)
+donationRouter.get('/status/:orderId', getDonationStatus)
 
 export default donationRouter

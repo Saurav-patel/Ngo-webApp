@@ -1,9 +1,9 @@
 import { eventService } from "../service/eventService.js"
 import { useEffect, useRef, useState } from "react"
 import EventShowcase from "../components/eventShowcase.jsx"
-
+import { useNavigate } from "react-router-dom"
 const HomePage = () => {
-
+  const navigate = useNavigate()
   const [events, setEvents] = useState([])
   const [eventsLoading, setEventsLoading] = useState(false)
   const [eventsError, setEventsError] = useState(null)
@@ -75,7 +75,9 @@ const HomePage = () => {
               </p>
 
               <div className="flex flex-wrap gap-4 pt-2">
-                <button className="px-5 py-2.5 rounded-full bg-yellow-400 text-gray-900 text-sm font-semibold shadow-md hover:bg-yellow-300 transition">
+                <button 
+                onClick={() => navigate("/donate")}
+                className="px-5 py-2.5 rounded-full bg-yellow-400 text-gray-900 text-sm font-semibold shadow-md hover:bg-yellow-300 transition">
                   Donate Now
                 </button>
                 <button className="px-5 py-2.5 rounded-full border border-gray-200/60 text-sm font-semibold text-gray-50 hover:bg-white/5 transition">
