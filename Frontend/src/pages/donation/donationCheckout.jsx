@@ -46,7 +46,7 @@ const DonationCheckout = () => {
       setLoading(true)
       setMessage("")
       setStatus(null)
-
+        console.log("Initiating donation for amount:", amount)
       const order = await donationService.createDonationOrder({ amount })
       setOrderId(order.id)
 
