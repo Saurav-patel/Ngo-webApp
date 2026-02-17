@@ -1,5 +1,15 @@
 import mongoose from "mongoose";
 
+const refundSchema = new mongoose.Schema(
+  {
+    refundId: { type: String, required: true },
+    amount: { type: Number, required: true },
+    status: { type: String },
+    refundedAt: { type: Date }
+  },
+  { _id: false }
+);
+
 const donationSchema = new mongoose.Schema(
   {
     userId: {
@@ -18,6 +28,13 @@ const donationSchema = new mongoose.Schema(
       type: String,
       enum: ["DONATION", "MEMBERSHIP"],
       required: true,
+      index: true
+    },
+
+    receipt: {
+      type: String,
+      required: true,
+      unique: true,
       index: true
     },
 
@@ -42,14 +59,20 @@ const donationSchema = new mongoose.Schema(
     razorpayPaymentId: {
       type: String,
       unique: true,
-      sparse: true // allows multiple nulls
+      sparse: true
+    },
+
+    paymentSnapshot: {
+      method: String,
+      bank: String,
+      wallet: String,
+      vpa: String
     },
 
     status: {
       type: String,
       enum: [
         "CREATED",
-        "AUTHORIZED",
         "CAPTURED",
         "FAILED",
         "REFUNDED"
@@ -60,19 +83,12 @@ const donationSchema = new mongoose.Schema(
 
     paidAt: Date,
 
-    failedReason: {
-      type: String
-    },
+    failedReason: String,
 
-    refundId: {
-      type: String
-    }
-
+    refunds: [refundSchema]
   },
   { timestamps: true }
 );
-
-
 
 const Donation = mongoose.model("Donation", donationSchema);
 export default Donation;

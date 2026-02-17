@@ -1,15 +1,35 @@
 import { useState } from "react"
+import { useSelector } from "react-redux"
 import { donationService, loadRazorpay } from "../../service/donationService.js"
 import { useDonationPolling } from "./donationPolling.jsx"
+import { selectIsAuthenticated } from "../../store/slices/authSlice.js"
 
 const DonationCheckout = () => {
+  // 🔐 AUTH STATE
+  const isAuthenticated = useSelector(selectIsAuthenticated)
+  const authChecked = useSelector(state => state.auth.authChecked)
+
+  // 💰 PAYMENT STATE
   const [amount, setAmount] = useState(500)
-  const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState(null)
-  const [message, setMessage] = useState("")
   const [orderId, setOrderId] = useState(null)
+  const [loading, setLoading] = useState(false)
   const [polling, setPolling] = useState(false)
 
+  // 🧾 UI STATUS
+  const [status, setStatus] = useState(null)
+  const [message, setMessage] = useState("")
+
+  // 👤 GUEST DETAILS
+  const [donorName, setDonorName] = useState("")
+  const [donorEmail, setDonorEmail] = useState("")
+  const [donorPhone, setDonorPhone] = useState("")
+
+  // 🚫 HARD BLOCK UNTIL AUTH IS RESOLVED
+  if (!authChecked) {
+    return <p>Loading...</p>
+  }
+
+  // 🔁 POLLING (WEBHOOK = SOURCE OF TRUTH)
   useDonationPolling({
     orderId,
     enabled: polling,
@@ -26,10 +46,7 @@ const DonationCheckout = () => {
         setPolling(false)
       }
 
-      if (
-        currentStatus === "CREATED" ||
-        currentStatus === "AUTHORIZED"
-      ) {
+      if (currentStatus === "CREATED") {
         setStatus("PROCESSING")
         setMessage("Payment is processing. Please wait.")
       }
@@ -46,28 +63,53 @@ const DonationCheckout = () => {
       setLoading(true)
       setMessage("")
       setStatus(null)
-        console.log("Initiating donation for amount:", amount)
-      const order = await donationService.createDonationOrder({ amount })
-      setOrderId(order.id)
+
+      // 🔒 STRICT GUEST VALIDATION
+      if (!isAuthenticated) {
+        if (!donorName.trim() || !donorEmail.trim()) {
+          setMessage("Please enter your name and email to continue")
+          setLoading(false)
+          return
+        }
+      }
+
+      // 🔒 BUILD PAYLOAD (OPTION 2 – SAFE)
+      const payload = {
+        amount,
+        purpose: "DONATION"
+      }
+
+      if (!isAuthenticated) {
+        payload.name = donorName.trim()
+        payload.email = donorEmail.trim().toLowerCase()
+        if (donorPhone.trim()) payload.phone = donorPhone.trim()
+      }
+
+      const order = await donationService.createDonationOrder(payload)
+      setOrderId(order.orderId)
 
       const razorpayLoaded = await loadRazorpay()
       if (!razorpayLoaded) {
         setMessage("Payment gateway failed to load")
-        setLoading(false)
         return
       }
 
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        order_id: order.id,
+        order_id: order.orderId,
         amount: order.amount,
         currency: order.currency,
         name: "NGO Donation",
         description: "Support our cause",
+
+        // ❗ ACKNOWLEDGE ONLY — NOT VERIFY
         handler: async response => {
-          await donationService.verifyDonationPayment(response)
+          await donationService.acknowledgeDonationPayment(response)
+          setStatus("PROCESSING")
+          setMessage("Payment received. Confirming...")
           setPolling(true)
         },
+
         modal: {
           ondismiss: () => {
             setStatus("PROCESSING")
@@ -75,13 +117,13 @@ const DonationCheckout = () => {
             setPolling(true)
           }
         },
+
         theme: {
           color: "#16a34a"
         }
       }
 
-      const razorpay = new window.Razorpay(options)
-      razorpay.open()
+      new window.Razorpay(options).open()
     } catch {
       setMessage("Unable to initiate donation")
     } finally {
@@ -90,8 +132,36 @@ const DonationCheckout = () => {
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: "0 auto" }}>
+    <div style={{ maxWidth: 420, margin: "0 auto" }}>
       <h2>Make a Donation</h2>
+
+      {!isAuthenticated && (
+        <>
+          <input
+            type="text"
+            placeholder="Your name *"
+            value={donorName}
+            onChange={e => setDonorName(e.target.value)}
+            disabled={loading}
+          />
+
+          <input
+            type="email"
+            placeholder="Your email *"
+            value={donorEmail}
+            onChange={e => setDonorEmail(e.target.value)}
+            disabled={loading}
+          />
+
+          <input
+            type="tel"
+            placeholder="Phone (optional)"
+            value={donorPhone}
+            onChange={e => setDonorPhone(e.target.value)}
+            disabled={loading}
+          />
+        </>
+      )}
 
       <select
         value={amount}
@@ -105,7 +175,13 @@ const DonationCheckout = () => {
         <option value={5000}>₹5000</option>
       </select>
 
-      <button onClick={startDonation} disabled={loading}>
+      <button
+        onClick={startDonation}
+        disabled={
+          loading ||
+          (!isAuthenticated && (!donorName.trim() || !donorEmail.trim()))
+        }
+      >
         {loading ? "Please wait..." : "Donate"}
       </button>
 

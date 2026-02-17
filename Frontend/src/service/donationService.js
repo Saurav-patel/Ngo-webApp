@@ -14,13 +14,14 @@ export const loadRazorpay = () => {
 };
 class DonationService extends BaseService {
   async createDonationOrder(payload) {
+    console.log("Creating donation order with payload:", payload)
     const res = await apiClient.post("/donation/create-order", payload, { withCredentials: true });
     return this.parseData(res, "Failed to create donation order");
   }
 
-  async verifyDonationPayment(payload) {
-    const res = await apiClient.post("/donation/verify-donation", payload, { withCredentials: true });
-    return this.parseData(res, "Failed to verify donation payment");
+  async acknowledgeDonationPayment(payload) {
+    const res = await apiClient.post("/donation/acknowledge-donation", payload, { withCredentials: true });
+    return this.parseData(res, "Failed to acknowledge donation payment");
   }
 
   async getDonationHistory() {
