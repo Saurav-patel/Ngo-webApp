@@ -3,7 +3,7 @@ import express from "express";
 import {protectedRoute , verifyAccessToken} from "../middlewares/authMiddlewares.js"
 const donationRouter = express.Router()
 
-donationRouter.post('/create-order', createDonationOrder)
+donationRouter.post('/create-order', verifyAccessToken , createDonationOrder)
 donationRouter.post('/acknowledge-donation', acknowledgeDonationPayment)
 donationRouter.get('/my-donations',verifyAccessToken,getDonationHistory)
 donationRouter.get('/all-donations',verifyAccessToken, protectedRoute, getAllDonations)
