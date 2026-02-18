@@ -28,6 +28,7 @@ import NoticeDetails from "../pages/admin/noticeDetails";
 import MyIdCard from "../pages/dashboard/idCard";
 import AddUser from "../pages/admin/addUser";
 import DonationCheckout from "../pages/donation/donationCheckout";
+import DonationHistory from "../pages/donation/myDonations";
 
 const AppRoutes = () => {
     return (
@@ -45,6 +46,7 @@ const AppRoutes = () => {
                 <Route path="/dashboard" element={<DashboardPage/>} />
                 <Route path="/settings" element={<AccountSettings/>} />
                 <Route path="/id-card" element={<MyIdCard/>} />
+                <Route path="/my-donations" element={<DonationHistory/>} />
 
 
                 <Route element = {<RequireAdmin />} >

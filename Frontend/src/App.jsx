@@ -63,7 +63,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gray-950">
 
         {/* USER NAVBAR ONLY */}
         {!isAdmin && <Navbar />}
@@ -82,7 +82,7 @@ function App() {
           </>
         )}
 
-        <main className="flex-1">
+        <main className="flex-1 bg-gray-950">
           <AppRoutes />
         </main>
 
