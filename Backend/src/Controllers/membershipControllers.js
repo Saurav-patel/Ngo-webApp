@@ -44,3 +44,48 @@ const createMembership = async (req , res , next) => {
     next(error)
    }
 }
+
+const getMembershipPlans = async(req , res , next) => {
+    try {
+        const plans = await MembershipPlan.find({ isActive: true })
+        if(plans.length === 0){
+            throw new ApiError(404 , "No active membership plans found")
+        }
+        return res.status(200).json(new ApiResponse(200 , plans , "Membership plans retrieved successfully"))
+    } catch (error) {
+        next(error)
+    }
+}
+
+const getUserMembership = async(req , res , next) => {
+    try {
+        const user = req.user
+        const membership = await Membership.findOne({ user: user._id, status: { $in: ["PENDING", "ACTIVE"] } }).populate("plan")
+        if(!membership){
+            throw new ApiError(404 , "No active or pending membership found for this user")
+        }
+        return res.status(200).json(new ApiResponse(200 , membership , "User membership retrieved successfully"))
+    } catch (error) {
+        next(error)
+
+    }
+}
+
+const getAllMembers = async (req ,res, next) => {
+    try {
+        const members = await Membership.find({ status: "ACTIVE" }).populate("user").populate("plan")
+        if(members.length === 0){
+            return res.status(200).json(new ApiResponse(200 , [] , "No active members found"))
+        }
+        return res.status(200).json(new ApiResponse(200 , members , "All active members retrieved successfully"))
+    } catch (error) {
+        next(error)
+    }
+}
+
+export {
+    createMembership,
+    getMembershipPlans,
+    getUserMembership,
+    getAllMembers
+}

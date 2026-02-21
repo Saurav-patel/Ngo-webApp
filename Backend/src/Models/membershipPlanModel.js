@@ -10,7 +10,7 @@ const membershipPlanSchema = new mongoose.Schema({
     trim: true
   },
 
-  durationInMonths: {
+  duration: {
     type: Number,
     required: true,
     min: 1

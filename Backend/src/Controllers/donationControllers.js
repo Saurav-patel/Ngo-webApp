@@ -97,66 +97,6 @@ const acknowledgeDonationPayment = async (req, res, next) => {
   }
 };
 
-const donationWebhook = async (req, res) => {
-  try {
-    const signature = req.headers["x-razorpay-signature"];
-    if (!signature) return res.status(400).send("Missing signature");
-
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_WEBHOOK_SECRET)
-      .update(req.body)
-      .digest("hex");
-
-    if (expectedSignature !== signature) {
-      return res.status(400).send("Invalid signature");
-    }
-
-    const event = JSON.parse(req.body.toString());
-    const payment = event.payload?.payment?.entity;
-    if (!payment || !payment.order_id) {
-      return res.status(200).json({ received: true });
-    }
-
-    const donation = await Donation.findOne({
-      razorpayOrderId: payment.order_id
-    });
-
-    if (!donation) {
-      return res.status(200).json({ received: true });
-    }
-
-    if (["CAPTURED", "REFUNDED"].includes(donation.status)) {
-      return res.status(200).json({ received: true });
-    }
-
-    if (payment.amount !== donation.amount * 100) {
-      return res.status(200).json({ received: true });
-    }
-
-    if (event.event === "payment.captured") {
-      donation.status = "CAPTURED";
-      donation.razorpayPaymentId = payment.id;
-      donation.paidAt = new Date();
-      donation.paymentSnapshot = {
-        method: payment.method,
-        bank: payment.bank,
-        wallet: payment.wallet,
-        vpa: payment.vpa
-      };
-    }
-
-    if (event.event === "payment.failed") {
-      donation.status = "FAILED";
-      donation.failedReason =
-        payment.error_description || "Payment failed";
-    }
-
-    await donation.save();
-    return res.status(200).json({ received: true });
-  } catch {
-    return res.status(200).json({ received: true });
-  }
-};
 
 const getDonationStatus = async (req, res, next) => {
   try {
@@ -261,7 +201,7 @@ const getSingleDonation = async (req, res, next) => {
 export {
   createDonationOrder,
   acknowledgeDonationPayment,
-  donationWebhook,
+  
   getDonationStatus,
   getDonationHistory,
   getAllDonations,

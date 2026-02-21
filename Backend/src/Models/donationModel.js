@@ -23,7 +23,12 @@ const donationSchema = new mongoose.Schema(
       email: { type: String, lowercase: true, trim: true },
       phone: { type: String, trim: true }
     },
-
+    membershipId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Membership",
+      default: null,
+      index: true
+    },
     purpose: {
       type: String,
       enum: ["DONATION", "MEMBERSHIP"],

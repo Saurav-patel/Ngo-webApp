@@ -15,23 +15,7 @@ const membershipSchema = new mongoose.Schema({
     required: true
   },
 
-  razorpayOrderId: {
-    type: String,
-    required: true,
-    unique: true,
-    index: true
-  },
-
-  razorpayPaymentId: {
-    type: String,
-    unique: true,
-    sparse: true
-  },
-
-  razorpaySignature: {
-    type: String
-  },
-
+ 
   amountPaid: {
     type: Number,
     required: true
