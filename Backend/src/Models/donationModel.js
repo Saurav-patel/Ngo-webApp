@@ -95,5 +95,5 @@ const donationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Donation = mongoose.model("Donation", donationSchema);
-export default Donation;
+export const Donation = mongoose.model("Donation", donationSchema);
+

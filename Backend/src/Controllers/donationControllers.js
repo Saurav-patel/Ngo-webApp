@@ -1,51 +1,29 @@
 import crypto from "crypto";
 import { razorpayInstance } from "../utils/razorpay.js";
-import Donation from "../Models/donationModel.js";
+import {Donation} from "../Models/donationModel.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
+import { createPaymentOrder } from "../utils/paymentService.js";
 
 const ALLOWED_AMOUNTS = [100, 250, 500, 1000, 5000];
 
 const createDonationOrder = async (req, res, next) => {
   try {
-    const { amount, name, email, phone , purpose } = req.body;
+    const { amount, name, email, phone } = req.body;
 
     if (!ALLOWED_AMOUNTS.includes(amount)) {
       throw new ApiError(400, "Invalid donation amount");
     }
-    if (!["DONATION", "MEMBERSHIP"].includes(purpose)) {
-    throw new ApiError(400, "Invalid purpose");
-    }
 
-    if (purpose === "MEMBERSHIP" && !req.user) {
-    throw new ApiError(403, "Login required for membership");
-  }
     if (!req.user && (!name || !email)) {
-      throw new ApiError(400, "Name and email are required");
+      throw new ApiError(400, "Name and email required");
     }
 
-    const receipt = `don_${Date.now()}_${Math.random()
-      .toString(36)
-      .slice(2, 8)}`;
-
-    const order = await razorpayInstance.orders.create({
-      amount: amount * 100,
-      currency: "INR",
-      receipt,
-      notes: {
-        purpose: purpose
-      }
-    });
-
-    await Donation.create({
+    const { order } = await createPaymentOrder({
       userId: req.user?._id || null,
       donor: req.user ? null : { name, email, phone },
-      purpose: purpose|| "DONATION",
       amount,
-      currency: "INR",
-      receipt,
-      razorpayOrderId: order.id,
-      status: "CREATED"
+      purpose: "DONATION"
     });
 
     return res.status(200).json(
@@ -55,6 +33,7 @@ const createDonationOrder = async (req, res, next) => {
         currency: order.currency
       })
     );
+
   } catch (error) {
     next(error);
   }

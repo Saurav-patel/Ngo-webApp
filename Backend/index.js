@@ -19,7 +19,7 @@ import adminRouter from "./src/Routes/adminRoutes.js";
 import noticeRouter from "./src/Routes/noticeRoutes.js";
 import eventRouter from "./src/Routes/eventRoutes.js";
 import participationRouter from "./src/Routes/participationRoutes.js";
-import appointLetterRouter from "./src/Routes/appointLetterRoutes.js";
+
 import idCardRouter from "./src/Routes/idCardRoutes.js";
 import certificateRouter from "./src/Routes/certificateRoutes.js";
 import ngoRouter from "./src/Routes/ngoRoutes.js";
@@ -27,6 +27,7 @@ import contactRouter from "./src/Routes/contactRoutes.js";
 
 import { errorHandler } from "./src/middlewares/errorHandler.js";
 import donationRouter from "./src/Routes/donationRoutes.js";
+import membershipRouter from "./src/Routes/membershipRoute.js";
 
 const app = express();
 
@@ -73,12 +74,13 @@ app.use("/admin", adminRouter);
 app.use("/notice", noticeRouter);
 app.use("/events", eventRouter);
 app.use("/participation", participationRouter);
-app.use("/appointments", appointLetterRouter);
+
 app.use("/idCards", idCardRouter);
 app.use("/certificates", certificateRouter);
 app.use("/ngo", ngoRouter);
 app.use("/contact", contactRouter);
 app.use("/donation", donationRouter);
+app.use("/membership", membershipRouter);
 
 app.get("/", (req, res) => {
   res.send("NGO backend is running");

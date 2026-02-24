@@ -1,6 +1,6 @@
 import User from "../Models/userModel.js"
 import bcrypt from "bcrypt"
-import Donation from "../Models/donationModel.js"
+import {Donation} from "../Models/donationModel.js"
 import mongoose from "mongoose"
 import { uploadToCloudinary } from "../utils/cloudConfig.js"
 import { ApiResponse } from "../utils/apiResponse.js"

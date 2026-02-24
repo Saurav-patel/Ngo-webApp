@@ -1,5 +1,5 @@
 import User from "../Models/userModel.js"
-import Donation from "../Models/donationModel.js"
+import {Donation} from "../Models/donationModel.js"
 import mongoose from "mongoose"
 import { uploadToCloudinary, cloudinary } from "../utils/cloudConfig.js"
 import Document from "../Models/documentModel.js"
