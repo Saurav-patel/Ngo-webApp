@@ -1,6 +1,7 @@
 import User from "../Models/userModel.js"
 import bcrypt from "bcrypt"
 import {Donation} from "../Models/donationModel.js"
+import { Membership } from "../Models/membershipModel.js"
 import mongoose from "mongoose"
 import { uploadToCloudinary } from "../utils/cloudConfig.js"
 import { ApiResponse } from "../utils/apiResponse.js"
@@ -226,38 +227,22 @@ const getUserDetails = async (req, res , next) => {
 
 const getMembershipStatus = async (req, res, next) => {
   try {
-    const userId = req.user._id
+    const userId = req.user?._id
+    const userMembership = await Membership.findOne({ user: userId })
 
-    const latestDonation = await Donation
-      .findOne({ donor: userId })
-      .sort({ date: -1 })
-
-    let status = "Inactive"
-    let validity = null
-    let verification = false
-
-    if (latestDonation && latestDonation.isVerified) {
-      verification = true
-      const donationDate = new Date(latestDonation.date)
-      validity = new Date(donationDate.setFullYear(donationDate.getFullYear() + 1))
-
-      if (validity > new Date()) {
-        status = "Active"
-      }
+    if (!userMembership || userMembership.status !== "ACTIVE") {
+      return res.status(200).json(new ApiResponse(200, null, "No active membership found"))
     }
 
-    return res.status(200).json(
-      new ApiResponse(
-        200,
-        {
-          status,
-          validity,
-          registerNumber: req.user.registerNumber || null,
-          verification
-        },
-        "Membership status fetched successfully"
-      )
-    )
+    await userMembership.populate("plan")
+    return res.status(200).json(new ApiResponse(200, {
+      planName: userMembership.plan.name,
+      startDate: userMembership.startDate,
+      endDate: userMembership.endDate,
+      benefits: userMembership.plan.benefits,
+      status: userMembership.status,
+    }, "Active membership found"))
+
   } catch (error) {
     next(error)
   }

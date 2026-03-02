@@ -98,7 +98,7 @@ const AdminDashboard = () => {
           title="Active Members"
           value="—"
           subtitle="Approved memberships"
-          route="/admin/members"
+          route="/admin/membership-details"
         />
 
         <StatCard

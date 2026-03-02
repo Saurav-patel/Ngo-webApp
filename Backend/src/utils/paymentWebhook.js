@@ -105,7 +105,7 @@ const donationWebhook = async (req, res) => {
 
             const endDate = new Date(
               startDate.getTime() +
-                membership.plan.durationInDays * 86400000
+                membership.plan.duration * 86400000
             );
 
             membership.status = "ACTIVE";

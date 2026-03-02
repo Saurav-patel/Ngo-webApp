@@ -6,7 +6,7 @@ import { logoutUser } from "../../store/slices/authSlice.js"
 const navItems = [
   { label: "Dashboard", path: "/admin/dashboard" },
   { label: "Users", path: "/admin/users" },
-  { label: "Members", path: "/admin/members" },
+  { label: "Members", path: "/admin/membership-details" },
   { label: "Events", path: "/admin/events" },
   { label: "Certificates", path: "/admin/certificates" },
   { label: "Notices", path: "/admin/notices" },

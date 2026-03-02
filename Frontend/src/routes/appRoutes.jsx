@@ -29,6 +29,8 @@ import MyIdCard from "../pages/dashboard/idCard";
 import AddUser from "../pages/admin/addUser";
 import DonationCheckout from "../pages/donation/donationCheckout";
 import DonationHistory from "../pages/donation/myDonations";
+import MembershipCheckout from "../pages/membership/membershipCheckout";
+import MembershipDetails from "../pages/membership/membershipDetails";
 
 const AppRoutes = () => {
     return (
@@ -47,6 +49,7 @@ const AppRoutes = () => {
                 <Route path="/settings" element={<AccountSettings/>} />
                 <Route path="/id-card" element={<MyIdCard/>} />
                 <Route path="/my-donations" element={<DonationHistory/>} />
+                <Route path="/membership" element={<MembershipCheckout />} />
 
 
                 <Route element = {<RequireAdmin />} >
@@ -65,6 +68,7 @@ const AppRoutes = () => {
                     <Route path="/admin/notices/create" element={<CreateNotice />} />
                     <Route path="/admin/notices/:noticeId" element={<NoticeDetails />} />
                     <Route path="/admin/users/add" element={<AddUser />} />
+                    <Route path="/admin/membership-details" element={<MembershipDetails />} />
 
                     {/* Admin-only routes can be added here */}
                     {/* <Route path="/admin" element={<AdminPage />} /> */}
