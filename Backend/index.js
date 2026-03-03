@@ -13,21 +13,21 @@ import { fileURLToPath } from "url";
 
 import dbConnect from "./src/Database/dbconnect.js";
 
-import authRouter from "./src/Routes/authRoutes.js";
-import userRouter from "./src/Routes/userRoutes.js";
-import adminRouter from "./src/Routes/adminRoutes.js";
-import noticeRouter from "./src/Routes/noticeRoutes.js";
-import eventRouter from "./src/Routes/eventRoutes.js";
-import participationRouter from "./src/Routes/participationRoutes.js";
+import authRouter from "./src/Modules/auth/authRoutes.js";
+import userRouter from "./src/Modules/user/userRoutes.js";
+import adminRouter from "./src/Modules/admin/adminRoutes.js";
+import noticeRouter from "./src/Modules/notice/noticeRoutes.js";
+import eventRouter from   "./src/Modules/events/eventRoutes.js";
+import participationRouter from "./src/Modules/participation/participationRoutes.js";
 
-import idCardRouter from "./src/Routes/idCardRoutes.js";
-import certificateRouter from "./src/Routes/certificateRoutes.js";
-import ngoRouter from "./src/Routes/ngoRoutes.js";
-import contactRouter from "./src/Routes/contactRoutes.js";
+import idCardRouter from "./src/Modules/idCard/idCardRoutes.js";
+import certificateRouter from "./src/Modules/certificate/certificateRoutes.js";
+import ngoRouter from "./src/Modules/ngo/ngoRoutes.js";
+import contactRouter from "./src/Modules/contact/contactRoutes.js";
 
 import { errorHandler } from "./src/middlewares/errorHandler.js";
-import donationRouter from "./src/Routes/donationRoutes.js";
-import membershipRouter from "./src/Routes/membershipRoute.js";
+import donationRouter from "./src/Modules/donation/donationRoutes.js";
+import membershipRouter from "./src/Modules/membership/membershipRoutes.js";
 
 const app = express();
 

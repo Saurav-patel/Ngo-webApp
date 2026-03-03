@@ -1,6 +1,6 @@
 // services/paymentService.js
 
-import {Donation} from "../Models/donationModel.js";
+import {Donation} from "../Modules/donation/donationModel.js";
 import { razorpayInstance } from "./razorpay.js";
 
 export const createPaymentOrder = async ({

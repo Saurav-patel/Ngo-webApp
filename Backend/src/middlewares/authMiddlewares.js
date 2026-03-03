@@ -1,6 +1,6 @@
 
 import jwt from "jsonwebtoken"
-import User from "../Models/userModel.js"
+import User from "../Modules/user/userModel.js"
 const verifyAccessToken = (req, res, next) => {
   try {
     const token = req.cookies?.accessToken

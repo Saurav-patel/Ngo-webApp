@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import { Donation } from "../Models/donationModel.js";
-import { Membership } from "../Models/membershipModel.js";
+import { Donation } from "../Modules/donation/donationModel.js";
+import { Membership } from "../Modules/membership/membershipModel.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
 const donationWebhook = async (req, res) => {
