@@ -2,109 +2,32 @@ import mongoose from "mongoose"
 import IDCARD from "./idCardModel.js"
 import { uploadToCloudinary, cloudinary } from "../../utils/cloudConfig.js"
 import generateIDCard from "../../utils/cardGenerateConfig.js"
-import generateQR from "../../utils/qrGenerateConfig.js"
+import { Membership } from "../membership/membershipModel.js"
 import Ngo from "../ngo/ngoModel.js"
-import path from "path"
+
 import { ApiError } from "../../utils/apiError.js"
 import { ApiResponse } from "../../utils/apiResponse.js"
 import User from "../user/userModel.js"
 
 const applyIdCard = async (req, res, next) => {
-  try {
-    const userId = req.user?._id
-    console.log("Applying ID Card for User ID:", userId)
-
-    if (!userId) {
-      throw new ApiError(401, "Unauthorized access. Please log in again.")
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      throw new ApiError(400, "Invalid user ID format.")
-    }
-
-    const existingCard = await IDCARD.findOne({ issuedTo: userId })
-    if (existingCard) {
-      throw new ApiError(400, "You already have an ID card issued.")
-    }
-
-    const ngo = await Ngo.findOne()
-    if (!ngo) {
-      throw new ApiError(500, "NGO information missing. Cannot issue ID Card.")
-    }
-
-    // ✅ Require address & phone on profile
-    const user = await User.findById(userId)
-    const address = user?.address
-    const phone = user?.phone
-    
-    if (!address || !phone) {
-      throw new ApiError(
-        400,
-        "Please update your profile with address and phone number before applying for an ID Card."
-      )
-    }
-
-    const cardNumber = `ID-${Date.now()}`
-    const expiryDateObj = new Date()
-    expiryDateObj.setFullYear(expiryDateObj.getFullYear() + 1)
-
-    const qrData = `ID:${cardNumber};IssuedTo:${req.user.username};UserID:${userId}`
-    const qrBuffer = await generateQR(qrData)
-
-    const role = req.user.role || "Member"
-    const normalizedRole =
-      role === "Vice President"
-        ? "Vice President"
-        : role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
-
-    const profilePicUrl =
-      req.user.profilePic || path.resolve("public/default-avatar.jpg")
-
-    const idCardBuffer = await generateIDCard({
-      ngo,
-      name: user.username,
-      position: normalizedRole || "Member",
-      profilePicUrl,
-      cardNumber,
-      expiryDate: expiryDateObj.toLocaleDateString("en-IN"),
-      qrBuffer,
-      phone,
-      address
-    })
-
-    const uploadResult = await uploadToCloudinary(
-      idCardBuffer,
-      `idcard-${userId}`,
-      "idcards"
-    )
-
-    const newIdCard = await IDCARD.create({
-      issuedTo: userId,
-      cardNumber,
-      position: normalizedRole || "Member",
-      qrCodeData: qrData,
-      expiryDate: expiryDateObj,
-      status: "active",
-      fileUrl: uploadResult.url,
-      filePublicId: uploadResult.publicId
-    })
-
-    return res.status(201).json(
-      new ApiResponse(
-        201,
-        {
-          cardNumber: newIdCard.cardNumber,
-          expiryDate: newIdCard.expiryDate,
-          fileUrl: newIdCard.fileUrl
-        },
-        "ID Card issued successfully."
-      )
-    )
-  } catch (error) {
-    next(error)
+ try {
+  const userId = req.user?._id
+  const membership = await Membership.findOne({ userId })
+  if (!membership) {
+    throw new ApiError(404, "Membership not found for the user. Please apply for membership first.")
   }
-}
 
+  const existingCard = await IDCARD.findOne({ issuedTo: userId })
+  if (existingCard) {
+    throw new ApiError(400, "ID Card already exists for this user. Please renew if you want to update.")
+  }
+   
+
+ } catch (error) {
+  next(error)
+ }
+
+}
 
 const renewIdCard = async (req, res, next) => {
   try {

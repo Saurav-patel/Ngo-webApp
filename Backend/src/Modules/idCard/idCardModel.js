@@ -5,7 +5,13 @@ const idCardSchema = new Schema({
   issuedTo: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true
+    required: true,
+    index: true,
+  },
+  membershipId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Membership",
+  required: true
   },
   issueDate: {
     type: Date,
@@ -23,11 +29,7 @@ const idCardSchema = new Schema({
     type: String,
     default: null
   },
-  qrCodeData: {
-    type: String,
-    required: true,
-    unique: true
-  },
+  
   cardNumber: {
     type: String,
     unique: true,

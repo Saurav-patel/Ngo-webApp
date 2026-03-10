@@ -1,14 +1,6 @@
 import mongoose from "mongoose";
 
-const refundSchema = new mongoose.Schema(
-  {
-    refundId: { type: String, required: true },
-    amount: { type: Number, required: true },
-    status: { type: String },
-    refundedAt: { type: Date }
-  },
-  { _id: false }
-);
+
 
 const donationSchema = new mongoose.Schema(
   {
@@ -80,7 +72,7 @@ const donationSchema = new mongoose.Schema(
         "CREATED",
         "CAPTURED",
         "FAILED",
-        "REFUNDED"
+        
       ],
       default: "CREATED",
       index: true
@@ -90,7 +82,7 @@ const donationSchema = new mongoose.Schema(
 
     failedReason: String,
 
-    refunds: [refundSchema]
+    
   },
   { timestamps: true }
 );
