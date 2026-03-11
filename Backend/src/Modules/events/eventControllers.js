@@ -48,7 +48,7 @@ const createEvent = async (req, res, next) => {
       endDate,
       location,
       photos: photoUrls,
-      createdBy: user._id
+      createdBy: req.user?._id
     })
 
     io.emit("newEvent", event)
