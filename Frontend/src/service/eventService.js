@@ -27,17 +27,17 @@ class EventService extends BaseService {
 
   
   async createEvent(formData) {
-    const res = await apiClient.post("/event/create-event", formData)
+    const res = await apiClient.post("/events/create-event", formData)
     return this.validate(res, "Failed to create event")
   }
 
   async updateEvent(eventId, formData) {
-    const res = await apiClient.put(`/event/update-event/${eventId}`, formData)
+    const res = await apiClient.put(`/events/update-event/${eventId}`, formData)
     return this.validate(res, "Failed to update event")
   }
 
   async deleteEvent(eventId) {
-    const res = await apiClient.delete(`/event/delete-event/${eventId}`)
+    const res = await apiClient.delete(`/events/delete-event/${eventId}`)
     return this.validate(res, "Failed to delete event")
   }
 
