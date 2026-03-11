@@ -151,7 +151,9 @@ const DashboardPage = () => {
                 </p>
               </div>
 
-              <button className="px-6 py-3 rounded-full bg-yellow-400 text-gray-900 text-sm font-semibold hover:bg-yellow-300 transition">
+              <button 
+              onClick={() => navigate("/donate")}
+              className="px-6 py-3 rounded-full bg-yellow-400 text-gray-900 text-sm font-semibold hover:bg-yellow-300 transition">
                 Donate Now
               </button>
             </div>

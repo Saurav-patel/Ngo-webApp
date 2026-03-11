@@ -92,12 +92,7 @@ const Footer = () => {
             <li>✉️ <a href="mailto:Brightfuturefoundation.ngo@gmail.com" className="hover:text-yellow-300">Brightfuturefoundation.ngo@gmail.com</a></li>
           </ul>
 
-          <div className="mt-4 flex gap-4 text-lg">
-            <a aria-label="Facebook" href="#" className="hover:text-yellow-300">𝔽</a>
-            <a aria-label="Instagram" href="#" className="hover:text-yellow-300">𝕀</a>
-            <a aria-label="Twitter" href="#" className="hover:text-yellow-300">𝕏</a>
-            <a aria-label="LinkedIn" href="#" className="hover:text-yellow-300">𝕃</a>
-          </div>
+        
         </div>
 
         {/* Newsletter */}

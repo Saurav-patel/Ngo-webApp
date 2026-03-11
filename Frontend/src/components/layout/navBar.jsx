@@ -1,11 +1,12 @@
 // src/components/layout/Navbar.jsx
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
   const path = location.pathname;
+  const navigate = useNavigate();
 
   return (
     <header className="w-full shadow-md sticky top-0 z-50">
@@ -64,7 +65,9 @@ const Navbar = () => {
                 />
               </ul>
 
-              <button className="px-6 py-2 rounded-full bg-yellow-400 text-gray-900 font-semibold text-sm hover:bg-yellow-300 transition">
+              <button 
+              onClick={() => navigate("/donate")}
+              className="px-6 py-2 rounded-full bg-yellow-400 text-gray-900 font-semibold text-sm hover:bg-yellow-300 transition">
                 Donate
               </button>
             </div>
