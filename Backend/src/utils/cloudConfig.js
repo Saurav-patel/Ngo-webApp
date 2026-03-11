@@ -30,4 +30,10 @@ const uploadToCloudinary = async (fileBuffer, filename = "file", folder = "gener
   })
 }
 
-export { cloudinary, uploadToCloudinary }
+const deleteFromCloudinary = async (publicId) => {
+  if (!publicId) return null
+  return await cloudinary.uploader.destroy(publicId)
+}
+
+
+export { cloudinary, uploadToCloudinary ,deleteFromCloudinary}
