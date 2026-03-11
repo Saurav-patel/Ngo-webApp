@@ -77,7 +77,7 @@ const EventDetails = () => {
 
         <div className="space-x-3">
           <button
-            onClick={() => navigate(`/admin/events/edit/${eventId}`)}
+            onClick={() => navigate(`/admin/events/update-event/${eventId}`)}
             className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm"
           >
             Edit Event
