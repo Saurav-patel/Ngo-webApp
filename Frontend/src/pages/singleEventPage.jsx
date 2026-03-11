@@ -84,6 +84,7 @@ const EventDetailPage = () => {
       </div>
     )
   }
+  console.log("Event details page render",event)
 
   if (!event) return null
 
