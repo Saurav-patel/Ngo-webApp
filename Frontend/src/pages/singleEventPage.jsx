@@ -24,29 +24,35 @@ const EventDetailPage = () => {
   useEffect(() => {
     let cancelled = false
 
-    const fetchEvent = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
-        setError(null)
 
-        const data = await eventService.getEventDetails(eventId)
-        if (!cancelled) setEvent(data)
+        const [eventData, myEvents] = await Promise.all([
+          eventService.getEventDetails(eventId),
+          eventService.myParticipatedEvents()
+        ])
 
-        const myEvents = await eventService.myParticipatedEvents()
+        if (cancelled) return
+
+        setEvent(eventData)
+
         const alreadyRegistered = myEvents.some(
           (p) => p.eventId?._id === eventId
         )
 
-        if (!cancelled) setRegistered(alreadyRegistered)
+        setRegistered(alreadyRegistered)
 
       } catch (err) {
-        if (!cancelled) setError(err.message || "Failed to load event")
+        if (!cancelled) {
+          setError(err?.message || "Failed to load event")
+        }
       } finally {
         if (!cancelled) setLoading(false)
       }
     }
 
-    if (eventId) fetchEvent()
+    if (eventId) fetchData()
 
     return () => {
       cancelled = true
@@ -65,7 +71,7 @@ const EventDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-gray-300">
+      <div className="min-h-screen flex items-center justify-center bg-gray-950 text-gray-300">
         Loading event...
       </div>
     )
@@ -73,13 +79,16 @@ const EventDetailPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-red-400">
+      <div className="min-h-screen flex items-center justify-center bg-gray-950 text-red-400">
         {error}
       </div>
     )
   }
 
   if (!event) return null
+
+  const isCompleted =
+    event.endDate && new Date(event.endDate) < new Date()
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
@@ -91,18 +100,32 @@ const EventDetailPage = () => {
           {formatDate(event.startDate)} • {event.location}
         </p>
 
+        {/* EVENT PHOTOS */}
+        {event.photos?.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {event.photos.map((photo, i) => (
+              <img
+                key={i}
+                src={photo.url}
+                alt={`event-${i}`}
+                className="rounded-xl object-cover h-60 w-full"
+              />
+            ))}
+          </div>
+        )}
+
         <p className="text-gray-200 leading-relaxed">
           {event.description}
         </p>
 
         <div className="max-w-sm">
 
-          {event.status === "COMPLETED" ? (
+          {isCompleted ? (
             <button
               disabled
               className="w-full bg-gray-700 text-gray-300 py-2.5 rounded-xl cursor-not-allowed"
             >
-              Finished
+              Completed
             </button>
           ) : registered ? (
             <button
@@ -122,7 +145,10 @@ const EventDetailPage = () => {
 
         </div>
 
-        <Link to="/" className="text-sm text-gray-400 hover:text-emerald-400">
+        <Link
+          to="/"
+          className="text-sm text-gray-400 hover:text-emerald-400"
+        >
           ← Back to events
         </Link>
 
