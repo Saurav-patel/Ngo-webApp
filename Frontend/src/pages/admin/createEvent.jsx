@@ -20,11 +20,11 @@ const CreateEvent = () => {
       const formData = new FormData()
       formData.append("title", data.title)
       formData.append("description", data.description)
-      formData.append("startDate", data.date)
+      formData.append("startDate", data.startDate)
+      formData.append("endDate", data.endDate)
       formData.append("location", data.location)
 
-      // 🔒 FIELD NAME MUST MATCH MULTER: "photos"
-      Array.from(data.photos).forEach(file => {
+      Array.from(data.photos).forEach((file) => {
         formData.append("photos", file)
       })
 
@@ -46,7 +46,6 @@ const CreateEvent = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-8 bg-gray-900 border border-gray-800 rounded-2xl p-8"
       >
-        {/* GRID SECTION */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           
           {/* TITLE */}
@@ -58,9 +57,7 @@ const CreateEvent = () => {
               className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm"
             />
             {errors.title && (
-              <p className="text-red-400 text-xs mt-1">
-                {errors.title.message}
-              </p>
+              <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>
             )}
           </div>
 
@@ -69,9 +66,7 @@ const CreateEvent = () => {
             <label className="block text-sm mb-1">Location</label>
             <input
               type="text"
-              {...register("location", {
-                required: "Location is required"
-              })}
+              {...register("location", { required: "Location is required" })}
               className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm"
             />
             {errors.location && (
@@ -81,25 +76,42 @@ const CreateEvent = () => {
             )}
           </div>
 
-          {/* DATE */}
+          {/* START DATE */}
           <div>
-            <label className="block text-sm mb-1">Event Date</label>
+            <label className="block text-sm mb-1">Start Date</label>
             <input
               type="date"
-              {...register("date", {
-                required: "Event date is required"
+              {...register("startDate", {
+                required: "Start date is required"
               })}
               className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm"
             />
-            {errors.date && (
+            {errors.startDate && (
               <p className="text-red-400 text-xs mt-1">
-                {errors.date.message}
+                {errors.startDate.message}
+              </p>
+            )}
+          </div>
+
+          {/* END DATE */}
+          <div>
+            <label className="block text-sm mb-1">End Date</label>
+            <input
+              type="date"
+              {...register("endDate", {
+                required: "End date is required"
+              })}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm"
+            />
+            {errors.endDate && (
+              <p className="text-red-400 text-xs mt-1">
+                {errors.endDate.message}
               </p>
             )}
           </div>
 
           {/* PHOTOS */}
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-sm mb-1">
               Event Photos <span className="text-red-400">*</span>
             </label>
@@ -120,7 +132,7 @@ const CreateEvent = () => {
           </div>
         </div>
 
-        {/* DESCRIPTION (FULL WIDTH) */}
+        {/* DESCRIPTION */}
         <div>
           <label className="block text-sm mb-1">Description</label>
           <textarea
