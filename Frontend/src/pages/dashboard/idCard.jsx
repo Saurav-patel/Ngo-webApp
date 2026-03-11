@@ -18,7 +18,7 @@ const MyIdCard = () => {
         const card = await idCardService.getMyIdCard()
         setIdCard(card)
       } catch {
-        setError("Your ID Card request is under review.")
+        setError("Only Registered Members can have ID Cards. Please contact support if you think this is a mistake.")
       }
     } finally {
       setLoading(false)

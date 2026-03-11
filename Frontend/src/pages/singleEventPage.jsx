@@ -27,6 +27,7 @@ const EventDetailPage = () => {
     const fetchData = async () => {
       try {
         setLoading(true)
+        setError(null)
 
         const [eventData, myEvents] = await Promise.all([
           eventService.getEventDetails(eventId),
@@ -71,7 +72,7 @@ const EventDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950 text-gray-300">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-gray-300">
         Loading event...
       </div>
     )
@@ -79,17 +80,24 @@ const EventDetailPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950 text-red-400">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-red-400">
         {error}
       </div>
     )
   }
-  console.log("Event details page render",event)
 
   if (!event) return null
 
+  const now = new Date()
+
+  const eventEnd = event.endDate
+    ? new Date(event.endDate)
+    : new Date(event.startDate)
+
   const isCompleted =
-    event.endDate && new Date(event.endDate) < new Date()
+    event.status === "COMPLETED" || eventEnd < now
+
+  const photos = Array.isArray(event.photos) ? event.photos : []
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
@@ -102,23 +110,25 @@ const EventDetailPage = () => {
         </p>
 
         {/* EVENT PHOTOS */}
-        {event.photos?.length > 0 && (
+        {photos.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {event.photos.map((photo, i) => (
+            {photos.map((photo, index) => (
               <img
-                key={i}
+                key={index}
                 src={photo.url}
-                alt={`event-${i}`}
+                alt={`event-${index}`}
                 className="rounded-xl object-cover h-60 w-full"
               />
             ))}
           </div>
         )}
 
+        {/* DESCRIPTION */}
         <p className="text-gray-200 leading-relaxed">
           {event.description}
         </p>
 
+        {/* ACTION BUTTON */}
         <div className="max-w-sm">
 
           {isCompleted ? (
@@ -146,6 +156,7 @@ const EventDetailPage = () => {
 
         </div>
 
+        {/* BACK LINK */}
         <Link
           to="/"
           className="text-sm text-gray-400 hover:text-emerald-400"
