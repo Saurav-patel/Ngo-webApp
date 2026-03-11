@@ -16,7 +16,7 @@ class EventService extends BaseService {
 
   
   async registerParticipants(eventId) {
-    const res = await apiClient.post(`/events/register/${eventId}`)
+    const res = await apiClient.post(`/participation/register/${eventId}`)
     return this.validate(res, "Failed to register participants")
   }
 
