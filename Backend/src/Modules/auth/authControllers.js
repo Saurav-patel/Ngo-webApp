@@ -19,7 +19,7 @@ const signUp = async (req, res, next) => {
       username: name,
       email,
       password,
-      role: "visitor",
+      role: "user",
     });
 
     const responseData = {
